@@ -1,12 +1,15 @@
 import os
 import io
-from flask import Flask,flash, request, redirect, url_for,send_from_directory , send_file, make_response
+from flask import Flask,flash, request, redirect, url_for,send_from_directory , send_file, make_response, safe_join
 from flask_restful import Api, Resource
 from werkzeug.utils import secure_filename
 from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
 import json
 import gridfs
+import re
+from SagaApp.Files import Files
+from SagaApp.FrameView import FrameView
 
 app = Flask(__name__)
 api = Api(app)
@@ -35,14 +38,14 @@ class BasicWorld(Resource):
 
 api.add_resource(HelloWorld, "/helloworld/")
 
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+def allowed_file(file_name):
+    return '.' in file_name and \
+           file_name.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 class Upload_file(Resource):
     def get(self):
         fs = gridfs.GridFS(mongo.db)
-        for grid_out in fs.find({"filename":"LongVideo.mp4"}):
+        for grid_out in fs.find({"file_name":"LongVideo.mp4"}):
             videofile=grid_out
         fileb = videofile.read()
 
@@ -50,25 +53,29 @@ class Upload_file(Resource):
 
     def post(self):
         # check if the post request has the file part
+        print(request)
         if 'file' not in request.files:
             flash('No file part')
             return redirect(request.url)
         file = request.files['file']
         # if user does not select file, browser also
-        # submit an empty part without filename
-        if file.filename == '':
+        # submit an empty part without file_name
+        if file.file_name == '':
             flash('No selected file')
             return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
+        if file and allowed_file(file.file_name):
+            file_name = secure_filename(file.file_name)
             try:
                 # mongo.db.posts.insert_one({})
                 fs = gridfs.GridFS(mongo.db)
                 fileb = file.read()
+                with open('plainold.mp4', 'wb') as newfile:
+                    newfile.write(fileb)
+                newfile.close()
                 storageinfo = fs.put(fileb,
-                                     filename=filename
+                                     file_name=file_name
                                      )
-                # file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                # file.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
                 found = mongo.db.posts.find({"slug": "another-post"})[0]
                 stufftoreturn={}
                 for key, value in found.items():
@@ -83,16 +90,54 @@ class Upload_file(Resource):
 
     def delete(self):
         fs = gridfs.GridFS(mongo.db)
-        for grid_out in fs.find({"filename":"LongVideo.mp4"}):
+        for grid_out in fs.find({"file_name":"LongVideo.mp4"}):
             print(grid_out)
             fs.delete(grid_out._id)
         return {"data":"Todelete"}
 
 class Get_file(Resource):
-    def get(self, filename):
+    def get(self, file_name):
         return {"data":"something"}
 
+class Containers(Resource):
+    def get(self):
+        containerID = request.form['containerID']
+
+        if os.path.exists('Container/'+containerID):
+            ##Assume main branch
+            ## give
+            filepath = 'Container/'+containerID + '/containerstate.yaml'
+            result = send_from_directory('Container/'+containerID, 'containerstate.yaml')
+            result.headers['file_name'] = 'containerstate.yaml'
+            return result
+        else:
+            return {"response": "Invalid ID"}
+
+    def post(self):
+        return {"blah":"blah"}
+
+class Containers(Resource):
+    def get(self):
+        containerID = request.form['containerID']
+
+        if os.path.exists('Container/'+containerID):
+            result = send_from_directory('Container/'+containerID, 'containerstate.yaml')
+            result.headers['file_name'] = 'containerstate.yaml'
+            return result
+        else:
+            return {"response": "Invalid Container ID"}
+
+    def post(self):
+        return {"blah":"blah"}
+
+
+
+
+
 api.add_resource(Upload_file, "/UPLOADS")
+api.add_resource(Containers, "/CONTAINERS")
+api.add_resource(FrameView, "/FRAMES")
+api.add_resource(Files, "/FILES")
 
 if __name__ == "__main__":
     app.run(debug=True)
