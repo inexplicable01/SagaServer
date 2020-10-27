@@ -12,6 +12,9 @@ import re
 
 class FrameView(Resource):
 
+    def __init__(self, rootpath):
+        self.rootpath = rootpath
+
     def latestRev(self, path):
         rev = 0;
         for fn in os.listdir(path):
@@ -23,19 +26,20 @@ class FrameView(Resource):
 
 
     def get(self):
+        print(self.rootpath)
         containerID = request.form['containerID']
         branch = request.form['branch']
 
-        if os.path.exists(safe_join('Container',containerID)):
-            if os.path.exists(safe_join('Container',containerID, branch)):
-                latestrevfn = self.latestRev(safe_join('Container', containerID, branch))
-                result = send_from_directory(safe_join('Container', containerID, branch),latestrevfn)
+        if os.path.exists(safe_join(self.rootpath,'Container',containerID)):
+            if os.path.exists(safe_join(self.rootpath,'Container',containerID, branch)):
+                latestrevfn = self.latestRev(safe_join(self.rootpath,'Container', containerID, branch))
+                result = send_from_directory(safe_join(self.rootpath,'Container', containerID, branch),latestrevfn)
                 result.headers['file_name'] = latestrevfn
                 result.headers['branch'] = branch
                 return result
             else:
-                latestrevfn = self.latestRev(safe_join('Container', containerID, 'Main'))
-                result = send_from_directory(safe_join('Container', containerID, 'Main'),latestrevfn)
+                latestrevfn = self.latestRev(safe_join(self.rootpath,'Container', containerID, 'Main'))
+                result = send_from_directory(safe_join(self.rootpath,'Container', containerID, 'Main'),latestrevfn)
                 result.headers['file_name'] = latestrevfn
                 result.headers['branch'] = 'Main'
                 return result

@@ -4,7 +4,6 @@ from flask import Flask,flash, request, redirect, url_for,send_from_directory , 
 from flask_restful import Api, Resource
 from werkzeug.utils import secure_filename
 from flask_pymongo import PyMongo
-from bson.objectid import ObjectId
 import json
 import gridfs
 import re
@@ -14,7 +13,7 @@ from SagaApp.FrameView import FrameView
 app = Flask(__name__)
 api = Api(app)
 
-
+rootpath = os.path.dirname(__file__)
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif','mp4'}
 
 app.config["MONGO_URI"] = "mongodb+srv://fatpanda:5WvwwkfDfUm2nqbd@cluster0.pg93y.mongodb.net/blog?retryWrites=true&w=majority"
@@ -100,14 +99,15 @@ class Get_file(Resource):
         return {"data":"something"}
 
 class Containers(Resource):
+
+    def __init__(self, rootpath):
+        self.rootpath = rootpath
+
     def get(self):
         containerID = request.form['containerID']
 
-        if os.path.exists('Container/'+containerID):
-            ##Assume main branch
-            ## give
-            filepath = 'Container/'+containerID + '/containerstate.yaml'
-            result = send_from_directory('Container/'+containerID, 'containerstate.yaml')
+        if os.path.exists(safe_join(self.rootpath, 'Container', containerID)):
+            result = send_from_directory(safe_join(self.rootpath, 'Container', containerID), 'containerstate.yaml' )
             result.headers['file_name'] = 'containerstate.yaml'
             return result
         else:
@@ -116,28 +116,10 @@ class Containers(Resource):
     def post(self):
         return {"blah":"blah"}
 
-class Containers(Resource):
-    def get(self):
-        containerID = request.form['containerID']
-
-        if os.path.exists('Container/'+containerID):
-            result = send_from_directory('Container/'+containerID, 'containerstate.yaml')
-            result.headers['file_name'] = 'containerstate.yaml'
-            return result
-        else:
-            return {"response": "Invalid Container ID"}
-
-    def post(self):
-        return {"blah":"blah"}
-
-
-
-
-
 api.add_resource(Upload_file, "/UPLOADS")
-api.add_resource(Containers, "/CONTAINERS")
-api.add_resource(FrameView, "/FRAMES")
-api.add_resource(Files, "/FILES")
+api.add_resource(Containers, "/CONTAINERS",  resource_class_kwargs={'rootpath': rootpath})
+api.add_resource(FrameView, "/FRAMES",  resource_class_kwargs={'rootpath': rootpath})
+api.add_resource(Files, "/FILES",  resource_class_kwargs={'rootpath': rootpath})
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -11,11 +11,15 @@ import re
 
 
 class Files(Resource):
+
+    def __init__(self, rootpath):
+        self.rootpath = rootpath
+
     def get(self):
         file_id = request.form['file_id']
         file_name=request.form['file_name']
-        if os.path.exists(safe_join('Files',file_id)):
-            result = send_from_directory(safe_join('Files'),file_id)
+        if os.path.exists(safe_join(self.rootpath,'Files',file_id)):
+            result = send_from_directory(safe_join(self.rootpath,'Files'),file_id)
             result.headers['file_name'] = file_name
             return result
         else:
