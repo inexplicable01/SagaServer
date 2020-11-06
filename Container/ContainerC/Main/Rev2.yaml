@@ -7,31 +7,31 @@ AttachedFiles:
   dateformat: US
   db_id: ''
   file_name: Misc2.txt
-FrameInstanceId: 5f5051835f77438e1133da2c
-FrameName: Rev1
-commitMessage: Ready to submit as a results of such and such change.
-commitUTCdatetime: 1599113667.076219
+FrameInstanceId: c69debb7-d189-49cd-8f5c-e6302bf481c6
+FrameName: Rev2
+commitMessage: lkjhgfxcvbnkmlkjhgc
+commitUTCdatetime: 1604397879.875719
 filestrack:
 - ContainerObjName: M1
-  commitUTCdatetime: 1599113666.792976
-  file_id: M1.txt
+  commitUTCdatetime: 1604397879.875719
+  file_id: b1d89724-ada5-41d8-b021-8a421276de61
   file_name: M1.txt
   lastEdited: 1599099211.8464594
-  md5: b8d9516e4c290600273e093548961cd1
+  md5: 836bda472ef28cde8ae50b1d5b310bd7
   style: InputFile
 - ContainerObjName: M2
-  commitUTCdatetime: 1598949513.196194
-  file_id: M2.txt
+  commitUTCdatetime: 1604397879.875719
+  file_id: 74f26ffb-316c-4576-8fb8-f0ff610079e3
   file_name: M2.txt
   lastEdited: 1598935100.3782673
-  md5: 1676ef44c393304e8233ba74e8c4ec06
+  md5: 0def67e942f7454971a1553d92642867
   style: InputFile
 - ContainerObjName: R1
-  commitUTCdatetime: 1599113666.812924
-  file_id: R1.txt
+  commitUTCdatetime: 1604397879.875719
+  file_id: a938b39b-96b3-45ee-9cb3-430e9c5206ff
   file_name: R1.txt
   lastEdited: 1599099200.360922
-  md5: ad6d696a45b1c353c41e8d0eadabedb2
+  md5: 959189c9b1b1e41c851e6362d60af8e0
   style: OutputFile
 - ContainerObjName: MUD
   commitUTCdatetime: 1587625655.94801
@@ -41,11 +41,11 @@ filestrack:
   md5: a6bb4faacdff9dcdcb6f6e22bc51eac9
   style: OutputFile
 - ContainerObjName: MAN
-  commitUTCdatetime: 1599108647.023557
-  file_id: MAN.txt
+  commitUTCdatetime: 1604397879.875719
+  file_id: 466e6895-6656-42d6-b8ef-9dc4c218aae6
   file_name: MAN.txt
   lastEdited: 1599020562.1418214
-  md5: 416ca527374fdd5a4414c32c6cc1b367
+  md5: 7fd2802a69ec3fafb2ba058e4c1766d8
   style: OutputFile
 - ContainerObjName: Res_2_A
   commitUTCdatetime: 1587625658.441229
@@ -66,7 +66,7 @@ inlinks:
   infile: MUD.txt
 - fromFrame: EDL
   infile: MAN.txt
-localfilepath: C:/Users/waich/Projects/ExampleDIR/GroupC
+localfilepath: null
 outlinks:
 - outfile: R1.txt
   toFrame: Struct

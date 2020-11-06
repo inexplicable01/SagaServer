@@ -3,11 +3,7 @@ AttachedFiles:
   dateformat: US
   db_id: ''
   file_name: Misc1.txt
-- commitUTCdatetime: '20200320'
-  dateformat: US
-  db_id: ''
-  file_name: Misc2.txt
-FrameInstanceId: 5f5051835f77438e1133da2c
+FrameInstanceId: 5f5051835f77438e1133derc
 FrameName: Rev1
 commitMessage: Ready to submit as a results of such and such change.
 commitUTCdatetime: 1599113667.076219
@@ -70,4 +66,4 @@ localfilepath: C:/Users/waich/Projects/ExampleDIR/GroupC
 outlinks:
 - outfile: R1.txt
   toFrame: Struct
-parentContainerId: ContainerCID
+parentContainerId: ContainerBID

@@ -9,6 +9,8 @@ import gridfs
 import re
 from SagaApp.Files import Files
 from SagaApp.FrameView import FrameView
+from SagaApp.ContainerView import ContainerView
+
 
 app = Flask(__name__)
 api = Api(app)
@@ -98,26 +100,10 @@ class Get_file(Resource):
     def get(self, file_name):
         return {"data":"something"}
 
-class Containers(Resource):
 
-    def __init__(self, rootpath):
-        self.rootpath = rootpath
-
-    def get(self):
-        containerID = request.form['containerID']
-
-        if os.path.exists(safe_join(self.rootpath, 'Container', containerID)):
-            result = send_from_directory(safe_join(self.rootpath, 'Container', containerID), 'containerstate.yaml' )
-            result.headers['file_name'] = 'containerstate.yaml'
-            return result
-        else:
-            return {"response": "Invalid ID"}
-
-    def post(self):
-        return {"blah":"blah"}
 
 api.add_resource(Upload_file, "/UPLOADS")
-api.add_resource(Containers, "/CONTAINERS",  resource_class_kwargs={'rootpath': rootpath})
+api.add_resource(ContainerView, "/CONTAINERS",  resource_class_kwargs={'rootpath': rootpath})
 api.add_resource(FrameView, "/FRAMES",  resource_class_kwargs={'rootpath': rootpath})
 api.add_resource(Files, "/FILES",  resource_class_kwargs={'rootpath': rootpath})
 

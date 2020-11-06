@@ -1,0 +1,16 @@
+containerId: ContainerB
+containerName: GroupB
+inputObjs:
+- Container: GroupA
+  ContainerObjName: MUD
+outputObjs:
+- Container: ContainerCID
+  ContainerObjName: MAN
+references:
+- Container: RefContainer
+  ContainerObjName: ToolCode
+requiredObjs:
+- ContainerObjName: B1
+yamlTracking:
+  currentbranch: Main
+  rev: 1

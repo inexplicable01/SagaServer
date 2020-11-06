@@ -38,7 +38,7 @@ class Frame:
                                                        localfilepath=self.localfilepath,
                                                        md5=ftrack['md5'],
                                                        style=ftrack['style'],
-                                                       db_id=ftrack['db_id'],
+                                                       file_id=ftrack['file_id'],
                                                        commitUTCdatetime=ftrack['commitUTCdatetime'],
                                                        lastEdited=ftrack['lastEdited']
                                                        )
@@ -94,19 +94,19 @@ class Frame:
 
 
     def writeoutFrameYaml(self, yamlfn):
-        outyaml = open(yamlfn, 'w')
         dictout = {}
-        for key, value in vars(self).items():
-            if 'filestrack' == key:
-                filestrack = []
-                for ContainerObjName, filetrackobj in value.items():
-                    filestrack.append(filetrackobj.yamlify())
-                dictout[key] = filestrack
-            else:
-                dictout[key] = value
+        with open(yamlfn, 'w') as outyaml:
+            for key, value in vars(self).items():
+                if 'filestrack' == key:
+                    filestrack = []
+                    for ContainerObjName, filetrackobj in value.items():
+                        filestrack.append(filetrackobj.yamlify())
+                    dictout[key] = filestrack
+                else:
+                    dictout[key] = value
 
-        yaml.dump(dictout, outyaml)
-        outyaml.close()
+            yaml.dump(dictout, outyaml)
+
 
     def compareToAnotherFrame(self, frame2,filestomonitor):
         changes = []

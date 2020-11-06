@@ -1,7 +1,7 @@
-containerId: groupCContainerID
+containerId: ContainerC
 containerName: GroupC
 inputObjs:
-- Container: GroupB
+- Container: ContainerBID
   ContainerObjName: MAN
 - Container: GroupA
   ContainerObjName: Dogs
@@ -18,6 +18,4 @@ references:
 requiredObjs:
 - ContainerObjName: M1
 - ContainerObjName: M2
-yamlTracking:
-  currentbranch: Main
-  rev: 1
+
