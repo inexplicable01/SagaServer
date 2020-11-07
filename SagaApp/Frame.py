@@ -2,11 +2,7 @@ import hashlib
 import os
 import yaml
 from SagaApp.FileObjects import FileTrackObj
-import time
-from PyQt5.QtWidgets import *
-from PyQt5 import uic
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+
 
 
 

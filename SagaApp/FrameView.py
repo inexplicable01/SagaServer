@@ -20,10 +20,10 @@ class FrameView(Resource):
         self.rootpath = rootpath
 
     def latestRev(self, path):
-        rev = 0;
+        revnum = 0;
         for fn in os.listdir(path):
             m = re.search('Rev(\d+).yaml',fn)
-            if  int(m.group(1))>rev:
+            if  int(m.group(1))>revnum:
                 revnum = int(m.group(1))
                 latestrev = fn
         return latestrev, revnum

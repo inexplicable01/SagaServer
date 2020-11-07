@@ -1,22 +1,18 @@
 import os
-import io
-from flask import Flask,flash, request, redirect, url_for,send_from_directory , send_file, make_response, safe_join
-from flask_restful import Api, Resource
-from werkzeug.utils import secure_filename
-from flask_pymongo import PyMongo
-from bson.objectid import ObjectId
-import json
-import gridfs
+from flask import request, send_from_directory, safe_join
+from flask_restful import Resource
+
 import re
 
 
 class ContainerView(Resource):
 
     def latestRev(self, path):
-        rev = 0;
+        #add comment
+        revnum = 0;
         for fn in os.listdir(path):
             m = re.search('Rev(\d+).yaml',fn)
-            if  int(m.group(1))>rev:
+            if  int(m.group(1))>revnum:
                 revnum = int(m.group(1))
                 latestrev = fn
         return latestrev, revnum
