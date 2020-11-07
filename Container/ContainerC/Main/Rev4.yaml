@@ -1,0 +1,73 @@
+AttachedFiles:
+- commitUTCdatetime: '20200320'
+  dateformat: US
+  db_id: ''
+  file_name: Misc1.txt
+- commitUTCdatetime: '20200320'
+  dateformat: US
+  db_id: ''
+  file_name: Misc2.txt
+FrameInstanceId: 8103c49e-1656-4299-9c3e-2bde76a3b598
+FrameName: Rev4
+commitMessage: Combination of format change and added a lot of stuff to Man
+commitUTCdatetime: 1604735011.513736
+filestrack:
+- ContainerObjName: M1
+  commitUTCdatetime: 1604735011.513736
+  file_id: 802ae10a-0059-4528-be09-913a4bc15f19
+  file_name: M1.txt
+  lastEdited: 1604733426.59999
+  md5: 5cdc9c20f6449a0496222cd882fc3421
+  style: InputFile
+- ContainerObjName: M2
+  commitUTCdatetime: 1604735011.513736
+  file_id: 15f35498-8d2f-4328-9e12-aee1939747df
+  file_name: M2.txt
+  lastEdited: 1598935100.3782673
+  md5: 0def67e942f7454971a1553d92642867
+  style: InputFile
+- ContainerObjName: R1
+  commitUTCdatetime: 1604735011.513736
+  file_id: 3ecb649a-2e78-4a52-bdf3-6de7380dd32b
+  file_name: R1.txt
+  lastEdited: 1604733452.9234488
+  md5: cb0dedf024f4006da0ebc2f1f52b1903
+  style: OutputFile
+- ContainerObjName: MUD
+  commitUTCdatetime: 1587625655.94801
+  file_id: MUD.txt
+  file_name: MUD.txt
+  lastEdited: 1587260650.963201
+  md5: a6bb4faacdff9dcdcb6f6e22bc51eac9
+  style: OutputFile
+- ContainerObjName: MAN
+  commitUTCdatetime: 1604735011.513736
+  file_id: eb516469-4401-4d54-8fa6-b7026eda97c1
+  file_name: MAN.txt
+  lastEdited: 1604734943.186605
+  md5: 2fc0792ea3c744351622f9a6a00cf50f
+  style: OutputFile
+- ContainerObjName: Res_2_A
+  commitUTCdatetime: 1587625658.441229
+  file_id: LongVideo.mp4
+  file_name: LongVideo.mp4
+  lastEdited: 1585452668.323447
+  md5: 64f79e458510f31085f645d4e3972289
+  style: OutputFile
+- ContainerObjName: Dogs
+  commitUTCdatetime: 1598945795.04636
+  file_id: Doggy.txt
+  file_name: Doggy.txt
+  lastEdited: 1598848859.300705
+  md5: 924cc5b8e87b790e07b9de20b7a4e088
+  style: null
+inlinks:
+- fromFrame: CORE
+  infile: MUD.txt
+- fromFrame: EDL
+  infile: MAN.txt
+localfilepath: null
+outlinks:
+- outfile: R1.txt
+  toFrame: Struct
+parentContainerId: ContainerCID
