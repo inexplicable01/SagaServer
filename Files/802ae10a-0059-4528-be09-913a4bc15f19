@@ -1,7 +1,0 @@
-  md5hash = hashlib.md5(fileb.read())
-            md5 = md5hash.hexdigest()
-
-
-
-Rev 2 commit.
-

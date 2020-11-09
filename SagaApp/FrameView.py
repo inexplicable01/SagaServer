@@ -73,7 +73,10 @@ class FrameView(Resource):
                 filetrackobj.style = updateinfo[ContainerObjName]['style']
                 filetrackobj.file_id = uuid.uuid4().__str__()
                 filetrackobj.commitUTCdatetime = committime
-                request.files[ContainerObjName].save(os.path.join(self.rootpath, 'Files', filetrackobj.file_id))
+                # request.files[ContainerObjName].save(os.path.join(self.rootpath, 'Files', filetrackobj.file_id))
+                content = request.files[ContainerObjName].read()
+                with open(os.path.join(self.rootpath, 'Files', filetrackobj.file_id), 'wb') as file:
+                    file.write(content)
 
                 # print(filetrackobj.file_name)
                 # print(request.files[filetrackobj.file_name])

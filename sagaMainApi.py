@@ -103,9 +103,11 @@ class Get_file(Resource):
 
 
 api.add_resource(Upload_file, "/UPLOADS")
-api.add_resource(ContainerView, "/CONTAINERS",  resource_class_kwargs={'rootpath': rootpath})
+# api.add_resource(ContainerView, "/CONTAINERS",  methods=['GET', 'POST'], resource_class_kwargs={'rootpath': rootpath})
+api.add_resource(ContainerView, "/CONTAINERS/<command>",  methods=['GET', 'POST'], resource_class_kwargs={'rootpath': rootpath})
 api.add_resource(FrameView, "/FRAMES",  resource_class_kwargs={'rootpath': rootpath})
 api.add_resource(Files, "/FILES",  resource_class_kwargs={'rootpath': rootpath})
 
 
-
+# if __name__ == "__main__":
+#     app.run(debug=True)
