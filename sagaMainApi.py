@@ -10,7 +10,7 @@ import re
 from SagaApp.Files import Files
 from SagaApp.FrameView import FrameView
 from SagaApp.ContainerView import ContainerView
-
+from SagaApp.ResetView import Reset
 
 app = Flask(__name__)
 api = Api(app)
@@ -108,6 +108,9 @@ api.add_resource(ContainerView, "/CONTAINERS/<command>",  methods=['GET', 'POST'
 api.add_resource(FrameView, "/FRAMES",  resource_class_kwargs={'rootpath': rootpath})
 api.add_resource(Files, "/FILES",  resource_class_kwargs={'rootpath': rootpath})
 
+api.add_resource(Reset, "/RESET",  resource_class_kwargs={'rootpath': rootpath})
 
-# if __name__ == "__main__":
-#     app.run(debug=True)
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
