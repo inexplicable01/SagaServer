@@ -10,21 +10,24 @@ class Reset(Resource):
     def __init__(self, rootpath):
         self.rootpath = rootpath
 
-    def zipdir(self,path, ziph):
+    def zipdir(self, folder, ziph):
         # ziph is zipfile handle
-        for root, dirs, files in os.walk(path):
+        rootdepth = self.rootpath.count(os.path.sep)
+        for root, dirs, files in os.walk(os.path.join(self.rootpath,folder)):
+            folders = root.split(os.path.sep)
             for file in files:
-                ziph.write(os.path.join(root, file))
+                ziph.write(os.path.join(root, file),os.path.join(*folders[rootdepth+1:], file))
 
     def get(self):
         shutil.rmtree(os.path.join(self.rootpath, 'Container'))
         shutil.rmtree(os.path.join(self.rootpath, 'Files'))
-        with zipfile.ZipFile('SagaServer.zip', 'r') as zip_ref:
+        with zipfile.ZipFile(os.path.join(self.rootpath, 'SagaServer.zip'), 'r') as zip_ref:
             zip_ref.extractall(self.rootpath)
+        return {"Message": "Succesfully Rebased"}
 
     def post(self):
-        zipf = zipfile.ZipFile('SagaServer.zip', 'w', zipfile.ZIP_DEFLATED)
-        self.zipdir(os.path.join(self.rootpath, 'Container'), zipf)
-        self.zipdir(os.path.join(self.rootpath, 'Files'), zipf)
+        zipf = zipfile.ZipFile(os.path.join(self.rootpath, 'SagaServer.zip'), 'w', zipfile.ZIP_DEFLATED)
+        self.zipdir( 'Container', zipf)
+        self.zipdir('Files', zipf)
         zipf.close()
-        return {"Message":"Succesfully Rebased"}
+        return {"Message":"Succesfully Saved Zip"}
