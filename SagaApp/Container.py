@@ -36,8 +36,9 @@ class Container:
         self.filestomonitor = []
         for typeindex, fileobjtype in enumerate(fileobjtypes):
             # print(typeindex, fileobjtype)
-            for fileindex, fileObj in enumerate(getattr(self, fileobjtype)):
-                self.filestomonitor.append(fileObj['ContainerObjName'])
+            if getattr(self, fileobjtype):
+                for fileindex, fileObj in enumerate(getattr(self, fileobjtype)):
+                    self.filestomonitor.append(fileObj['ContainerObjName'])
         # print(self.yamlTracking['currentbranch'] + Rev  + str(self.yamlTracking['rev']) +".yaml")
         self.refframe = os.path.join(self.containerworkingfolder,
                                      currentbranch +'/'+ Rev + revnum + ".yaml")

@@ -1,16 +1,16 @@
 containerId: ContainerC
-containerName: GroupC
+containerName: ContainerC
 inputObjs:
-- Container: ContainerBID
+- Container: ContainerB
   ContainerObjName: MAN
-- Container: GroupA
+- Container: ContainerA
   ContainerObjName: Dogs
-- Container: GroupA
+- Container: ContainerA
   ContainerObjName: MUD
 outputObjs:
-- Container: GroupA
+- Container: specialsauce
   ContainerObjName: Res_2_A
-- Container: GroupD
+- Container: ContainerD
   ContainerObjName: R1
 references:
 - Container: RefContainer

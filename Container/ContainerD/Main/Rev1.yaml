@@ -1,33 +1,22 @@
 AttachedFiles:
-- commitUTCdatetime: '20200320'
-  dateformat: US
-  db_id: ''
-  file_name: Misc1.txt
 FrameInstanceId: 5f5051835f77438e1133derc
 FrameName: Rev1
 commitMessage: Ready to submit as a results of such and such change.
 commitUTCdatetime: 1599113667.076219
 filestrack:
-- ContainerObjName: B1
+- ContainerObjName: R1
   commitUTCdatetime: 1599113666.812924
-  file_id: B1.txt
-  file_name: B1.txt
+  file_id: R1.txt
+  file_name: R1.txt
   lastEdited: 1599099200.360922
   md5: null
-  style: OutputFile
-- ContainerObjName: MUD
+  style: InputFile
+- ContainerObjName: DSomething
   commitUTCdatetime: 1587625655.94801
-  file_id: MUD.txt
-  file_name: MUD.txt
+  file_id: DSomething.txt
+  file_name: DSomething.txt
   lastEdited: 1587260650.963201
   md5: a6bb4faacdff9dcdcb6f6e22bc51eac9
-  style: OutputFile
-- ContainerObjName: MAN
-  commitUTCdatetime: 1599108647.023557
-  file_id: MAN.txt
-  file_name: MAN.txt
-  lastEdited: 1599020562.1418214
-  md5: 416ca527374fdd5a4414c32c6cc1b367
   style: OutputFile
 inlinks:
 localfilepath: C:/Users/waich/Projects/ExampleDIR/GroupC
