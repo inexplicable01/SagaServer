@@ -2,9 +2,10 @@
 from SagaApp import app, db, bcrypt
 import jwt
 import datetime
+from flask_user import UserMixin
 
 
-class User(db.Model):
+class User(db.Model,UserMixin):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -24,7 +25,7 @@ class User(db.Model):
     last_name = db.Column(db.String(100, collation='NOCASE'), nullable=False, server_default='')
 
     # Define the relationship to Role via UserRoles
-    # roles = db.relationship('Role', secondary='user_roles')
+    roles = db.relationship('Role', secondary='user_roles')
 
     def __init__(self, email, password, first_name='default', last_name='Lee',admin=False):
         self.email = email
@@ -71,17 +72,17 @@ class User(db.Model):
             return 'Invalid token. Please log in again.'
 
     # Define the Role data-model
-# class Role(db.Model):
-#     __tablename__ = 'roles'
-#     id = db.Column(db.Integer(), primary_key=True)
-#     name = db.Column(db.String(50), unique=True)
-#
-# # Define the UserRoles association table
-# class UserRoles(db.Model):
-#     __tablename__ = 'user_roles'
-#     id = db.Column(db.Integer(), primary_key=True)
-#     user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'))
-#     role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'))
+class Role(db.Model):
+    __tablename__ = 'roles'
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(50), unique=True)
+
+# Define the UserRoles association table
+class UserRoles(db.Model):
+    __tablename__ = 'user_roles'
+    id = db.Column(db.Integer(), primary_key=True)
+    user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'))
+    role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'))
 
 class BlacklistToken(db.Model):
     """

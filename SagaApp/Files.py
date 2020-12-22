@@ -2,12 +2,7 @@ import os
 import io
 from flask import Flask,flash, request, redirect, url_for,send_from_directory , send_file, make_response, safe_join
 from flask_restful import Api, Resource
-from werkzeug.utils import secure_filename
-from flask_pymongo import PyMongo
-from bson.objectid import ObjectId
-import json
-import gridfs
-import re
+
 
 
 class Files(Resource):

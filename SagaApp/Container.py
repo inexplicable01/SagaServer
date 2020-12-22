@@ -30,6 +30,7 @@ class Container:
         self.outputObjs = containeryaml['outputObjs']
         self.requiredObjs = containeryaml['requiredObjs']
         self.references = containeryaml['references']
+        self.allowUsers = containeryaml['allowedUser']
         # self.yamlTracking = containeryaml['yamlTracking']
         self.currentbranch = currentbranch
         self.revnum = revnum

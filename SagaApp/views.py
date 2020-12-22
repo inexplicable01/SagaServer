@@ -176,6 +176,7 @@ class LogoutAPI(MethodView):
 
 
 
+
 registration_view = RegisterAPI.as_view('register_api')
 login_view = LoginAPI.as_view('login_api')
 user_view = UserAPI.as_view('user_api')

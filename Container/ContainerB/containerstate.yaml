@@ -1,13 +1,16 @@
 containerId: ContainerB
-containerName: ContainerB
+containerName: GroupB
 inputObjs:
-- Container: ContainerA
+- Container: GroupA
   ContainerObjName: MUD
 outputObjs:
-- Container: ContainerC
+- Container: ContainerCID
   ContainerObjName: MAN
 references:
 - Container: RefContainer
   ContainerObjName: ToolCode
 requiredObjs:
 - ContainerObjName: B1
+allowedUser:
+- userbemail@gmail.com
+- admin@example.com

@@ -1,6 +1,6 @@
 import os
 import io
-from flask import Flask,flash, request, redirect, url_for,send_from_directory , send_file, make_response, safe_join
+from flask import Flask,flash, request, jsonify,redirect, url_for,send_from_directory , send_file, make_response, safe_join
 from flask_restful import Api, Resource
 from werkzeug.utils import secure_filename
 from flask_pymongo import PyMongo
@@ -12,6 +12,8 @@ import uuid
 import yaml
 from datetime import datetime
 from SagaApp.Frame import Frame
+from UserModel import User
+from SagaApp.Container import Container
 Rev = 'Rev'
 
 class FrameView(Resource):
@@ -51,7 +53,14 @@ class FrameView(Resource):
             return {"response": "Invalid Container ID"}
 
     def post(self):
-        containerID=request.form['containerID']
+
+        containerID = request.form.get('containerID')
+        authcheckresult = self.authcheck(containerID)
+
+        if not isinstance(authcheckresult, User):
+            return authcheckresult # user would be a type of response if its not the actual class user
+        user = authcheckresult
+
         branch = request.form['branch']
         updateinfo = json.loads(request.form['updateinfo'])
         commitmsg = request.form['commitmsg']
@@ -70,6 +79,7 @@ class FrameView(Resource):
                 filetrackobj.md5= updateinfo[ContainerObjName]['md5']
                 filetrackobj.file_name = updateinfo[ContainerObjName]['file_name']
                 filetrackobj.lastEdited = updateinfo[ContainerObjName]['lastEdited']
+                filetrackobj.committedby = user.email
                 filetrackobj.style = updateinfo[ContainerObjName]['style']
                 filetrackobj.file_id = uuid.uuid4().__str__()
                 filetrackobj.commitUTCdatetime = committime
@@ -94,3 +104,41 @@ class FrameView(Resource):
         result.headers['branch'] = 'Main'
         result.headers['commitsuccess'] = True
         return result
+
+    def authcheck(self,containerID):
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            try:
+                auth_token = auth_header.split(" ")[1]
+            except IndexError:
+                responseObject = {
+                    'status': 'fail',
+                    'message': 'Bearer token malformed.'
+                }
+                return make_response(jsonify(responseObject)), 401
+        else:
+            auth_token = ''
+        if auth_token:
+            resp = User.decode_auth_token(auth_token)
+            if not isinstance(resp, str):
+                user = User.query.filter_by(id=resp).first()
+                curcont = Container(safe_join(self.rootpath, 'Container', containerID, 'containerstate.yaml'))
+                if user.email in curcont.allowUsers:
+                    return user
+                responseObject = {
+                    'status': 'fail',
+                    'message': 'User  is not allowed to commit to this Container'
+                }
+                return make_response(jsonify(responseObject)), 401
+
+            responseObject = {
+                'status': 'fail',
+                'message': resp
+            }
+            return make_response(jsonify(responseObject)), 401
+        else:
+            responseObject = {
+                'status': 'fail',
+                'message': 'Provide a valid auth token.'
+            }
+            return make_response(jsonify(responseObject)), 401

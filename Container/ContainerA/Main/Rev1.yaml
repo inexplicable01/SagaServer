@@ -1,4 +1,8 @@
 AttachedFiles:
+- commitUTCdatetime: 1584676800.0
+  dateformat: US
+  db_id: ''
+  file_name: Misc1.txt
 FrameInstanceId: 5f5051835f77438e1133da2c
 FrameName: Rev1
 commitMessage: Ready to submit as a results of such and such change.
@@ -10,7 +14,7 @@ filestrack:
   file_name: Doggy.txt
   lastEdited: 1604900773.659827
   md5: 836bda472ef28cde8ae50b1d5b310bd7
-  style: null
+  style: InputFile
 - ContainerObjName: MUD
   commitUTCdatetime: 1604901789.912327
   file_id: MUD.txt

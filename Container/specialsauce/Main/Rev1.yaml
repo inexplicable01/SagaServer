@@ -1,12 +1,8 @@
 AttachedFiles:
-- commitUTCdatetime: '20200320'
+- commitUTCdatetime: 1584676800.0
   dateformat: US
   db_id: ''
   file_name: Misc1.txt
-- commitUTCdatetime: '20200320'
-  dateformat: US
-  db_id: ''
-  file_name: Misc2.txt
 FrameInstanceId: 5f5051835f77438e1133da2c
 FrameName: Rev1
 commitMessage: Ready to submit as a results of such and such change.
