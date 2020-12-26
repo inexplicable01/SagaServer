@@ -70,7 +70,7 @@ class FrameView(Resource):
         with open(refframe) as file:
             frameRefYaml = yaml.load(file, Loader=yaml.FullLoader)
         frameRef = Frame(frameRefYaml,None)
-        print(frameRef)
+        # print(frameRef)
         committime = datetime.timestamp(datetime.utcnow())
         for ContainerObjName, filetrackobj in frameRef.filestrack.items():
             if ContainerObjName in request.files.keys():

@@ -19,10 +19,16 @@ Rev = 'Rev'
 
 
 class Container:
-    def __init__(self, containerfn,currentbranch='Main',revnum='1'):
-        self.containerworkingfolder = os.path.dirname(containerfn)
-        with open(containerfn) as file:
-            containeryaml = yaml.load(file, Loader=yaml.FullLoader)
+    def __init__(self, containerfn,currentbranch='Main',revnum='1', containerdict=None):
+
+
+        if containerdict is None:
+            with open(containerfn) as file:
+                containeryaml = yaml.load(file, Loader=yaml.FullLoader)
+            self.containerworkingfolder = os.path.dirname(containerfn)
+        else:
+            containeryaml = containerdict
+            self.containerworkingfolder = os.path.join(os.getcwd(),'Container',containeryaml['containerId'])
         self.containerfn = containerfn
         self.containerName = containeryaml['containerName']
         self.containerId = containeryaml['containerId']
@@ -46,12 +52,10 @@ class Container:
 
     def commit(self, cframe: Frame, commitmsg, BASE):
         committed = False
-
         # # frameYamlfileb = framefs.get(file_id=ObjectId(curframe.FrameInstanceId))
         with open(self.refframe) as file:
             frameRefYaml = yaml.load(file, Loader=yaml.FullLoader)
         frameRef = Frame(frameRefYaml, self.containerworkingfolder)
-
         # allowCommit, changes = self.Container.checkFrame(cframe)
         print(frameRef.FrameName)
 
@@ -88,7 +92,6 @@ class Container:
                 frameyaml = yaml.load(file, Loader=yaml.FullLoader)
             newframe = Frame(frameyaml, self.containerworkingfolder)
             # Write out new frame information
-
             # The frame file is saved to the frame FS
             self.refframe = frameyamlfn
             return newframe, response.headers['commitsuccess']
@@ -146,12 +149,23 @@ class Container:
             framestr = framestr + change['ContainerObjName'] + '     ' + change['reason'] + '\n'
         return framestr
 
-    def save(self):
+    def save(self, environ='FrontEnd', outyamlfn = ''):
         dictout = {}
-        outyaml = open(os.path.join(self.containerworkingfolder, self.containerfn), 'w')
-        keytosave = ['containerName', 'containerId', 'outputObjs', 'inputObjs', 'requiredObjs', 'references']
+        if environ=='FrontEnd':
+            outyaml = open(os.path.join(self.containerworkingfolder, self.containerfn), 'w')
+        elif environ=='Server':
+            outyaml = open(outyamlfn, 'w')
+        keytosave = ['containerName', 'containerId', 'outputObjs', 'inputObjs', 'requiredObjs', 'references', 'allowedUser']
         for key, value in vars(self).items():
             if key in keytosave:
                 dictout[key] = value
         yaml.dump(dictout, outyaml)
         outyaml.close()
+
+    def __repr__(self):
+        dictout = {}
+        keytosave = ['containerName', 'containerId', 'outputObjs', 'inputObjs', 'requiredObjs', 'references', 'allowedUser']
+        for key, value in vars(self).items():
+            if key in keytosave:
+                dictout[key] = value
+        return json.dumps(dictout)

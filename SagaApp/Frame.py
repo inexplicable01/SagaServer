@@ -2,7 +2,7 @@ import hashlib
 import os
 import yaml
 from SagaApp.FileObjects import FileTrackObj
-
+import json
 
 
 
@@ -28,7 +28,7 @@ class Frame:
         for ftrack in FrameYaml['filestrack']:
 
             ContainerObjName = ftrack['ContainerObjName']
-            print('ftrack',ftrack)
+            # print('ftrack',ftrack)
             filestrack[ContainerObjName] = FileTrackObj(ContainerObjName=ftrack['ContainerObjName'],
                                                        file_name=ftrack['file_name'],
                                                        localfilepath=self.localfilepath,
@@ -40,7 +40,7 @@ class Frame:
                                                        )
             # print(ftrack)
         self.filestrack = filestrack
-        print('self.localfilepath',self.localfilepath)
+        # print('self.localfilepath',self.localfilepath)
 
     #        self.misc= misc
 
@@ -102,6 +102,21 @@ class Frame:
                     dictout[key] = value
 
             yaml.dump(dictout, outyaml)
+
+    def __repr__(self):
+        dictout = {}
+        for key, value in vars(self).items():
+            if 'filestrack' == key:
+                filestrack = []
+                for ContainerObjName, filetrackobj in value.items():
+                    filestrack.append(filetrackobj.yamlify())
+                dictout[key] = filestrack
+            else:
+                dictout[key] = value
+        return json.dumps(dictout)
+
+    def wtf(self):
+        print('wtf')
 
 
     def compareToAnotherFrame(self, frame2,filestomonitor):

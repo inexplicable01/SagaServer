@@ -12,7 +12,7 @@ if __name__ == "__main__":
     rootpath = os.path.dirname(__file__)
 
     # api.add_resource(ContainerView, "/CONTAINERS",  methods=['GET', 'POST'], resource_class_kwargs={'rootpath': rootpath})
-    api.add_resource(ContainerView, "/CONTAINERS/<command>", methods=['GET', 'POST'],
+    api.add_resource(ContainerView, "/CONTAINERS/<command>", methods=['GET', 'POST', 'DELETE'],
                      resource_class_kwargs={'rootpath': rootpath})
     api.add_resource(FrameView, "/FRAMES", resource_class_kwargs={'rootpath': rootpath})
     api.add_resource(Files, "/FILES", resource_class_kwargs={'rootpath': rootpath})
