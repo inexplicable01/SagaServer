@@ -1,10 +1,10 @@
 containerId: ContainerB
 containerName: GroupB
 inputObjs:
-- Container: GroupA
+- Container: ContainerA
   ContainerObjName: MUD
 outputObjs:
-- Container: ContainerCID
+- Container: ContainerC
   ContainerObjName: MAN
 references:
 - Container: RefContainer
