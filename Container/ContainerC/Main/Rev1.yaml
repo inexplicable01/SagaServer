@@ -7,55 +7,89 @@ AttachedFiles:
   dateformat: US
   db_id: ''
   file_name: Misc2.txt
-FrameInstanceId: 5f5051835f77438e1133da2c
-FrameName: Rev1
-commitMessage: Ready to submit as a results of such and such change.
-commitUTCdatetime: 1599113667.076219
+FrameInstanceId: ba2803de-4908-48fd-aa08-7629a51e6df0
+FrameName: Rev4
+commitMessage: Updating R1
+commitUTCdatetime: 1608628582.063398
 filestrack:
-- ContainerObjName: M1
-  commitUTCdatetime: 1604901789.912327
-  file_id: M1.txt
+- FileHeader: M1
+  commitUTCdatetime: 1604904031.148961
+  committedby: waichak
+  connection: null
+  file_id: de6461df-b8e5-439f-a9b1-64f1235a257a
   file_name: M1.txt
-  lastEdited: 1604900773.659827
-  md5: 836bda472ef28cde8ae50b1d5b310bd7
+  lastEdited: 1604903982.7176037
+  md5: b8d9516e4c290600273e093548961cd1
   style: InputFile
-- ContainerObjName: M2
+- FileHeader: M2
   commitUTCdatetime: 1604901789.912327
+  committedby: waichak
+  connection: null
   file_id: M2.txt
   file_name: M2.txt
   lastEdited: 1604900820.0940084
   md5: 3d07104ccf76f3118741bd07752a9368
   style: InputFile
-- ContainerObjName: R1
-  commitUTCdatetime: 1599113666.812924
-  file_id: R1.txt
+- FileHeader: R1
+  commitUTCdatetime: 1608628582.063398
+  committedby: waichak
+  connection:
+    Rev: Rev1.yaml
+    branch: Main
+    connectionType: Output
+    refContainerId: ContainerD
+  file_id: aba92482-157e-4cf9-bcf9-704a2f757874
   file_name: R1.txt
-  lastEdited: 1599099200.360922
-  md5: 959189c9b1b1e41c851e6362d60af8e0
+  lastEdited: 1608610464.968125
+  md5: fb7f83722dec29fa7f4f6580ad3d1f73
   style: OutputFile
-- ContainerObjName: MUD
+- FileHeader: MUD
   commitUTCdatetime: 1587625655.94801
+  committedby: waichak
+  connection:
+    Rev: Rev1.yaml
+    branch: Main
+    connectionType: Input
+    refContainerId: ContainerA
   file_id: MUD.txt
   file_name: MUD.txt
   lastEdited: 1587260650.963201
   md5: a6bb4faacdff9dcdcb6f6e22bc51eac9
   style: OutputFile
-- ContainerObjName: MAN
-  commitUTCdatetime: 1599108647.023557
-  file_id: MAN.txt
+- FileHeader: MAN
+  commitUTCdatetime: 1608600143.900474
+  committedby: waichak
+  connection:
+    Rev: Rev1.yaml
+    branch: Main
+    connectionType: Input
+    refContainerId: ContainerB
+  file_id: 662c68fd-519d-4215-8326-871e7a09ebf6
   file_name: MAN.txt
-  lastEdited: 1599020562.1418214
-  md5: 7fd2802a69ec3fafb2ba058e4c1766d8
+  lastEdited: 1608581261.1547825
+  md5: fd22c33be3ebf608793102a584af9ef5
   style: OutputFile
-- ContainerObjName: Res_2_A
+- FileHeader: Res_2_A
   commitUTCdatetime: 1587625658.441229
+  committedby: waichak
+  connection:
+    Rev: Rev1.yaml
+    branch: Main
+    connectionType: Output
+    refContainerId: specialsauce
   file_id: LongVideo.mp4
   file_name: LongVideo.mp4
   lastEdited: 1585452668.323447
   md5: 64f79e458510f31085f645d4e3972289
   style: OutputFile
-- ContainerObjName: Dogs
+- FileHeader: Dogs
   commitUTCdatetime: 1598945795.04636
+  committedby: waichak
+  connection:
+    Rev: Rev1.yaml
+    branch: Main
+    connectionType: Input
+    refContainerId: ContainerA
   file_id: Doggy.txt
   file_name: Doggy.txt
   lastEdited: 1598848859.300705
@@ -66,7 +100,7 @@ inlinks:
   infile: MUD.txt
 - fromFrame: EDL
   infile: MAN.txt
-localfilepath: C:/Users/waich/Projects/ExampleDIR/GroupC
+localfilepath: ''
 outlinks:
 - outfile: R1.txt
   toFrame: Struct

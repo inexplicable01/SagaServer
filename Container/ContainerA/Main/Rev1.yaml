@@ -10,6 +10,11 @@ commitUTCdatetime: 1599113667.076219
 filestrack:
 - ContainerObjName: Dogs
   commitUTCdatetime: 1604901789.912327
+  connection:
+    Rev: Rev1.yaml
+    branch: Main
+    connectionType: Output
+    refContainerId: ContainerC
   file_id: Doggy.txt
   file_name: Doggy.txt
   lastEdited: 1604900773.659827
@@ -17,6 +22,11 @@ filestrack:
   style: InputFile
 - ContainerObjName: MUD
   commitUTCdatetime: 1604901789.912327
+  connection:
+    Rev: Rev1.yaml
+    branch: Main
+    connectionType: Output
+    refContainerId: ContainerC
   file_id: MUD.txt
   file_name: MUD.txt
   lastEdited: 1604900820.0940084

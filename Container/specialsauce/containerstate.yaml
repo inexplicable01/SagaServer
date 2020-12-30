@@ -4,8 +4,8 @@ inputObjs:
 outputObjs:
 references:
 requiredObjs:
-- ContainerObjName: special1
-- ContainerObjName: special2
+- FileHeader: special1
+- FileHeader: special2
 allowedUser:
 - usercemail@gmail.com
 - admin@example.com

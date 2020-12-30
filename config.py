@@ -6,6 +6,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 database_name = 'flask_jwt_auth'
 
 
+
 class BaseConfig:
     """Base configuration."""
     SECRET_KEY = os.getenv('SECRET_KEY', 'my_precious')

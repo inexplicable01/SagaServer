@@ -4,10 +4,10 @@ inputObjs:
 references:
 outputObjs:
 - Container: ContainerC
-  ContainerObjName: Dogs
+  FileHeader: Dogs
 - Container: ContainerC
-  ContainerObjName: MUD
+  FileHeader: MUD
 requiredObjs:
-- ContainerObjName: AModel1
+- FileHeader: AModel1
 allowedUser:
 - useraemail@gmail.com

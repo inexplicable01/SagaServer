@@ -2,11 +2,7 @@ import os
 import io
 from flask import Flask,flash, request, jsonify,redirect, url_for,send_from_directory , send_file, make_response, safe_join
 from flask_restful import Api, Resource
-from werkzeug.utils import secure_filename
-from flask_pymongo import PyMongo
-from bson.objectid import ObjectId
 import json
-import gridfs
 import re
 import uuid
 import yaml
@@ -32,7 +28,15 @@ class FrameView(Resource):
 
 
     def get(self):
-        print(self.rootpath)
+
+        authcheckresult = self.authcheck()
+
+        if not isinstance(authcheckresult, User):
+            (resp, num) = authcheckresult
+            return resp
+            # return resp, num # user would be a type of response if its not the actual class user
+        user = authcheckresult
+
         containerID = request.form['containerID']
         branch = request.form['branch']
 
@@ -53,13 +57,29 @@ class FrameView(Resource):
             return {"response": "Invalid Container ID"}
 
     def post(self):
-
-        containerID = request.form.get('containerID')
-        authcheckresult = self.authcheck(containerID)
+        authcheckresult = self.authcheck()
 
         if not isinstance(authcheckresult, User):
-            return authcheckresult # user would be a type of response if its not the actual class user
+            (resp, num) = authcheckresult
+            responseObject = {
+                'status': 'fail',
+                'message': 'resp'
+            }
+            return make_response(jsonify(responseObject))
+            # return resp, num # user would be a type of response if its not the actual class user
         user = authcheckresult
+
+        containerID = request.form.get('containerID')
+        curcont = Container(safe_join(self.rootpath, 'Container', containerID, 'containerstate.yaml'))
+
+        if user.email in curcont.allowUsers:
+            return user
+        else:
+            responseObject = {
+                'status': 'fail',
+                'message': 'User  is not allowed to commit to this Container'
+            }
+            return make_response(jsonify(responseObject)), 401
 
         branch = request.form['branch']
         updateinfo = json.loads(request.form['updateinfo'])
@@ -72,19 +92,19 @@ class FrameView(Resource):
         frameRef = Frame(frameRefYaml,None)
         # print(frameRef)
         committime = datetime.timestamp(datetime.utcnow())
-        for ContainerObjName, filetrackobj in frameRef.filestrack.items():
-            if ContainerObjName in request.files.keys():
-                # print(ContainerObjName)
+        for FileHeader, filetrackobj in frameRef.filestrack.items():
+            if FileHeader in request.files.keys():
+                # print(FileHeader)
                 # print(filetrackobj)
-                filetrackobj.md5= updateinfo[ContainerObjName]['md5']
-                filetrackobj.file_name = updateinfo[ContainerObjName]['file_name']
-                filetrackobj.lastEdited = updateinfo[ContainerObjName]['lastEdited']
+                filetrackobj.md5= updateinfo[FileHeader]['md5']
+                filetrackobj.file_name = updateinfo[FileHeader]['file_name']
+                filetrackobj.lastEdited = updateinfo[FileHeader]['lastEdited']
                 filetrackobj.committedby = user.email
-                filetrackobj.style = updateinfo[ContainerObjName]['style']
+                filetrackobj.style = updateinfo[FileHeader]['style']
                 filetrackobj.file_id = uuid.uuid4().__str__()
                 filetrackobj.commitUTCdatetime = committime
-                # request.files[ContainerObjName].save(os.path.join(self.rootpath, 'Files', filetrackobj.file_id))
-                content = request.files[ContainerObjName].read()
+                # request.files[FileHeader].save(os.path.join(self.rootpath, 'Files', filetrackobj.file_id))
+                content = request.files[FileHeader].read()
                 with open(os.path.join(self.rootpath, 'Files', filetrackobj.file_id), 'wb') as file:
                     file.write(content)
 
@@ -105,7 +125,7 @@ class FrameView(Resource):
         result.headers['commitsuccess'] = True
         return result
 
-    def authcheck(self,containerID):
+    def authcheck(self ):
         auth_header = request.headers.get('Authorization')
         if auth_header:
             try:
@@ -122,15 +142,8 @@ class FrameView(Resource):
             resp = User.decode_auth_token(auth_token)
             if not isinstance(resp, str):
                 user = User.query.filter_by(id=resp).first()
-                curcont = Container(safe_join(self.rootpath, 'Container', containerID, 'containerstate.yaml'))
-                if user.email in curcont.allowUsers:
+                if user:
                     return user
-                responseObject = {
-                    'status': 'fail',
-                    'message': 'User  is not allowed to commit to this Container'
-                }
-                return make_response(jsonify(responseObject)), 401
-
             responseObject = {
                 'status': 'fail',
                 'message': resp
@@ -141,4 +154,4 @@ class FrameView(Resource):
                 'status': 'fail',
                 'message': 'Provide a valid auth token.'
             }
-            return make_response(jsonify(responseObject)), 401
+            return make_response(jsonify(responseObject)),401

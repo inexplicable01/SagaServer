@@ -56,6 +56,7 @@ class ContainerView(Resource):
 
             resp.headers["response"] = "returnlist"
             resp.headers["containerinfolist"] = json.dumps(containerinfolist)
+            resp.data = json.dumps(containerinfolist)
             return resp
         else:
             resp = make_response()
@@ -83,18 +84,18 @@ class ContainerView(Resource):
                 os.mkdir(safe_join(self.rootpath, 'Container', newcont.containerId))
                 os.mkdir(safe_join(self.rootpath, 'Container', newcont.containerId,'Main'))
 
-                for ContainerObjName in request.files.keys():
-                    content = request.files[ContainerObjName].read()
-                    newframe.filestrack[ContainerObjName].file_id = uuid.uuid4().__str__()
-                    newframe.filestrack[ContainerObjName].md5 = hashlib.md5(content).hexdigest()
+                for FileHeader in request.files.keys():
+                    content = request.files[FileHeader].read()
+                    newframe.filestrack[FileHeader].file_id = uuid.uuid4().__str__()
+                    newframe.filestrack[FileHeader].md5 = hashlib.md5(content).hexdigest()
                     # filetrackobj.committedby = user.email
-                    newframe.filestrack[ContainerObjName].style = 'Required'
-                    newframe.filestrack[ContainerObjName].commitUTCdatetime = committime
-                    with open(os.path.join(self.rootpath, 'Files', newframe.filestrack[ContainerObjName].file_id),
+                    newframe.filestrack[FileHeader].style = 'Required'
+                    newframe.filestrack[FileHeader].commitUTCdatetime = committime
+                    with open(os.path.join(self.rootpath, 'Files', newframe.filestrack[FileHeader].file_id),
                               'wb') as file:
                         file.write(content)
 
-                    os.unlink(os.path.join(self.rootpath, 'Files', newframe.filestrack[ContainerObjName].file_id))
+                    os.unlink(os.path.join(self.rootpath, 'Files', newframe.filestrack[FileHeader].file_id))
 
                 newcont.save(environ='Server',
                              outyamlfn=safe_join(self.rootpath, 'Container', newcont.containerId,'containerstate.yaml'))
@@ -104,21 +105,6 @@ class ContainerView(Resource):
 
                 resp.headers["response"] = "Container Made"
                 return resp
-        elif command=="List":
-            resp = make_response()
-            containerinfolist = {}
-            for containerid in os.listdir(safe_join(self.rootpath, 'Container')):
-                curcont = Container(safe_join(self.rootpath, 'Container',containerid,'containerstate.yaml'))
-                containerinfolist[containerid] = {'ContainerDescription': curcont.containerName,
-                                         'branches':[]}
-                for branch in os.listdir(safe_join(self.rootpath, 'Container',containerid)):
-                    if os.path.isdir(safe_join(self.rootpath, 'Container',containerid,branch)):
-                        containerinfolist[containerid]['branches'].append({'name': branch,
-                                                                    'revcount':len(glob(safe_join(self.rootpath, 'Container',containerid,branch,'*')))})
-
-            resp.headers["response"] = "returnlist"
-            resp.headers["containerinfolist"] = json.dumps(containerinfolist)
-            return resp
         else:
             resp = make_response()
             resp.headers["response"] = "Incorrect Command"

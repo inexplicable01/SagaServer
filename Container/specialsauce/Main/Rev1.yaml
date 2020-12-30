@@ -8,21 +8,25 @@ FrameName: Rev1
 commitMessage: Ready to submit as a results of such and such change.
 commitUTCdatetime: 1599113667.076219
 filestrack:
-- ContainerObjName: special1
+- FileHeader: special1
   commitUTCdatetime: 1604901789.912327
+  committedby: waichak
+  connection: null
   file_id: special1.txt
   file_name: special1.txt
   lastEdited: 1604900773.659827
   md5: somemd5
   style: InputFile
-- ContainerObjName: special2
+- FileHeader: special2
   commitUTCdatetime: 1604901789.912327
+  committedby: waichak
+  connection: null
   file_id: special2.txt
   file_name: special2.txt
   lastEdited: 1604900820.0940084
   md5: somemd5
   style: InputFile
-inlinks:
-localfilepath: C:/Users/waich/Projects/ExampleDIR/GroupC
-outlinks:
+inlinks: null
+localfilepath: ''
+outlinks: null
 parentContainerId: specialsauce

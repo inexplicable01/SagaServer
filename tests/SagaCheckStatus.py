@@ -28,7 +28,7 @@ frameyamlstr = {
     'commitUTCdatetime': {'type': 'UTCdatetime'},
     'filestrack': {
         'type': 'listdict',
-        'ContainerObjName': {'type': 'str'},
+        'FileHeader': {'type': 'str'},
         'commitUTCdatetime': {'type': 'UTCdatetime'},
         'file_id': {'type': 'str'},
         'file_name': {'type': 'str'},
