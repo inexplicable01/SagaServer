@@ -41,17 +41,18 @@ class FileTrack:
         print(self.md5)
 
     def __repr__(self):
-        dictout = {}
-        print('FileHeader:   '+ self.FileHeader)
-        print('file_name:   ' + self.file_name)
-        print('md5:   ' + self.md5)
+        str=''
+        # print('FileHeader:   '+ self.FileHeader)
+        str +='\nFileHeader:   '+ self.FileHeader + '\n'
+        str += 'file_name:   ' + self.file_name + '\n'
+        str += 'md5:   ' + self.md5 + '\n'
         if self.lastEdited:
-            print('lastEdited:   ' + datetime.fromtimestamp(self.commitUTCdatetime).isoformat())
-        print('committedby:   ' + self.committedby)
-        print('style:   ' + self.style)
-        print('file_id:   ' + self.file_id)
+            str += 'lastEdited:   ' + datetime.fromtimestamp(self.commitUTCdatetime).isoformat()+ '\n'
+        str += 'committedby:   ' + self.committedby+ '\n'
+        if self.style:
+            str += 'style:   ' + self.style+ '\n'
+        str += 'file_id:   ' + self.file_id+ '\n'
         if self.commitUTCdatetime:
-            print('commitUTCdatetime:   ' + datetime.fromtimestamp(self.commitUTCdatetime).isoformat())
-
-        for key, value in vars(self).items():
-            dictout[key] = value
+            str += 'commitUTCdatetime:   ' + datetime.fromtimestamp(self.commitUTCdatetime).isoformat()+ '\n'
+        str += 'connection:     ' + self.connection.__repr__() + '\n'
+        return str

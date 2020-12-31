@@ -1,11 +1,15 @@
 containerId: specialsauce
 containerName: specialsauce
-inputObjs:
-outputObjs:
-references:
-requiredObjs:
-- FileHeader: special1
-- FileHeader: special2
+FileHeaders:
+  Res_2_A:
+    Container: ContainerC
+    type: input
+  special1:
+    Container: here
+    type: required
+  special2:
+    Container: here
+    type: required
 allowedUser:
 - usercemail@gmail.com
 - admin@example.com

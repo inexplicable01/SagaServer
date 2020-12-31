@@ -1,12 +1,12 @@
 containerId: ContainerD
 containerName: ContainerD
-inputObjs:
-- Container: ContainerC
-  FileHeader: R1
-outputObjs:
-references:
-requiredObjs:
-- FileHeader: DSomething
+FileHeaders:
+  R1:
+    Container: ContainerC
+    type: input
+  DSomething:
+    Container: here
+    type: required
 allowedUser:
 - userdemail@gmail.com
 - admin@example.com

@@ -22,17 +22,15 @@ class ConnectionFileObj:
     def dictify(self):
         dictout = {}
         for key, value in vars(self).items():
-            if key=='connectionType':
-                dictout[key] = value.name
-            else:
-                dictout[key] = value
-        print(json.dumps(dictout))
+            dictout[key] = value
+        # print(json.dumps(dictout))
         return dictout
 
     def __repr__(self):
-        return 'ConnectionFileObj:  ' + self.refContainerId
-    #     print('refContainerId:   ' + self.refContainerId)
-    #     # if self.connectionType.name:
-    #     #     print('connectionType:   ' + self.connectionType.name)
-    #     # print('branch:   ' + self.branch)
-    #     # print('Rev:   ' + self.Rev)
+        str=''
+        # print('FileHeader:   '+ self.FileHeader)
+        str +='\n\t\tConnectionFileObj:  ' + self.refContainerId + '\n'
+        str += '\t\tconnectionType:   ' + self.connectionType + '\n'
+        str += '\t\tbranch:   ' + self.branch + '\n'
+        str += '\t\tRev:   ' + self.Rev + '\n'
+        return str

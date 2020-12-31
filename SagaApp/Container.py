@@ -13,60 +13,39 @@ import requests
 import json
 import re
 from config import basedir
-
+from SagaApp.SagaUtil import latestFrameInBranch, FrameNumInBranch
 
 from datetime import datetime
 
-
-def latestFrameInBranch(path):
-    # add comment
-    revnum = 0;
-    for fn in os.listdir(path):
-        m = re.search('Rev(\d+).yaml', fn)
-        if int(m.group(1)) > revnum:
-            revnum = int(m.group(1))
-            latestrev = fn
-    return latestrev, revnum
-
-
 Rev = 'Rev'
-
-fileobjtypes = {'inputObjs': ConnectionTypes.Input,
-                'requiredObjs': None,
-                'outputObjs': ConnectionTypes.Output}
+blankcontainer = {'containerName':"" ,'containerId':"",'FileHeaders': {} ,'allowedUser':[] }
 
 class Container:
-    def __init__(self, containerfn,currentbranch='Main',revnum='1', containerdict=None):
-
-
-        if containerdict is None:
-            with open(containerfn) as file:
-                containeryaml = yaml.load(file, Loader=yaml.FullLoader)
-            self.containerworkingfolder = os.path.dirname(containerfn)
+    def __init__(self, containerfn='Default',currentbranch='Main',revnum=None, containerdict=None):
+        if containerdict is None and containerfn == 'Default':
+            containeryaml = blankcontainer
+            self.containerworkingfolder = os.path.join(basedir, 'Container')
         else:
-            containeryaml = containerdict
-            self.containerworkingfolder = os.path.join(os.getcwd(),'Container',containeryaml['containerId'])
+            if containerdict:
+                containeryaml = containerdict
+                self.containerworkingfolder = os.path.join(os.getcwd(),'Container',containeryaml['containerId'])
+            else:
+                self.containerworkingfolder = os.path.dirname(containerfn)
+                with open(containerfn) as file:
+                    containeryaml = yaml.load(file, Loader=yaml.FullLoader)
         self.containerfn = containerfn
         self.containerName = containeryaml['containerName']
         self.containerId = containeryaml['containerId']
-        self.inputObjs = containeryaml['inputObjs']
-        self.outputObjs = containeryaml['outputObjs']
-        self.requiredObjs = containeryaml['requiredObjs']
-        self.references = containeryaml['references']
+        self.FileHeaders = containeryaml['FileHeaders']
         self.allowUsers = containeryaml['allowedUser']
         # self.yamlTracking = containeryaml['yamlTracking']
         self.currentbranch = currentbranch
-        self.revnum = revnum
         self.filestomonitor = {}
-        for fileobjtype in fileobjtypes.keys():
-            # print(typeindex, fileobjtype)
-            if getattr(self, fileobjtype):
-                for fileindex, fileObj in enumerate(getattr(self, fileobjtype)):
-                    self.filestomonitor[fileObj['FileHeader']]= fileobjtypes[fileobjtype]
-        latestrevfn, revnum = latestFrameInBranch(os.path.join(basedir, 'Container', self.containerId, 'Main'))
-
-        self.refframe = os.path.join(self.containerworkingfolder,
-                                     currentbranch , Rev + str(revnum) + ".yaml")
+        for FileHeader, file in self.FileHeaders.items():
+            self.filestomonitor[FileHeader]= file['type']
+        self.refframe , self.revnum = FrameNumInBranch(\
+            os.path.join(basedir, 'Container', self.containerId, currentbranch),\
+            revnum)
 
     def commit(self, cframe: Frame, commitmsg, BASE):
         committed = False
@@ -75,7 +54,7 @@ class Container:
             frameRefYaml = yaml.load(file, Loader=yaml.FullLoader)
         frameRef = Frame(frameRefYaml, self.filestomonitor, self.containerworkingfolder)
         # allowCommit, changes = self.Container.checkFrame(cframe)
-        print(frameRef.FrameName)
+        # print(frameRef.FrameName)
 
         filesToUpload = {}
         updateinfo = {}
@@ -95,8 +74,7 @@ class Container:
                 }
 
         updateinfojson = json.dumps(updateinfo)
-        # print (updateinfo)
-        # response = requests.post(BASE + 'FRAMES',files=filesToUpload)
+
         response = requests.post(BASE + 'FRAMES',
                                  data={'containerID': self.containerId, 'branch': self.currentbranch,
                                        'updateinfo': updateinfojson, 'commitmsg':commitmsg},  files=filesToUpload)
@@ -160,19 +138,13 @@ class Container:
                          time.ctime(pastframe.commitUTCdatetime) + '\t\n'
         return historyStr
 
-    def printDelta(self, changes):
-        framestr = ''
-        for change in changes:
-            framestr = framestr + change['FileHeader'] + '     ' + change['reason'] + '\n'
-        return framestr
-
     def save(self, environ='FrontEnd', outyamlfn = ''):
         dictout = {}
         if environ=='FrontEnd':
             outyaml = open(os.path.join(self.containerworkingfolder, self.containerfn), 'w')
         elif environ=='Server':
             outyaml = open(outyamlfn, 'w')
-        keytosave = ['containerName', 'containerId', 'outputObjs', 'inputObjs', 'requiredObjs', 'references', 'allowedUser']
+        keytosave = ['containerName', 'containerId',  'FileHeaders', 'allowedUser']
         for key, value in vars(self).items():
             if key in keytosave:
                 dictout[key] = value
@@ -180,17 +152,15 @@ class Container:
         outyaml.close()
 
     def returnType(self, FileHeader):
-        for input in self.inputObjs:
-            if FileHeader==input['FileHeader']:
-                return ConnectionTypes.Input
-        for output in self.outputObjs:
-            if FileHeader==output['FileHeader']:
-                return ConnectionTypes.Output
-        return None
+        if FileHeader in self.FileHeaders.keys():
+            return self.FileHeaders[FileHeader]['type']
+        else:
+            print(FileHeader + 'not in this frame')
+            return None
 
     def __repr__(self):
         dictout = {}
-        keytosave = ['containerName', 'containerId', 'outputObjs', 'inputObjs', 'requiredObjs', 'references', 'allowedUser']
+        keytosave = ['containerName', 'containerId', 'FileHeaders', 'allowedUser']
         for key, value in vars(self).items():
             if key in keytosave:
                 dictout[key] = value

@@ -40,8 +40,11 @@ class Frame:
             FileHeader = ftrack['FileHeader']
             # cont= Container(os.path.join('Container/',self.parentContainerId, 'containerstate.yaml'))
             conn=None
-            if filestomonitor[FileHeader]:
-                conn =filestomonitor[FileHeader]
+            if 'connection' in ftrack.keys() and ftrack['connection']:
+                conn = ConnectionFileObj(ftrack['connection']['refContainerId'],
+                    connectionType=ftrack['connection']['connectionType'],
+                                         branch=ftrack['connection']['branch'],
+                                         Rev=ftrack['connection']['Rev'])
 
             self.filestrack[FileHeader] = FileTrack(FileHeader=ftrack['FileHeader'],
                                                      file_name=ftrack['file_name'],
@@ -110,7 +113,7 @@ class Frame:
                     filestrack.append(filetrackobj.dictify())
                 dictout[key] = filestrack
             elif 'filestomonitor' ==key:
-                print('skip')
+                continue
             else:
                 dictout[key] = value
         return dictout
@@ -124,8 +127,7 @@ class Frame:
 
     def compareToAnotherFrame(self, frame2):
         changes = []
-        # print(self.filestrack.keys())
-        # print(frame2.filestrack.keys())
+
         for FileHeader in self.filestomonitor.keys():
             if FileHeader not in self.filestrack.keys():
                 changes.append({'FileHeader' :FileHeader, 'reason':'missing'})
