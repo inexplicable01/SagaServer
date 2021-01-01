@@ -2,12 +2,16 @@ import hashlib
 import os
 import json
 from datetime import datetime
+from SagaApp.Connection import ConnectionFileObj
 
-class FileTrackObj:
-    def __init__(self, ContainerObjName, localfilepath, file_name,style=None,lastEdited=None, committedby='waichak', md5=None,file_id=None,commitUTCdatetime=None):
-        self.ContainerObjName = ContainerObjName
+class FileTrack:
+    def __init__(self, FileHeader, localfilepath, \
+                 file_name, connection:ConnectionFileObj=None, style=None, lastEdited=None, committedby='waichak', \
+                 md5=None, file_id=None, commitUTCdatetime=None,
+                 ):
+        self.FileHeader = FileHeader
         self.file_name = file_name
-        if  md5 is None:
+        if md5 is None:
             fullpath = os.path.join(localfilepath, file_name)
             fileb = open(fullpath , 'rb')
             md5hash = hashlib.md5(fileb.read())
@@ -18,40 +22,37 @@ class FileTrackObj:
         self.style = style
         self.file_id = file_id
         self.commitUTCdatetime = commitUTCdatetime
+        self.connection=connection
 
-    def yamlify(self):
+    def dictify(self):
+        ###Should__dict__be used instead?
         dictout = {}
         for key, value in vars(self).items():
-            dictout[key] = value
+            if key=='connection':
+                if value:
+                    dictout[key] = value.dictify()
+                else:
+                    dictout[key] = None
+            else:
+                dictout[key] = value
         return dictout
 
     def printdetails(self):
         print(self.md5)
 
     def __repr__(self):
-        dictout = {}
-        print('ContainerObjName:   '+ self.ContainerObjName)
-        print('file_name:   ' + self.file_name)
-        print('md5:   ' + self.md5)
+        str=''
+        # print('FileHeader:   '+ self.FileHeader)
+        str +='\nFileHeader:   '+ self.FileHeader + '\n'
+        str += 'file_name:   ' + self.file_name + '\n'
+        str += 'md5:   ' + self.md5 + '\n'
         if self.lastEdited:
-            print('lastEdited:   ' + datetime.fromtimestamp(self.commitUTCdatetime).isoformat())
-        print('committedby:   ' + self.committedby)
-        print('style:   ' + self.style)
-        print('file_id:   ' + self.file_id)
+            str += 'lastEdited:   ' + datetime.fromtimestamp(self.commitUTCdatetime).isoformat()+ '\n'
+        str += 'committedby:   ' + self.committedby+ '\n'
+        if self.style:
+            str += 'style:   ' + self.style+ '\n'
+        str += 'file_id:   ' + self.file_id+ '\n'
         if self.commitUTCdatetime:
-            print('commitUTCdatetime:   ' + datetime.fromtimestamp(self.commitUTCdatetime).isoformat())
-
-        for key, value in vars(self).items():
-            dictout[key] = value
-        # return json.dumps(dictout)
-
-
-class InputFileObj(FileTrackObj):
-    def __init__(self, ContainerObjName, file_name,localFilePath,style,fromContainerId,md5=None,file_id=None,commitUTCdatetime=None):
-        super().__init__(self, ContainerObjName, file_name,localFilePath,style,md5,file_id,commitUTCdatetime)
-        self.fromContainerId=fromContainerId
-
-class OutFileObj(FileTrackObj):
-    def __init__(self, ContainerObjName, file_name,localFilePath,style,toContainerID,md5=None,file_id=None,commitUTCdatetime=None):
-        super().__init__(self, ContainerObjName, file_name,localFilePath,style,md5,file_id,commitUTCdatetime)
-        self.toContainerID=toContainerID
+            str += 'commitUTCdatetime:   ' + datetime.fromtimestamp(self.commitUTCdatetime).isoformat()+ '\n'
+        str += 'connection:     ' + self.connection.__repr__() + '\n'
+        return str

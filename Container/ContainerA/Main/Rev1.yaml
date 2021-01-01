@@ -8,21 +8,31 @@ FrameName: Rev1
 commitMessage: Ready to submit as a results of such and such change.
 commitUTCdatetime: 1599113667.076219
 filestrack:
-- ContainerObjName: Dogs
+- FileHeader: Dogs
   commitUTCdatetime: 1604901789.912327
+  connection:
+    Rev: Rev1.yaml
+    branch: Main
+    connectionType: Output
+    refContainerId: ContainerC
   file_id: Doggy.txt
   file_name: Doggy.txt
   lastEdited: 1604900773.659827
   md5: 836bda472ef28cde8ae50b1d5b310bd7
   style: InputFile
-- ContainerObjName: MUD
+- FileHeader: MUD
   commitUTCdatetime: 1604901789.912327
+  connection:
+    Rev: Rev1.yaml
+    branch: Main
+    connectionType: Output
+    refContainerId: ContainerC
   file_id: MUD.txt
   file_name: MUD.txt
   lastEdited: 1604900820.0940084
   md5: 3d07104ccf76f3118741bd07752a9368
   style: OutputFile
-- ContainerObjName: AModel1
+- FileHeader: AModel1
   commitUTCdatetime: 1599113666.812924
   file_id: AModel1.txt
   file_name: AModel1.txt

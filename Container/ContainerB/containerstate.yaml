@@ -1,16 +1,18 @@
 containerId: ContainerB
 containerName: ContainerB
-inputObjs:
-- Container: ContainerA
-  ContainerObjName: MUD
-outputObjs:
-- Container: ContainerC
-  ContainerObjName: MAN
-references:
-- Container: RefContainer
-  ContainerObjName: ToolCode
-requiredObjs:
-- ContainerObjName: B1
+FileHeaders:
+  MUD:
+    Container: ContainerA
+    type: input
+  MAN:
+    Container: ContainerC
+    type: output
+  ToolCode:
+    Container: RefContainer
+    type: reference
+  B1:
+    Container: here
+    type: required
 allowedUser:
 - userbemail@gmail.com
 - admin@example.com

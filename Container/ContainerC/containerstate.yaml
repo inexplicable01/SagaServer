@@ -1,23 +1,27 @@
 containerId: ContainerC
 containerName: ContainerC
-inputObjs:
-- Container: ContainerB
-  ContainerObjName: MAN
-- Container: ContainerA
-  ContainerObjName: Dogs
-- Container: ContainerA
-  ContainerObjName: MUD
-outputObjs:
-- Container: specialsauce
-  ContainerObjName: Res_2_A
-- Container: ContainerD
-  ContainerObjName: R1
-references:
-- Container: RefContainer
-  ContainerObjName: ToolCode
-requiredObjs:
-- ContainerObjName: M1
-- ContainerObjName: M2
+FileHeaders:
+  MAN:
+    Container: ContainerB
+    type: input
+  Dogs:
+    Container: ContainerA
+    type: input
+  MUD:
+    Container: ContainerA
+    type: input
+  Res_2_A:
+    Container: specialsauce
+    type: output
+  R1:
+    Container: ContainerD
+    type: output
+  M1:
+    type: required
+    Container: here
+  M2:
+    type: required
+    Container: here
 allowedUser:
 - usercemail@gmail.com
 - admin@example.com
