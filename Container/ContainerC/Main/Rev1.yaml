@@ -8,7 +8,7 @@ AttachedFiles:
   db_id: ''
   file_name: Misc2.txt
 FrameInstanceId: ba2803de-4908-48fd-aa08-7629a51e6df0
-FrameName: Rev4
+FrameName: Rev1
 commitMessage: Updating R1
 commitUTCdatetime: 1608628582.063398
 filestrack:
@@ -21,6 +21,7 @@ filestrack:
   lastEdited: 1604903982.7176037
   md5: b8d9516e4c290600273e093548961cd1
   style: InputFile
+  persist: True
 - FileHeader: M2
   commitUTCdatetime: 1604901789.912327
   committedby: waichak
@@ -30,6 +31,7 @@ filestrack:
   lastEdited: 1604900820.0940084
   md5: 3d07104ccf76f3118741bd07752a9368
   style: InputFile
+  persist: True
 - FileHeader: R1
   commitUTCdatetime: 1608628582.063398
   committedby: waichak
@@ -43,19 +45,7 @@ filestrack:
   lastEdited: 1608610464.968125
   md5: fb7f83722dec29fa7f4f6580ad3d1f73
   style: OutputFile
-- FileHeader: MUD
-  commitUTCdatetime: 1587625655.94801
-  committedby: waichak
-  connection:
-    Rev: Rev1.yaml
-    branch: Main
-    connectionType: Input
-    refContainerId: ContainerA
-  file_id: MUD.txt
-  file_name: MUD.txt
-  lastEdited: 1587260650.963201
-  md5: a6bb4faacdff9dcdcb6f6e22bc51eac9
-  style: OutputFile
+  persist: True
 - FileHeader: MAN
   commitUTCdatetime: 1608600143.900474
   committedby: waichak
@@ -67,8 +57,9 @@ filestrack:
   file_id: 662c68fd-519d-4215-8326-871e7a09ebf6
   file_name: MAN.txt
   lastEdited: 1608581261.1547825
-  md5: fd22c33be3ebf608793102a584af9ef5
+  md5: 7fd2802a69ec3fafb2ba058e4c1766d8
   style: OutputFile
+  persist: True
 - FileHeader: Res_2_A
   commitUTCdatetime: 1587625658.441229
   committedby: waichak
@@ -82,6 +73,7 @@ filestrack:
   lastEdited: 1585452668.323447
   md5: 64f79e458510f31085f645d4e3972289
   style: OutputFile
+  persist: True
 - FileHeader: Dogs
   commitUTCdatetime: 1598945795.04636
   committedby: waichak
@@ -95,6 +87,7 @@ filestrack:
   lastEdited: 1598848859.300705
   md5: 924cc5b8e87b790e07b9de20b7a4e088
   style: null
+  persist: True
 inlinks:
 - fromFrame: CORE
   infile: MUD.txt
