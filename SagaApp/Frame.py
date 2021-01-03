@@ -4,10 +4,10 @@ import yaml
 # from SagaApp.Container import Container
 from SagaApp.FileObjects import FileTrack,ConnectionFileObj
 import json
-from PyQt5.QtWidgets import *
-from PyQt5 import uic
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+# from PyQt5.QtWidgets import *
+# from PyQt5 import uic
+# from PyQt5.QtGui import *
+# from PyQt5.QtCore import *
 
 fileobjtypes = ['inputObjs', 'requiredObjs', 'outputObjs']
 
