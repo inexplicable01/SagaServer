@@ -1,5 +1,5 @@
 import os
-from flask import request, send_from_directory, safe_join,make_response
+from flask import request, send_from_directory, safe_join,make_response, jsonify
 from flask_restful import Resource
 from SagaApp.Container import Container
 from SagaApp.Frame import Frame
@@ -10,6 +10,7 @@ import shutil
 import uuid
 import hashlib
 from datetime import datetime
+from UserModel import User
 
 
 class ContainerView(Resource):
@@ -74,7 +75,7 @@ class ContainerView(Resource):
             # newcont = Container()
             newcont = Container('containerstate.yaml',containerdict=containerdict)
             framedict = json.loads(request.form['framedictjson'])
-            newframe = Frame(framedict, 'Container/specialsauce/Main/')
+            newframe = Frame(None,None, None, framedict)
             committime = datetime.timestamp(datetime.utcnow())
 
             if os.path.exists(safe_join(self.rootpath, 'Container', newcont.containerId)):
@@ -94,8 +95,7 @@ class ContainerView(Resource):
                     with open(os.path.join(self.rootpath, 'Files', newframe.filestrack[FileHeader].file_id),
                               'wb') as file:
                         file.write(content)
-
-                    os.unlink(os.path.join(self.rootpath, 'Files', newframe.filestrack[FileHeader].file_id))
+                    # os.unlink(os.path.join(self.rootpath, 'Files', newframe.filestrack[FileHeader].file_id))
 
                 newcont.save(environ='Server',
                              outyamlfn=safe_join(self.rootpath, 'Container', newcont.containerId,'containerstate.yaml'))
@@ -113,8 +113,28 @@ class ContainerView(Resource):
     def delete(self, command=None):
         resp = make_response()
         resp.headers["response"] = "Delete Response"
+        authcheckresult = self.authcheck()
+
+        if not isinstance(authcheckresult, User):
+            (resp, num) = authcheckresult
+            responseObject = {
+                'status': 'fail',
+                'message': 'resp'
+            }
+            return make_response(jsonify(responseObject))
+            # return resp, num # user would be a type of response if its not the actual class user
+        user = authcheckresult
+
         if command=="deleteContainer":
             containerId = request.form['containerId']
+            delCont = Container(os.path.join(self.rootpath, 'Container', containerId, 'containerstate.yaml'))
+
+            if user.email not in delCont.allowedUser:
+                responseObject = {
+                        'status': 'fail',
+                        'message': 'User  is not allowed to commit to this Container'
+                    }
+                return make_response(jsonify(responseObject)), 401
             # newcont = Container()
             # newcont = Container('containerstate.yaml',containerdict=containerdict)
             if os.path.exists(safe_join(self.rootpath, 'Container', containerId)):
@@ -125,3 +145,34 @@ class ContainerView(Resource):
                 resp.headers["response"] = "Container " + containerId + " doesn't exist"
                 return resp
         return resp
+
+    def authcheck(self ):
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            try:
+                auth_token = auth_header.split(" ")[1]
+            except IndexError:
+                responseObject = {
+                    'status': 'fail',
+                    'message': 'Bearer token malformed.'
+                }
+                return make_response(jsonify(responseObject)), 401
+        else:
+            auth_token = ''
+        if auth_token:
+            resp = User.decode_auth_token(auth_token)
+            if not isinstance(resp, str):
+                user = User.query.filter_by(id=resp).first()
+                if user:
+                    return user
+            responseObject = {
+                'status': 'fail',
+                'message': resp
+            }
+            return make_response(jsonify(responseObject)), 401
+        else:
+            responseObject = {
+                'status': 'fail',
+                'message': 'Provide a valid auth token.'
+            }
+            return make_response(jsonify(responseObject)),401
