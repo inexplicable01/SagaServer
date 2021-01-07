@@ -1,0 +1,100 @@
+AttachedFiles:
+- commitUTCdatetime: 1584676800.0
+  dateformat: US
+  db_id: ''
+  file_name: Misc1.txt
+- commitUTCdatetime: 1584676800.0
+  dateformat: US
+  db_id: ''
+  file_name: Misc2.txt
+FrameInstanceId: 01586266-7e3f-4b87-8729-d05f3051e32b
+FrameName: Rev3
+commitMessage: AnthoerR1 Change
+commitUTCdatetime: 1609588695.55664
+filestrack:
+- FileHeader: M1
+  commitUTCdatetime: 1604904031.148961
+  committedby: waichak
+  connection: null
+  file_id: de6461df-b8e5-439f-a9b1-64f1235a257a
+  file_name: M1.txt
+  lastEdited: 1604903982.7176037
+  md5: b8d9516e4c290600273e093548961cd1
+  persist: true
+  style: InputFile
+- FileHeader: M2
+  commitUTCdatetime: 1604901789.912327
+  committedby: waichak
+  connection: null
+  file_id: M2.txt
+  file_name: M2.txt
+  lastEdited: 1604900820.0940084
+  md5: 3d07104ccf76f3118741bd07752a9368
+  persist: true
+  style: InputFile
+- FileHeader: R1
+  commitUTCdatetime: 1609588695.55664
+  committedby: usercemail@gmail.com
+  connection:
+    Rev: Rev1
+    branch: Main
+    connectionType: Output
+    refContainerId: ContainerD
+  file_id: 345d51f1-88c2-4854-81b6-29de2982059f
+  file_name: R1.txt
+  lastEdited: 1609570666.119017
+  md5: 8ea302e802bb3323a70b8c87fb9c7fe3
+  persist: true
+  style: OutputFile
+- FileHeader: MAN
+  commitUTCdatetime: 1608600143.900474
+  committedby: waichak
+  connection:
+    Rev: Rev1
+    branch: Main
+    connectionType: Input
+    refContainerId: ContainerB
+  file_id: MAN.txt
+  file_name: MAN.txt
+  lastEdited: 1608581261.1547825
+  md5: 7fd2802a69ec3fafb2ba058e4c1766d8
+  persist: true
+  style: OutputFile
+- FileHeader: Res_2_A
+  commitUTCdatetime: 1587625658.441229
+  committedby: waichak
+  connection:
+    Rev: Rev1
+    branch: Main
+    connectionType: Output
+    refContainerId: specialsauce
+  file_id: LongVideo.mp4
+  file_name: LongVideo.mp4
+  lastEdited: 1585452668.323447
+  md5: 64f79e458510f31085f645d4e3972289
+  persist: true
+  style: OutputFile
+- FileHeader: Dogs
+  commitUTCdatetime: 1598945795.04636
+  committedby: waichak
+  connection:
+    Rev: Rev1
+    branch: Main
+    connectionType: Input
+    refContainerId: ContainerA
+  file_id: Doggy.txt
+  file_name: Doggy.txt
+  lastEdited: 1598848859.300705
+  md5: 924cc5b8e87b790e07b9de20b7a4e088
+  persist: true
+  style: null
+inlinks:
+- fromFrame: CORE
+  infile: MUD.txt
+- fromFrame: EDL
+  infile: MAN.txt
+localfilepath: null
+outlinks:
+- outfile: R1.txt
+  toFrame: Struct
+parentContainerId: ContainerCID

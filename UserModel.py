@@ -1,5 +1,5 @@
 
-from SagaApp import app, db, bcrypt
+from SagaApp import app, db
 import jwt
 import datetime
 from flask_user import UserMixin
@@ -29,9 +29,7 @@ class User(db.Model,UserMixin):
 
     def __init__(self, email, password, first_name='default', last_name='Lee',admin=False):
         self.email = email
-        self.password = bcrypt.generate_password_hash(
-            password, app.config.get('BCRYPT_LOG_ROUNDS')
-        ).decode()
+        self.password = password
         self.registered_on = datetime.datetime.now()
         self.admin = admin
         self.first_name = first_name
@@ -44,7 +42,7 @@ class User(db.Model,UserMixin):
         """
         try:
             payload = {
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=60),
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=600),
                 'iat': datetime.datetime.utcnow(),
                 'sub': user_id
             }

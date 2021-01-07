@@ -1,7 +1,7 @@
 from flask.views import MethodView
 from flask import Blueprint, request, make_response, jsonify
 
-from SagaApp import db, bcrypt
+from SagaApp import db
 from UserModel import User ,BlacklistToken
 
 auth_blueprint = Blueprint('auth', __name__)
@@ -60,9 +60,7 @@ class LoginAPI(MethodView):
             user = User.query.filter_by(
                 email=post_data.get('email')
             ).first()
-            if user and bcrypt.check_password_hash(
-                user.password, post_data.get('password')
-            ):
+            if user and user.password==post_data.get('password'):
                 auth_token = user.encode_auth_token(user.id)
                 if auth_token:
                     responseObject = {

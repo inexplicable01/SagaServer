@@ -159,9 +159,31 @@ class Container:
             return None
 
     def __repr__(self):
+        return json.dumps(self.dictify())
+
+    def dictify(self):
         dictout = {}
         keytosave = ['containerName', 'containerId', 'FileHeaders', 'allowedUser']
         for key, value in vars(self).items():
             if key in keytosave:
                 dictout[key] = value
-        return json.dumps(dictout)
+        return dictout
+
+    @staticmethod
+    def compare(cont1,cont2):
+        return recursivecompare(cont1.dictify(), cont2.dictify())
+
+def recursivecompare(dict1, dict2):
+    diff = {}
+    identical = True
+    for key, value in dict1.items():
+        if type(value) is not dict:
+            if dict2[key] != value:
+                identical = False
+                diff[key] = [value, dict2[key]]
+        else:
+            id, difference = recursivecompare(value, dict2[key])
+            identical = identical if id else id
+            diff[key] = difference
+    return identical, diff
+

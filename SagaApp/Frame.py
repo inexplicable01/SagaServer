@@ -4,20 +4,23 @@ import yaml
 # from SagaApp.Container import Container
 from SagaApp.FileObjects import FileTrack,ConnectionFileObj
 import json
-from PyQt5.QtWidgets import *
-from PyQt5 import uic
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+# from PyQt5.QtWidgets import *
+# from PyQt5 import uic
+# from PyQt5.QtGui import *
+# from PyQt5.QtCore import *
 
 fileobjtypes = ['inputObjs', 'requiredObjs', 'outputObjs']
 
 
 
 class Frame:
-    def __init__(self, framefn, filestomonitor,localfilepath):
+    def __init__(self, framefn, filestomonitor,localfilepath, framedict=None):
 
-        with open(framefn,'r') as file:
-            FrameYaml = yaml.load(file, Loader=yaml.FullLoader)
+        if framedict:
+            FrameYaml=framedict
+        else:
+            with open(framefn,'r') as file:
+                FrameYaml = yaml.load(file, Loader=yaml.FullLoader)
         # self.containerworkingfolder = os.path.dirname(containerfn)
         self.parentContainerId = FrameYaml['parentContainerId']
         self.FrameName = FrameYaml['FrameName']
@@ -54,7 +57,8 @@ class Frame:
                                                      file_id=ftrack['file_id'],
                                                      commitUTCdatetime=ftrack['commitUTCdatetime'],
                                                      lastEdited=ftrack['lastEdited'],
-                                                     connection=conn)
+                                                     connection=conn,
+                                                    persist=ftrack['persist'])
 
         # print('self.localfilepath',self.localfilepath)
 
