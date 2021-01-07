@@ -72,7 +72,7 @@ class FrameView(Resource):
         containerID = request.form.get('containerID')
         curcont = Container(safe_join(self.rootpath, 'Container', containerID, 'containerstate.yaml'))
 
-        if user.email in curcont.allowUsers:
+        if user.email in curcont.allowedUser:
             return user
         else:
             responseObject = {

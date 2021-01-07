@@ -15,6 +15,7 @@ def latestFrameInBranch(path):
 
 def FrameNumInBranch(path, revnum):
     # add comment
+
     if revnum:
         if os.path.exists(os.path.join(path, 'Rev')):
             return os.path.join(path, 'Rev' + str(revnum) + ".yaml"), revnum
@@ -24,6 +25,8 @@ def FrameNumInBranch(path, revnum):
             return os.path.join(path, 'Rev' + str(revnum) + ".yaml"), revnum
     else:
         # if none
-        latestrev, revnum = latestFrameInBranch(path)
-        return os.path.join(path, 'Rev' + str(revnum) + ".yaml"), revnum
-
+        if os.path.exists(path):
+            latestrev, revnum = latestFrameInBranch(path)
+            return os.path.join(path, 'Rev' + str(revnum) + ".yaml"), revnum
+        else:
+            return os.path.join(path, 'Rev0.yaml'), 0

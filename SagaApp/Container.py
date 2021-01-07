@@ -37,7 +37,7 @@ class Container:
         self.containerName = containeryaml['containerName']
         self.containerId = containeryaml['containerId']
         self.FileHeaders = containeryaml['FileHeaders']
-        self.allowUsers = containeryaml['allowedUser']
+        self.allowedUser = containeryaml['allowedUser']
         # self.yamlTracking = containeryaml['yamlTracking']
         self.currentbranch = currentbranch
         self.filestomonitor = {}
