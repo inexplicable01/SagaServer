@@ -16,7 +16,7 @@ filestrack:
   file_name: special1.txt
   lastEdited: 1604900773.659827
   md5: somemd5
-  style: InputFile
+  style: Required
 - FileHeader: special2
   commitUTCdatetime: 1604901789.912327
   committedby: waichak
@@ -25,7 +25,21 @@ filestrack:
   file_name: special2.txt
   lastEdited: 1604900820.0940084
   md5: somemd5
-  style: InputFile
+  style: Required
+- FileHeader: Res_2_A
+  commitUTCdatetime: 1587625658.441229
+  committedby: waichak
+  connection:
+    Rev: Rev1
+    branch: Main
+    connectionType: Input
+    refContainerId: ContainerC
+  file_id: LongVideo.mp4
+  file_name: LongVideo.mp4
+  lastEdited: 1585452668.323447
+  md5: 64f79e458510f31085f645d4e3972289
+  persist: true
+  style: Input
 inlinks: null
 localfilepath: ''
 outlinks: null

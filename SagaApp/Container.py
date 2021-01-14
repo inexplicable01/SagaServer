@@ -139,16 +139,12 @@ class Container:
         return historyStr
 
     def save(self, environ='FrontEnd', outyamlfn = ''):
-        dictout = {}
         if environ=='FrontEnd':
             outyaml = open(os.path.join(self.containerworkingfolder, self.containerfn), 'w')
         elif environ=='Server':
             outyaml = open(outyamlfn, 'w')
-        keytosave = ['containerName', 'containerId',  'FileHeaders', 'allowedUser']
-        for key, value in vars(self).items():
-            if key in keytosave:
-                dictout[key] = value
-        yaml.dump(dictout, outyaml)
+
+        yaml.dump(self.dictify(), outyaml)
         outyaml.close()
 
     def returnType(self, FileHeader):

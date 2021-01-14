@@ -16,7 +16,7 @@ filestrack:
   file_name: R1.txt
   lastEdited: 1599099200.360922
   md5: a6bb4faacdff9dcdcb6f6e22bc51eac9
-  style: InputFile
+  style: Input
 - FileHeader: DSomething
   commitUTCdatetime: 1587625655.94801
   committedby: waichak
@@ -25,7 +25,7 @@ filestrack:
   file_name: DSomething.txt
   lastEdited: 1587260650.963201
   md5: a6bb4faacdff9dcdcb6f6e22bc51eac9
-  style: OutputFile
+  style: Required
 inlinks: null
 localfilepath: ''
 outlinks: null

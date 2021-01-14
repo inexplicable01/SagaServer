@@ -60,9 +60,6 @@ class Frame:
                                                      connection=conn,
                                                     persist=ftrack['persist'])
 
-        # print('self.localfilepath',self.localfilepath)
-
-    #        self.misc= misc
 
     def add_fileTrack(self, filepath,FileHeader):
 

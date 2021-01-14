@@ -21,7 +21,7 @@ filestrack:
   lastEdited: 1604903982.7176037
   md5: b8d9516e4c290600273e093548961cd1
   persist: true
-  style: InputFile
+  style: Required
 - FileHeader: M2
   commitUTCdatetime: 1604901789.912327
   committedby: waichak
@@ -31,7 +31,7 @@ filestrack:
   lastEdited: 1604900820.0940084
   md5: 3d07104ccf76f3118741bd07752a9368
   persist: true
-  style: InputFile
+  style: Required
 - FileHeader: R1
   commitUTCdatetime: 1609588567.831675
   committedby: usercemail@gmail.com
@@ -45,7 +45,7 @@ filestrack:
   lastEdited: 1609389679.4746773
   md5: 477afe5e22d357c08ce24d984900e5e9
   persist: true
-  style: OutputFile
+  style: Output
 - FileHeader: MAN
   commitUTCdatetime: 1608600143.900474
   committedby: waichak
@@ -59,7 +59,7 @@ filestrack:
   lastEdited: 1608581261.1547825
   md5: 7fd2802a69ec3fafb2ba058e4c1766d8
   persist: true
-  style: OutputFile
+  style: Output
 - FileHeader: Res_2_A
   commitUTCdatetime: 1587625658.441229
   committedby: waichak
@@ -73,7 +73,7 @@ filestrack:
   lastEdited: 1585452668.323447
   md5: 64f79e458510f31085f645d4e3972289
   persist: true
-  style: OutputFile
+  style: Output
 - FileHeader: Dogs
   commitUTCdatetime: 1598945795.04636
   committedby: waichak

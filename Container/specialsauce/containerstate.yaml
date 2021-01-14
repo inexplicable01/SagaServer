@@ -3,13 +3,13 @@ containerName: specialsauce
 FileHeaders:
   Res_2_A:
     Container: ContainerC
-    type: input
+    type: Input
   special1:
     Container: here
-    type: required
+    type: Required
   special2:
     Container: here
-    type: required
+    type: Required
 allowedUser:
 - usercemail@gmail.com
 - admin@example.com
