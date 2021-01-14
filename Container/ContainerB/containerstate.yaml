@@ -3,16 +3,16 @@ containerName: ContainerB
 FileHeaders:
   MUD:
     Container: ContainerA
-    type: input
+    type: Input
   Dogs:
     Container: ContainerA
-    type: input
+    type: Input
   MAN:
     Container: ContainerC
-    type: output
+    type: Output
   B1:
     Container: here
-    type: required
+    type: Required
 allowedUser:
 - userbemail@gmail.com
 - admin@example.com

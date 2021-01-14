@@ -39,7 +39,6 @@ class CommitView(Resource):
             # return resp, num # user would be a type of response if its not the actual class user
         user = authcheckresult
 
-
         try:
             containerID = request.form.get('containerID')
             curcont = Container(safe_join(self.rootpath, 'Container', containerID, 'containerstate.yaml'))

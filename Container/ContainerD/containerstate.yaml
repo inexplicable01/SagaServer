@@ -3,10 +3,10 @@ containerName: ContainerD
 FileHeaders:
   R1:
     Container: ContainerC
-    type: input
+    type: Input
   DSomething:
     Container: here
-    type: required
+    type: Required
 allowedUser:
 - userdemail@gmail.com
 - admin@example.com

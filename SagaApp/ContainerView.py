@@ -59,6 +59,11 @@ class ContainerView(Resource):
             resp.headers["containerinfolist"] = json.dumps(containerinfolist)
             resp.data = json.dumps(containerinfolist)
             return resp
+
+        elif command=="tester":
+            resp = make_response()
+            resp.data=json.dumps({'dicit':'pop','plo':3})
+            return resp
         else:
             resp = make_response()
             resp.headers["response"] = "Incorrect Command"
@@ -66,8 +71,19 @@ class ContainerView(Resource):
 
     def post(self, command=None):
 
-        branch = 'Main'
-        # command = request.form['command']
+        authcheckresult = self.authcheck()
+
+        if not isinstance(authcheckresult, User):
+            (resp, num) = authcheckresult
+            responseObject = {
+                'status': 'fail',
+                'message': 'resp'
+            }
+            return make_response(jsonify(responseObject))
+            # return resp, num # user would be a type of response if its not the actual class user
+        user = authcheckresult
+
+
         resp = make_response()
         resp.headers["response"] = "Incorrect Command"
         if command=="newContainer":
@@ -89,7 +105,7 @@ class ContainerView(Resource):
                     content = request.files[FileHeader].read()
                     newframe.filestrack[FileHeader].file_id = uuid.uuid4().__str__()
                     newframe.filestrack[FileHeader].md5 = hashlib.md5(content).hexdigest()
-                    # filetrackobj.committedby = user.email
+                    newframe.filestrack[FileHeader].committedby = user.email
                     newframe.filestrack[FileHeader].style = 'Required'
                     newframe.filestrack[FileHeader].commitUTCdatetime = committime
                     with open(os.path.join(self.rootpath, 'Files', newframe.filestrack[FileHeader].file_id),
@@ -97,13 +113,17 @@ class ContainerView(Resource):
                         file.write(content)
                     # os.unlink(os.path.join(self.rootpath, 'Files', newframe.filestrack[FileHeader].file_id))
 
+                newcont.allowedUser.append(user.email)
                 newcont.save(environ='Server',
                              outyamlfn=safe_join(self.rootpath, 'Container', newcont.containerId,'containerstate.yaml'))
+                newframe.commitUTCdatetime=committime
+                newframe.FrameInstanceId=uuid.uuid4().__str__()
                 newframe.writeoutFrameYaml( \
                     safe_join(self.rootpath, 'Container', newcont.containerId,'Main','Rev1.yaml'))
 
 
                 resp.headers["response"] = "Container Made"
+                resp.data = json.dumps({'containerdictjson': newcont.dictify(), 'framedictjson': newframe.dictify()})
                 return resp
         else:
             resp = make_response()
@@ -146,7 +166,7 @@ class ContainerView(Resource):
                 return resp
         return resp
 
-    def authcheck(self ):
+    def authcheck(self):
         auth_header = request.headers.get('Authorization')
         if auth_header:
             try:

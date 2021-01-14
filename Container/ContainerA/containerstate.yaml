@@ -5,12 +5,12 @@ FileHeaders:
     Container:
     - ContainerC
     - ContainerB
-    type: output
+    type: Output
   MUD:
     Container: ContainerB
-    type: output
+    type: Output
   AModel1:
     Container: here
-    type: required
+    type: Required
 allowedUser:
 - useraemail@gmail.com
