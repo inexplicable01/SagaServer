@@ -1,5 +1,5 @@
 from SagaApp.Frame import Frame
-from SagaApp.Connection import ConnectionTypes, ConnectionFileObj
+from SagaApp.Connection import ConnectionTypes, FileConnection
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 import gridfs
@@ -12,7 +12,7 @@ import time
 import requests
 import json
 import re
-from config import basedir
+from config import basedir , typeInput, typeOutput, typeRequired
 from SagaApp.SagaUtil import latestFrameInBranch, FrameNumInBranch
 
 from datetime import datetime
@@ -46,6 +46,10 @@ class Container:
         self.refframe , self.revnum = FrameNumInBranch(\
             os.path.join(basedir, 'Container', self.containerId, currentbranch),\
             revnum)
+        try:
+            self.workingFrame = Frame(self.refframe, self.filestomonitor, self.containerworkingfolder)
+        except Exception as e:
+            self.workingFrame = Frame()
 
     def commit(self, cframe: Frame, commitmsg, BASE):
         committed = False
@@ -153,6 +157,14 @@ class Container:
         else:
             print(FileHeader + 'not in this frame')
             return None
+
+    def addFileObject(self, fileheader, fileInfo, fileType:str):
+        if fileType ==typeInput:
+            self.FileHeaders[fileheader] = fileInfo
+        elif fileType == typeRequired:
+            self.FileHeaders[fileheader] = fileInfo
+        elif fileType == typeOutput:
+            self.FileHeaders[fileheader] = fileInfo
 
     def __repr__(self):
         return json.dumps(self.dictify())

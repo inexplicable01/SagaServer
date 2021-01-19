@@ -40,18 +40,24 @@ class FrameView(Resource):
         containerID = request.form['containerID']
         branch = request.form['branch']
 
+        if 'rev' in request.form.keys():
+            rev = request.form['rev']
+
+            if os.path.exists(safe_join(self.rootpath,'Container',containerID,branch,rev)):
+                result = send_from_directory(safe_join(self.rootpath,'Container',containerID,branch),rev)
+                # result.headers['file_name'] = rev
+                result.headers['branch'] = branch
+                return result
+            else:
+                return {"response": "Invalid Frame Yaml" + rev}
+
+
         if os.path.exists(safe_join(self.rootpath,'Container',containerID)):
             if os.path.exists(safe_join(self.rootpath,'Container',containerID, branch)):
                 latestrevfn, revnum = self.latestRev(safe_join(self.rootpath,'Container', containerID, branch))
                 result = send_from_directory(safe_join(self.rootpath,'Container', containerID, branch),latestrevfn)
                 result.headers['file_name'] = latestrevfn
                 result.headers['branch'] = branch
-                return result
-            else:
-                latestrevfn, revnum = self.latestRev(safe_join(self.rootpath,'Container', containerID, 'Main'))
-                result = send_from_directory(safe_join(self.rootpath,'Container', containerID, 'Main'),latestrevfn)
-                result.headers['file_name'] = latestrevfn
-                result.headers['branch'] = 'Main'
                 return result
         else:
             return {"response": "Invalid Container ID"}

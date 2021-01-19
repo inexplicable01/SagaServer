@@ -11,7 +11,7 @@ import uuid
 import hashlib
 from datetime import datetime
 from UserModel import User
-
+from config import basedir , typeInput, typeOutput, typeRequired
 
 class ContainerView(Resource):
 
@@ -64,6 +64,14 @@ class ContainerView(Resource):
             resp = make_response()
             resp.data=json.dumps({'dicit':'pop','plo':3})
             return resp
+        elif command=="fullbranch":
+            containerID = request.form['containerID']
+            branch = request.form['branch']
+            # result = send_from_directory(safe_join(self.rootpath, 'Container', containerID, branch), 'Rev1.yaml')
+            filepath = safe_join(self.rootpath, 'Container', containerID, branch)
+            resp = make_response()
+            resp.data=json.dumps(os.listdir(filepath))
+            return resp
         else:
             resp = make_response()
             resp.headers["response"] = "Incorrect Command"
@@ -91,7 +99,8 @@ class ContainerView(Resource):
             # newcont = Container()
             newcont = Container('containerstate.yaml',containerdict=containerdict)
             framedict = json.loads(request.form['framedictjson'])
-            newframe = Frame(None,None, None, framedict)
+            newcont.workingFrame = Frame(None,None, None, framedict)
+            newcont.revnum =1
             committime = datetime.timestamp(datetime.utcnow())
 
             if os.path.exists(safe_join(self.rootpath, 'Container', newcont.containerId)):
@@ -101,14 +110,40 @@ class ContainerView(Resource):
                 os.mkdir(safe_join(self.rootpath, 'Container', newcont.containerId))
                 os.mkdir(safe_join(self.rootpath, 'Container', newcont.containerId,'Main'))
 
-                for FileHeader in request.files.keys():
-                    content = request.files[FileHeader].read()
-                    newframe.filestrack[FileHeader].file_id = uuid.uuid4().__str__()
-                    newframe.filestrack[FileHeader].md5 = hashlib.md5(content).hexdigest()
-                    newframe.filestrack[FileHeader].committedby = user.email
-                    newframe.filestrack[FileHeader].style = 'Required'
-                    newframe.filestrack[FileHeader].commitUTCdatetime = committime
-                    with open(os.path.join(self.rootpath, 'Files', newframe.filestrack[FileHeader].file_id),
+                for fileheader in request.files.keys():
+                    content = request.files[fileheader].read()
+                    newcont.workingFrame.filestrack[fileheader].file_id = uuid.uuid4().__str__()
+                    newcont.workingFrame.filestrack[fileheader].md5 = hashlib.md5(content).hexdigest()
+                    newcont.workingFrame.filestrack[fileheader].committedby = user.email
+                    newcont.workingFrame.filestrack[fileheader].style = 'Required'
+                    newcont.workingFrame.filestrack[fileheader].commitUTCdatetime = committime
+                    if newcont.workingFrame.filestrack[fileheader].connection:
+                        downcontainerid = newcont.workingFrame .filestrack[fileheader].connection.refContainerId
+                        downcontainer = Container(os.path.join(self.rootpath, 'Container', downcontainerid,'containerstate.yaml'))
+                        downcontainer.addFileObject(fileheader, {'Container': newcont.containerId, 'type': typeInput}, typeInput)
+                        downcontainer.workingFrame.addfromOutputtoInputFileTotrack(newcont.workingFrame.filestrack[fileheader].file_name,
+                                                                                   fileheader,
+                                                                                   newcont.workingFrame.filestrack[fileheader],
+                                                                                   typeInput,
+                                                                                   newcont.containerId,
+                                                                                   'Main',
+                                                                                   'Rev' + str(newcont.revnum))
+                        downcontainer.save(environ='Server',
+                                     outyamlfn=safe_join(self.rootpath, 'Container', downcontainer.containerId,
+                                                         'containerstate.yaml'))
+                        downcontainer.workingFrame.commitUTCdatetime = committime
+                        downcontainer.workingFrame.FrameInstanceId = uuid.uuid4().__str__()
+                        downcontainer.workingFrame.commitMessage = 'Commiting new frame based on ' + newcont.containerId +\
+                                                                   '   ' + newcont.workingFrame.commitMessage
+                        downcontainer.workingFrame.writeoutFrameYaml( \
+                            safe_join(self.rootpath, 'Container', downcontainer.containerId, 'Main','Rev' + str(downcontainer.revnum+1) +'.yaml'))
+
+                        newcont.workingFrame.filestrack[fileheader].connection.Rev = 'Rev' + str(downcontainer.revnum+1)
+                    # if connection.connectionType is output look for the downstream container
+                    # load the container and add as input in downstream container
+                    # take the latest frame in downstream container and add input file in
+                    #  to filestrack  and save that too   new frame for
+                    with open(os.path.join(self.rootpath, 'Files', newcont.workingFrame.filestrack[fileheader].file_id),
                               'wb') as file:
                         file.write(content)
                     # os.unlink(os.path.join(self.rootpath, 'Files', newframe.filestrack[FileHeader].file_id))
@@ -116,14 +151,14 @@ class ContainerView(Resource):
                 newcont.allowedUser.append(user.email)
                 newcont.save(environ='Server',
                              outyamlfn=safe_join(self.rootpath, 'Container', newcont.containerId,'containerstate.yaml'))
-                newframe.commitUTCdatetime=committime
-                newframe.FrameInstanceId=uuid.uuid4().__str__()
-                newframe.writeoutFrameYaml( \
+                newcont.workingFrame.commitUTCdatetime=committime
+                newcont.workingFrame.FrameInstanceId=uuid.uuid4().__str__()
+                newcont.workingFrame.writeoutFrameYaml( \
                     safe_join(self.rootpath, 'Container', newcont.containerId,'Main','Rev1.yaml'))
 
 
                 resp.headers["response"] = "Container Made"
-                resp.data = json.dumps({'containerdictjson': newcont.dictify(), 'framedictjson': newframe.dictify()})
+                resp.data = json.dumps({'containerdictjson': newcont.dictify(), 'framedictjson': newcont.workingFrame.dictify()})
                 return resp
         else:
             resp = make_response()
@@ -165,6 +200,8 @@ class ContainerView(Resource):
                 resp.headers["response"] = "Container " + containerId + " doesn't exist"
                 return resp
         return resp
+
+
 
     def authcheck(self):
         auth_header = request.headers.get('Authorization')

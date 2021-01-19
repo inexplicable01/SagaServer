@@ -5,7 +5,9 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 # postgres_local_base = 'postgresql://postgres:@localhost/'
 database_name = 'flask_jwt_auth'
 
-
+typeInput='Input'
+typeOutput='Output'
+typeRequired='Required'
 
 # class BaseConfig:
 #     """Base configuration."""
