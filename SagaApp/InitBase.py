@@ -1,4 +1,4 @@
-from UserModel import User, Role
+from SagaApp.UserModel import User, Role
 
 def InitBase(user_manager,db):
     if not User.query.filter(User.email == 'member@example.com').first():

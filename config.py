@@ -9,13 +9,32 @@ typeInput='Input'
 typeOutput='Output'
 typeRequired='Required'
 
-# class BaseConfig:
-#     """Base configuration."""
-#     SECRET_KEY = os.getenv('SECRET_KEY', 'my_precious')
-#     DEBUG = False
-#     BCRYPT_LOG_ROUNDS = 13
-#     SQLALCHEMY_TRACK_MODIFICATIONS = False
-#
+class BaseConfig:
+    """Base configuration."""
+    SECRET_KEY = os.getenv('SECRET_KEY', 'my_precious')
+    DEBUG = False
+    BCRYPT_LOG_ROUNDS = 13
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+class ConfigClass(object):
+    """ Flask application config """
+
+    # Flask settings
+    SECRET_KEY = '5791628bb0b13ce0c676dfde280ba245'
+
+    # Flask-SQLAlchemy settings
+    # SQLALCHEMY_DATABASE_URI = 'mysql://FatPanda1985:Lowlevelpw01!@FatPanda1985.mysql.pythonanywhere-services.com/base.db'  # File-based SQL database
+    SQLALCHEMY_DATABASE_URI ='sqlite:///basic_app_test.sqlite'
+    SQLALCHEMY_TRACK_MODIFICATIONS = True  # Avoids SQLAlchemy warning
+    CONTAINERFOLDER = 'Container'
+
+    # # Flask-User settings
+    USER_APP_NAME = "Flask-User Basic App"  # Shown in and email templates and page footers
+    USER_ENABLE_EMAIL = False  # Enable email authentication
+    USER_ENABLE_USERNAME = False  # Disable username authentication
+    USER_EMAIL_SENDER_NAME = USER_APP_NAME
+    USER_EMAIL_SENDER_EMAIL = "noreply@example.com"
+
 #
 # class DevelopmentConfig(BaseConfig):
 #     """Development configuration."""

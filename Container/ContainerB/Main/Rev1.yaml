@@ -30,6 +30,19 @@ filestrack:
   lastEdited: 1587260650.963201
   md5: a6bb4faacdff9dcdcb6f6e22bc51eac9
   style: Output
+- FileHeader: Dogs
+  commitUTCdatetime: 1587625655.94801
+  committedby: waichak
+  connection:
+    Rev: Rev1.yaml
+    branch: Main
+    connectionType: Input
+    refContainerId: ContainerA
+  file_id: Doggy.txt
+  file_name: Doggy.txt
+  lastEdited: 1587260650.963201
+  md5: a6bb4faacdff9dcdcb6f6e22bc51eac9
+  style: Output
 - FileHeader: MAN
   commitUTCdatetime: 1599108647.023557
   committedby: waichak

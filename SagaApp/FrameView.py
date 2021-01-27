@@ -1,14 +1,13 @@
 import os
-import io
-from flask import Flask,flash, request, jsonify,redirect, url_for,send_from_directory , send_file, make_response, safe_join
-from flask_restful import Api, Resource
+from flask import request, jsonify, send_from_directory , make_response, safe_join
+from flask_restful import Resource
 import json
 import re
 import uuid
 import yaml
 from datetime import datetime
 from SagaApp.Frame import Frame
-from UserModel import User
+from SagaApp.UserModel import User
 from SagaApp.Container import Container
 Rev = 'Rev'
 
@@ -28,9 +27,7 @@ class FrameView(Resource):
 
 
     def get(self):
-
         authcheckresult = self.authcheck()
-
         if not isinstance(authcheckresult, User):
             (resp, num) = authcheckresult
             return resp
@@ -76,7 +73,7 @@ class FrameView(Resource):
         user = authcheckresult
 
         containerID = request.form.get('containerID')
-        curcont = Container(safe_join(self.rootpath, 'Container', containerID, 'containerstate.yaml'))
+        curcont = Container.LoadContainerFromYaml(safe_join(self.rootpath, 'Container', containerID, 'containerstate.yaml'))
 
         if user.email in curcont.allowedUser:
             return user

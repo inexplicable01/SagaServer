@@ -4,7 +4,7 @@ from SagaApp.Frame import Frame
 
 framedict= {}
 for cont in os.listdir('Container'):
-    container = Container(os.path.join('Container',cont, 'containerstate.yaml'))
+    container = Container.LoadContainerFromYaml(os.path.join('Container',cont, 'containerstate.yaml'))
     print(container.filestomonitor)
     print(container.refframe)
 

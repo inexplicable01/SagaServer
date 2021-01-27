@@ -1,0 +1,52 @@
+AttachedFiles: ''
+FrameInstanceId: b773fcb3-8a43-4798-805d-d1ef86d1c901
+FrameName: Rev1
+commitMessage: WWhSlYbMVPtEBaDjHZxqjdRXKldkJt
+commitUTCdatetime: 1611314132.751246
+filestrack:
+- FileHeader: MAN
+  commitUTCdatetime: 1599108647.023557
+  committedby: waichak
+  connection:
+    Rev: Rev1
+    branch: Main
+    connectionType: Input
+    refContainerId: ContainerB
+  file_id: MAN.txt
+  file_name: MAN.txt
+  lastEdited: 1599020562.1418214
+  md5: 7fd2802a69ec3fafb2ba058e4c1766d8
+  persist: true
+  style: Input
+- FileHeader: Res_2_A
+  commitUTCdatetime: 1587625658.441229
+  committedby: waichak
+  connection:
+    Rev: Rev1
+    branch: Main
+    connectionType: Input
+    refContainerId: ContainerC
+  file_id: LongVideo.mp4
+  file_name: LongVideo.mp4
+  lastEdited: 1585452668.323447
+  md5: 64f79e458510f31085f645d4e3972289
+  persist: true
+  style: Input
+- FileHeader: oiuytfghj
+  commitUTCdatetime: 1611314132.751246
+  committedby: usercemail@gmail.com
+  connection:
+    Rev: Rev2
+    branch: Main
+    connectionType: Output
+    refContainerId: 7JVGI9Pp
+  file_id: 0132f05d-cbbc-476e-8af8-f95ad7953d31
+  file_name: SagaFrontEndTesting.pptx
+  lastEdited: 1610073892.0185916
+  md5: d41d8cd98f00b204e9800998ecf8427e
+  persist: true
+  style: Required
+inlinks: ''
+localfilepath: null
+outlinks: ''
+parentContainerId: 08VY1JKK

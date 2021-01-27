@@ -1,8 +1,5 @@
 from SagaApp.Frame import Frame
-from SagaApp.Connection import ConnectionTypes, FileConnection
-from pymongo import MongoClient
-from bson.objectid import ObjectId
-import gridfs
+
 import copy
 import hashlib
 import os
@@ -14,42 +11,124 @@ import json
 import re
 from config import basedir , typeInput, typeOutput, typeRequired
 from SagaApp.SagaUtil import latestFrameInBranch, FrameNumInBranch
+from flask import current_app
 
 from datetime import datetime
 
+CONTAINERFOLDER = 'Container'  #This shouldn't be in here...too tired to remove.
+# current_app['CONTAINERFOLDER']
+
 Rev = 'Rev'
-blankcontainer = {'containerName':"" ,'containerId':"",'FileHeaders': {} ,'allowedUser':[] }
+blankcontainer = {'containerName':"" ,'containerId':"",'FileHeaders': {} ,'allowedUser':[]}
 
 class Container:
-    def __init__(self, containerfn='Default',currentbranch='Main',revnum=None, containerdict=None):
-        if containerdict is None and containerfn == 'Default':
-            containeryaml = blankcontainer
-            self.containerworkingfolder = os.path.join(basedir, 'Container')
-        else:
-            if containerdict:
-                containeryaml = containerdict
-                self.containerworkingfolder = os.path.join(os.getcwd(),'Container',containeryaml['containerId'])
-            else:
-                self.containerworkingfolder = os.path.dirname(containerfn)
-                with open(containerfn) as file:
-                    containeryaml = yaml.load(file, Loader=yaml.FullLoader)
-        self.containerfn = containerfn
-        self.containerName = containeryaml['containerName']
-        self.containerId = containeryaml['containerId']
-        self.FileHeaders = containeryaml['FileHeaders']
-        self.allowedUser = containeryaml['allowedUser']
-        # self.yamlTracking = containeryaml['yamlTracking']
+    # def __init__(self, containerfn='Default',currentbranch='Main',revnum=None, containerdict=None):
+    #     if containerdict is None and containerfn == 'Default':
+    #         containeryaml = blankcontainer
+    #         self.containerworkingfolder = os.path.join(basedir, 'Container')
+    #     else:
+    #         if containerdict:
+    #             containeryaml = containerdict
+    #             self.containerworkingfolder = os.path.join(os.getcwd(),'Container',containeryaml['containerId'])
+    #         else:
+    #             self.containerworkingfolder = os.path.dirname(containerfn)
+    #             with open(containerfn) as file:
+    #                 containeryaml = yaml.load(file, Loader=yaml.FullLoader)
+    #     # self.containerfn = containerfn
+    #     self.containerName = containeryaml['containerName']
+    #     self.containerId = containeryaml['containerId']
+    #     self.FileHeaders = containeryaml['FileHeaders']
+    #     self.allowedUser = containeryaml['allowedUser']
+    #     # self.yamlTracking = containeryaml['yamlTracking']
+    #     self.currentbranch = currentbranch
+    #     self.filestomonitor = {}
+    #     for FileHeader, file in self.FileHeaders.items():
+    #         self.filestomonitor[FileHeader]= file['type']
+    #     self.refframe , self.revnum = FrameNumInBranch(\
+    #         os.path.join(basedir, 'Container', self.containerId, currentbranch),\
+    #         revnum)
+    #     try:
+    #         self.workingFrame = Frame(self.refframe, self.filestomonitor, self.containerworkingfolder)
+    #     except Exception as e:
+    #         self.workingFrame = Frame()
+
+    def __init__(self, containerworkingfolder,containerName,containerId,
+                 FileHeaders,allowedUser,currentbranch,filestomonitor,revnum,refframe,
+                 workingFrame: Frame):
+        self.containerworkingfolder = containerworkingfolder
+        self.containerName = containerName
+        self.containerId = containerId
+        self.FileHeaders = FileHeaders
+        self.allowedUser = allowedUser
         self.currentbranch = currentbranch
-        self.filestomonitor = {}
-        for FileHeader, file in self.FileHeaders.items():
-            self.filestomonitor[FileHeader]= file['type']
-        self.refframe , self.revnum = FrameNumInBranch(\
-            os.path.join(basedir, 'Container', self.containerId, currentbranch),\
-            revnum)
+        self.filestomonitor =filestomonitor
+        self.revnum =revnum
+        self.refframe =refframe
+        self.workingFrame= workingFrame
+
+    @classmethod
+    def LoadContainerFromDict(cls, containerdict, currentbranch='Main',revnum='1'):
+        # containeryaml = containerdict
+        containerworkingfolder = os.path.join(os.getcwd(), CONTAINERFOLDER, containerdict['containerId'])
+        FileHeaders = containerdict['FileHeaders']
+        filestomonitor = {}
+        for FileHeader, file in FileHeaders.items():
+            filestomonitor[FileHeader]= file['type']
+        refframe, revnum = FrameNumInBranch(os.path.join(containerworkingfolder, currentbranch), revnum)
         try:
-            self.workingFrame = Frame(self.refframe, self.filestomonitor, self.containerworkingfolder)
+            workingFrame = Frame(refframe, filestomonitor, containerworkingfolder)
         except Exception as e:
-            self.workingFrame = Frame()
+            workingFrame = Frame()
+        container = cls(containerworkingfolder=containerworkingfolder,
+                           containerName=containerdict['containerName'],
+                           containerId=containerdict['containerId'],
+                           FileHeaders=FileHeaders,
+                           allowedUser=containerdict['allowedUser'],
+                           currentbranch=currentbranch,filestomonitor=filestomonitor, revnum=revnum,
+                           refframe=refframe, workingFrame=workingFrame)
+        return container
+
+    @classmethod
+    def InitiateContainer(cls):
+        newcontainer = cls(containerworkingfolder=basedir,
+                           containerName="",
+                           containerId="",
+                           FileHeaders={},
+                           allowedUser=[],
+                           currentbranch="Main",filestomonitor={},revnum='1',
+                           refframe='dont have one yet', workingFrame = Frame())
+        return newcontainer
+
+    @classmethod
+    def LoadContainerFromYaml(cls, containerfn, currentbranch='Main',revnum='1'):
+        containerworkingfolder = os.path.dirname(containerfn)
+        with open(containerfn) as file:
+            containeryaml = yaml.load(file, Loader=yaml.FullLoader)
+        FileHeaders={}
+        for fileheader, fileinfo in containeryaml['FileHeaders'].items():
+            if fileinfo['type'] == typeOutput:
+                if type(fileinfo['Container']) != list:
+                    fileinfo['Container']=[fileinfo['Container']]
+            FileHeaders[fileheader] = fileinfo
+        filestomonitor = {}
+        for FileHeader, file in FileHeaders.items():
+            filestomonitor[FileHeader]= file['type']
+
+        try:
+            refframe, revnum = FrameNumInBranch(os.path.join(containerworkingfolder, currentbranch), revnum)
+            workingFrame = Frame(refframe, filestomonitor, containerworkingfolder)
+        except Exception as e:
+            refframe = 'Dont have one yet'
+            revnum='1'
+            workingFrame = Frame()
+        container = cls(containerworkingfolder=containerworkingfolder,
+                           containerName=containeryaml['containerName'],
+                           containerId=containeryaml['containerId'],
+                           FileHeaders=FileHeaders,
+                           allowedUser=containeryaml['allowedUser'],
+                           currentbranch=currentbranch,filestomonitor=filestomonitor, revnum=revnum,
+                           refframe=refframe, workingFrame=workingFrame)
+        return container
 
     def commit(self, cframe: Frame, commitmsg, BASE):
         committed = False
