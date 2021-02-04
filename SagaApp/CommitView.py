@@ -6,7 +6,7 @@ from SagaApp.Frame import Frame
 import re
 import uuid
 from datetime import datetime
-from UserModel import User
+from SagaApp.UserModel import User
 import json
 
 Rev='Rev'
@@ -41,7 +41,7 @@ class CommitView(Resource):
 
         try:
             containerID = request.form.get('containerID')
-            curcont = Container(safe_join(self.rootpath, 'Container', containerID, 'containerstate.yaml'))
+            curcont = Container.LoadContainerFromYaml(safe_join(self.rootpath, 'Container', containerID, 'containerstate.yaml'))
             if user.email not in curcont.allowedUser:
                 responseObject = {
                         'status': 'fail',
@@ -51,7 +51,7 @@ class CommitView(Resource):
 
             containerdict= json.loads(request.form['containerdictjson'])
 
-            newcont = Container(containerdict=containerdict)
+            newcont = Container.LoadContainerFromDict(containerdict=containerdict)
             identical, diff = Container.compare(curcont, newcont)
             if not identical and user.email not in curcont.allowedUser:
                 responseObject = {

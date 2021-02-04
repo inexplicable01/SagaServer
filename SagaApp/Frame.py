@@ -2,7 +2,8 @@ import hashlib
 import os
 import yaml
 # from SagaApp.Container import Container
-from SagaApp.FileObjects import FileTrack,ConnectionFileObj
+from SagaApp.FileObjects import FileTrack,FileConnection
+from SagaApp.Connection import FileConnection, ConnectionTypes
 import json
 # from PyQt5.QtWidgets import *
 # from PyQt5 import uic
@@ -11,13 +12,18 @@ import json
 
 fileobjtypes = ['inputObjs', 'requiredObjs', 'outputObjs']
 
+blankFrame = {'parentContainerId':"",'FrameName': "", 'FrameInstanceId': "",'commitMessage': "",'inlinks': "",'outlinks': "",'AttachedFiles': "", 'commitUTCdatetime': "",'filestrack': ""}
 
 
 class Frame:
-    def __init__(self, framefn, filestomonitor,localfilepath, framedict=None):
+    def __init__(self, framefn = None, filestomonitor = None,localfilepath = 'Default', framedict=None):
 
-        if framedict:
-            FrameYaml=framedict
+        if framefn == None:
+            if framedict:
+                FrameYaml = framedict
+            else:
+                FrameYaml = blankFrame
+                localfilepath = localfilepath #generalize this file path
         else:
             with open(framefn,'r') as file:
                 FrameYaml = yaml.load(file, Loader=yaml.FullLoader)
@@ -44,7 +50,7 @@ class Frame:
             # cont= Container(os.path.join('Container/',self.parentContainerId, 'containerstate.yaml'))
             conn=None
             if 'connection' in ftrack.keys() and ftrack['connection']:
-                conn = ConnectionFileObj(ftrack['connection']['refContainerId'],
+                conn = FileConnection(ftrack['connection']['refContainerId'],
                     connectionType=ftrack['connection']['connectionType'],
                                          branch=ftrack['connection']['branch'],
                                          Rev=ftrack['connection']['Rev'])
@@ -58,7 +64,7 @@ class Frame:
                                                      commitUTCdatetime=ftrack['commitUTCdatetime'],
                                                      lastEdited=ftrack['lastEdited'],
                                                      connection=conn,
-                                                    persist=ftrack['persist'])
+                                                    persist=True)
 
 
     def add_fileTrack(self, filepath,FileHeader):
@@ -72,6 +78,30 @@ class Frame:
                             )
         # print('fileobj', fileobj)
         self.filestrack[FileHeader]=fileobj
+
+    def addfromOutputtoInputFileTotrack(self, file_name, fileheader, reffiletrack:FileTrack,style,refContainerId,branch,rev):
+        # [path, file_name] = os.path.split(fullpath)
+        conn = FileConnection(refContainerId,
+                              connectionType=ConnectionTypes.Input,
+                              branch=branch,
+                              Rev=rev)
+
+        # if os.path.exists(fullpath):
+        newfiletrackobj = FileTrack(file_name=file_name,
+                                    FileHeader=fileheader,
+                                    style=style,
+                                    committedby=reffiletrack.committedby,
+                                    md5=reffiletrack.md5,
+                                    file_id=reffiletrack.file_id,
+                                    commitUTCdatetime=reffiletrack.commitUTCdatetime,
+                                    connection=conn,
+                                    localfilepath='',
+                                    lastEdited=reffiletrack.lastEdited)
+
+        self.filestrack[fileheader] = newfiletrackobj
+        # else:
+        #     raise(fullpath + ' does not exist')
+
 
     def add_inlinks(self, inlinks):
         self.inlinks.append(inlinks)
