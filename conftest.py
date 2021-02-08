@@ -22,9 +22,14 @@ def app():
     sagaapp = create_SagaApp({'TESTING': True,
                               'SQLALCHEMY_DATABASE_URI': 'sqlite:///basic_app_contest.sqlite',
                               'TESTSDIR':'tests/stuff',
-                              'CONTAINERFOLDER' : 'Containertest'})
+                              'CONTAINERFOLDER' : 'Containertest',
+                              'FILEFOLDER' : 'Filestest'})
     if not os.path.exists('Containertest'):
         os.mkdir('Containertest')
+    if not os.path.exists('Filestest'):
+        os.mkdir('Filestest')
+    if not os.path.exists('frontendtest'):
+        os.mkdir('frontendtest')
     # with app.app_context():
     #     # print('here')
     #     init_db()
@@ -32,11 +37,15 @@ def app():
 
     yield sagaapp
 
-    # shutil.rmtree('Containertest')
+
     # close and remove the temporary database
     os.close(db_fd)
     os.unlink('SagaApp/basic_app_contest.sqlite')
-    os.rmdir('Containertest')
+    # os.rmdir('Containertest')
+    # shutil.rmtree('Containertest')
+    # shutil.rmtree('Filestest')
+    # shutil.rmtree('frontendtest')
+
 
 
 @pytest.fixture

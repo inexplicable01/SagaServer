@@ -32,6 +32,18 @@ filestrack:
   lastEdited: 1604900820.0940084
   md5: 3d07104ccf76f3118741bd07752a9368
   style: Output
+- FileHeader: Requirements
+  commitUTCdatetime: 1612761061.132673
+  connection:
+    Rev: Rev1.yaml
+    branch: Main
+    connectionType: Output
+    refContainerId: ContainerC
+  file_id: CustomerRequirements.docx
+  file_name: CustomerRequirements.docx
+  lastEdited: 1612251203.0
+  md5: c3dedf137a9c0edcfbb753a1fee2df9a
+  style: Output
 - FileHeader: AModel1
   commitUTCdatetime: 1599113666.812924
   file_id: AModel1.txt
@@ -42,4 +54,4 @@ filestrack:
 inlinks:
 localfilepath: C:/Users/waich/Projects/ExampleDIR/GroupC
 outlinks:
-parentContainerId: ContainerA
+parentcontainerid: ContainerA

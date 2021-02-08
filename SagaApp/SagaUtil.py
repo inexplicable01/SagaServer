@@ -5,12 +5,16 @@ import warnings
 def latestFrameInBranch(path):
     # add comment
     revnum = 0;
-    for fn in os.listdir(path):
-        m = re.search('Rev(\d+).yaml', fn)
-        if int(m.group(1)) > revnum:
-            revnum = int(m.group(1))
-            latestrev = fn
-    return latestrev, revnum
+    latestrev= 'Rev0.yaml'
+    try:
+        for fn in os.listdir(path):
+            m = re.search('Rev(\d+).yaml', fn)
+            if int(m.group(1)) > revnum:
+                revnum = int(m.group(1))
+                latestrev = fn
+        return latestrev, revnum
+    except:
+        return latestrev, revnum
 
 
 def FrameNumInBranch(path, revnum):

@@ -5,9 +5,6 @@ FileHeaders:
   R1:
     Container: ContainerC
     type: Input
-  pyx:
-    Container: 7JVGI9Pp
-    type: Input
 allowedUser:
 - userdemail@gmail.com
 - admin@example.com

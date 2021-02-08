@@ -7,9 +7,12 @@ import re
 import uuid
 from datetime import datetime
 from SagaApp.UserModel import User
+from flask import current_app
 import json
 
 Rev='Rev'
+CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
+FILEFOLDER = current_app.config['FILEFOLDER']
 
 class CommitView(Resource):
 
@@ -66,7 +69,7 @@ class CommitView(Resource):
             refframe = os.path.join(self.rootpath, 'Container', containerID, branch, latestrevfn)
 
             framedict = json.loads(request.form['framedictjson'])
-            frameupload = Frame(None,None,None,framedict)
+            frameupload = Frame.LoadFrameFromDict(framedict)
             # frameRef = Frame(refframe, curcont.filestomonitor, os.path.join(self.rootpath, 'Files'))
 
             attnfiles = [file for file in request.files.keys()]
@@ -82,7 +85,7 @@ class CommitView(Resource):
                     filetrack.commitUTCdatetime = committime
                     # request.files[fileheader].save(os.path.join(self.rootpath, 'Files', filetrack.file_id))
                     content = request.files[fileheader].read()
-                    with open(os.path.join(self.rootpath, 'Files', filetrack.file_id), 'wb') as file:
+                    with open(os.path.join(self.rootpath, FILEFOLDER, filetrack.file_id), 'wb') as file:
                         file.write(content)
                     attnfiles.remove(fileheader)
 

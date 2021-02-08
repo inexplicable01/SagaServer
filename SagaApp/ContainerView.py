@@ -15,6 +15,7 @@ from config import typeInput
 from flask import current_app
 
 CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
+FILEFOLDER = current_app.config['FILEFOLDER']
 
 class ContainerView(Resource):
 
@@ -102,7 +103,7 @@ class ContainerView(Resource):
             # newcont = Container()
             newcont = Container.LoadContainerFromDict(containerdict=containerdict)
             framedict = json.loads(request.form['framedictjson'])
-            newcont.workingFrame = Frame(None,None, None, framedict)
+            newcont.workingFrame = Frame.LoadFrameFromDict(framedict)
             newcont.revnum =1
             committime = datetime.timestamp(datetime.utcnow())
 
@@ -110,10 +111,11 @@ class ContainerView(Resource):
                 resp.headers["response"] = "Container Already exists"
                 return resp
             else:
+
                 os.mkdir(safe_join(self.rootpath, CONTAINERFOLDER, newcont.containerId))
                 os.mkdir(safe_join(self.rootpath, CONTAINERFOLDER, newcont.containerId,'Main'))
-
                 for fileheader in request.files.keys():
+                    print('fileheader' + fileheader)
                     content = request.files[fileheader].read()
                     newcont.workingFrame.filestrack[fileheader].file_id = uuid.uuid4().__str__()
                     newcont.workingFrame.filestrack[fileheader].md5 = hashlib.md5(content).hexdigest()
@@ -146,10 +148,11 @@ class ContainerView(Resource):
                     # load the container and add as input in downstream container
                     # take the latest frame in downstream container and add input file in
                     #  to filestrack  and save that too   new frame for
-                    with open(os.path.join(self.rootpath, 'Files', newcont.workingFrame.filestrack[fileheader].file_id),
+                    print('HELLO')
+                    with open(os.path.join(self.rootpath, FILEFOLDER, newcont.workingFrame.filestrack[fileheader].file_id),
                               'wb') as file:
                         file.write(content)
-                    # os.unlink(os.path.join(self.rootpath, 'Files', newframe.filestrack[FileHeader].file_id))
+                    # os.unlink(os.path.join(self.rootpath, FILEFOLDER, newframe.filestrack[FileHeader].file_id))
 
                 newcont.allowedUser.append(user.email)
                 newcont.save(environ='Server',
