@@ -2,17 +2,18 @@ import hashlib
 import os
 import json
 from datetime import datetime
-from SagaApp.Connection import ConnectionFileObj
+from SagaApp.Connection import FileConnection
 
 class FileTrack:
     def __init__(self, FileHeader, localfilepath, \
-                 file_name, style,connection:ConnectionFileObj=None,
+                 file_name, style,connection:FileConnection=None,
                  lastEdited=None, committedby='waichak', \
                  md5=None, file_id=None, commitUTCdatetime=None,
                  persist: bool = True
                  ):
         self.FileHeader = FileHeader
         self.file_name = file_name
+        self.localfilepath = localfilepath
         if md5 is None:
             fileb = open(os.path.join(localfilepath, file_name) , 'rb')
             md5=hashlib.md5(fileb.read()).hexdigest()
@@ -48,11 +49,12 @@ class FileTrack:
         str += 'file_name:   ' + self.file_name + '\n'
         str += 'md5:   ' + self.md5 + '\n'
         if self.lastEdited:
-            str += 'lastEdited:   ' + datetime.fromtimestamp(self.commitUTCdatetime).isoformat()+ '\n'
+            str += 'lastEdited:   ' + datetime.fromtimestamp(self.lastEdited).isoformat()+ '\n'
         str += 'committedby:   ' + self.committedby+ '\n'
         if self.style:
             str += 'style:   ' + self.style+ '\n'
-        str += 'file_id:   ' + self.file_id+ '\n'
+        if self.file_id:
+            str += 'file_id:   ' + self.file_id+ '\n'
         if self.commitUTCdatetime:
             str += 'commitUTCdatetime:   ' + datetime.fromtimestamp(self.commitUTCdatetime).isoformat()+ '\n'
         str += 'connection:     ' + self.connection.__repr__() + '\n'

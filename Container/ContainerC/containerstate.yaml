@@ -3,22 +3,25 @@ containerName: ContainerC
 FileHeaders:
   MAN:
     Container: ContainerB
-    type: input
+    type: Input
   Dogs:
     Container: ContainerA
-    type: input
+    type: Input
   Res_2_A:
     Container: specialsauce
-    type: output
+    type: Output
   R1:
     Container: ContainerD
-    type: output
+    type: Output
   M1:
-    type: required
+    type: Required
     Container: here
   M2:
-    type: required
+    type: Required
     Container: here
+  Requirements:
+    Container: ContainerC
+    type: Input
 allowedUser:
 - usercemail@gmail.com
 - admin@example.com

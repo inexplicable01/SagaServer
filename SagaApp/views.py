@@ -2,7 +2,8 @@ from flask.views import MethodView
 from flask import Blueprint, request, make_response, jsonify
 
 from SagaApp import db
-from UserModel import User ,BlacklistToken
+# from SagaApp.db import get_db
+from SagaApp.UserModel import User ,BlacklistToken
 
 auth_blueprint = Blueprint('auth', __name__)
 
@@ -10,6 +11,13 @@ class RegisterAPI(MethodView):
     """
     User Registration Resource
     """
+    def get(self):
+        responseObject = {
+            'status': 'Register Get Online',
+            'message': 'Fill in',
+        }
+        return make_response(jsonify(responseObject)), 200
+
 
     def post(self):
         # get the post data
@@ -21,8 +29,8 @@ class RegisterAPI(MethodView):
                 user = User(
                     email=post_data.get('email'),
                     password=post_data.get('password'),
-                    first_name='billy',
-                    last_name='bob'
+                    first_name=post_data.get('first_name'),
+                    last_name=post_data.get('last_name')
                 )
                 # insert the user
                 db.session.add(user)
@@ -183,7 +191,7 @@ logout_view = LogoutAPI.as_view('logout_api')
 auth_blueprint.add_url_rule(
     '/auth/register',
     view_func=registration_view,
-    methods=['POST']
+    methods=['GET','POST']
 )
 auth_blueprint.add_url_rule(
     '/auth/login',

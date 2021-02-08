@@ -1,0 +1,24 @@
+containerId: ContainerC
+containerName: ContainerC
+FileHeaders:
+  MAN:
+    Container: ContainerB
+    type: Input
+  Dogs:
+    Container: ContainerA
+    type: Input
+  Res_2_A:
+    Container: specialsauce
+    type: Output
+  R1:
+    Container: ContainerD
+    type: Output
+  M1:
+    type: Required
+    Container: here
+  M2:
+    type: Required
+    Container: here
+allowedUser:
+- usercemail@gmail.com
+- admin@example.com

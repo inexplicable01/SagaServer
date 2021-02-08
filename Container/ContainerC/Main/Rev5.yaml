@@ -7,10 +7,10 @@ AttachedFiles:
   dateformat: US
   db_id: ''
   file_name: Misc2.txt
-FrameInstanceId: f01ae384-1f3a-4444-8dfc-6b12123032c4
+FrameInstanceId: 13d66cfc-3001-47f3-a181-fc1cc929c549
 FrameName: Rev5
-commitMessage: kjhgfdxcvb
-commitUTCdatetime: 1609726055.498464
+commitMessage: Revert back to Rev3
+commitUTCdatetime: 1610252263.388344
 filestrack:
 - FileHeader: M1
   commitUTCdatetime: 1604904031.148961
@@ -21,7 +21,7 @@ filestrack:
   lastEdited: 1604903982.7176037
   md5: b8d9516e4c290600273e093548961cd1
   persist: true
-  style: InputFile
+  style: Required
 - FileHeader: M2
   commitUTCdatetime: 1604901789.912327
   committedby: waichak
@@ -31,21 +31,21 @@ filestrack:
   lastEdited: 1604900820.0940084
   md5: 3d07104ccf76f3118741bd07752a9368
   persist: true
-  style: InputFile
+  style: Required
 - FileHeader: R1
-  commitUTCdatetime: 1609726055.498464
+  commitUTCdatetime: 1610252263.388344
   committedby: usercemail@gmail.com
   connection:
     Rev: Rev1
     branch: Main
     connectionType: Output
     refContainerId: ContainerD
-  file_id: 09251c04-4c19-4169-932d-702f50d1a5de
+  file_id: 88eb94cf-cd7a-4e65-9520-d67adc9ed3c1
   file_name: R1.txt
-  lastEdited: 1609716723.0730155
-  md5: 861241b48e718ec453cb7dc5d69c5c06
+  lastEdited: 1609570666.119017
+  md5: 8ea302e802bb3323a70b8c87fb9c7fe3
   persist: true
-  style: OutputFile
+  style: Output
 - FileHeader: MAN
   commitUTCdatetime: 1608600143.900474
   committedby: waichak
@@ -59,7 +59,7 @@ filestrack:
   lastEdited: 1608581261.1547825
   md5: 7fd2802a69ec3fafb2ba058e4c1766d8
   persist: true
-  style: OutputFile
+  style: Output
 - FileHeader: Res_2_A
   commitUTCdatetime: 1587625658.441229
   committedby: waichak
@@ -73,7 +73,7 @@ filestrack:
   lastEdited: 1585452668.323447
   md5: 64f79e458510f31085f645d4e3972289
   persist: true
-  style: OutputFile
+  style: Output
 - FileHeader: Dogs
   commitUTCdatetime: 1598945795.04636
   committedby: waichak
@@ -87,7 +87,7 @@ filestrack:
   lastEdited: 1598848859.300705
   md5: 924cc5b8e87b790e07b9de20b7a4e088
   persist: true
-  style: null
+  style: Input
 inlinks:
 - fromFrame: CORE
   infile: MUD.txt
@@ -97,4 +97,4 @@ localfilepath: null
 outlinks:
 - outfile: R1.txt
   toFrame: Struct
-parentContainerId: ContainerCID
+parentcontainerid: ContainerCID

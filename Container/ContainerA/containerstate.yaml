@@ -2,13 +2,18 @@ containerId: ContainerA
 containerName: ContainerA
 FileHeaders:
   Dogs:
-    Container: ContainerC
-    type: output
+    Container:
+    - ContainerC
+    - ContainerB
+    type: Output
   MUD:
     Container: ContainerB
-    type: output
+    type: Output
+  Requirements:
+    Container: ContainerC
+    type: Output
   AModel1:
     Container: here
-    type: required
+    type: Required
 allowedUser:
 - useraemail@gmail.com

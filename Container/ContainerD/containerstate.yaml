@@ -1,12 +1,12 @@
-containerId: ContainerD
-containerName: ContainerD
 FileHeaders:
-  R1:
-    Container: ContainerC
-    type: input
   DSomething:
     Container: here
-    type: required
+    type: Required
+  R1:
+    Container: ContainerC
+    type: Input
 allowedUser:
 - userdemail@gmail.com
 - admin@example.com
+containerId: ContainerD
+containerName: ContainerD

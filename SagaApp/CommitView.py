@@ -6,9 +6,12 @@ from SagaApp.Frame import Frame
 import re
 import uuid
 from datetime import datetime
-from UserModel import User
+from SagaApp.UserModel import User
+from flask import current_app
 import json
 Rev='Rev'
+CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
+FILEFOLDER = current_app.config['FILEFOLDER']
 
 class CommitView(Resource):
 
@@ -38,11 +41,10 @@ class CommitView(Resource):
             # return resp, num # user would be a type of response if its not the actual class user
         user = authcheckresult
 
-
         try:
             containerID = request.form.get('containerID')
-            curcont = Container(safe_join(self.rootpath, 'Container', containerID, 'containerstate.yaml'))
-            if user.email not in curcont.allowUsers:
+            curcont = Container.LoadContainerFromYaml(safe_join(self.rootpath, 'Container', containerID, 'containerstate.yaml'))
+            if user.email not in curcont.allowedUser:
                 responseObject = {
                         'status': 'fail',
                         'message': 'User  is not allowed to commit to this Container'
@@ -51,9 +53,9 @@ class CommitView(Resource):
 
             containerdict= json.loads(request.form['containerdictjson'])
 
-            newcont = Container(containerdict=containerdict)
+            newcont = Container.LoadContainerFromDict(containerdict=containerdict)
             identical, diff = Container.compare(curcont, newcont)
-            if not identical and user.email not in curcont.allowUsers:
+            if not identical and user.email not in curcont.allowedUser:
                 responseObject = {
                     'status': 'fail',
                     'message': 'User  is not allowed to change the container.'
@@ -66,7 +68,8 @@ class CommitView(Resource):
             refframe = os.path.join(self.rootpath, 'Container', containerID, branch, latestrevfn)
 
             framedict = json.loads(request.form['framedictjson'])
-            frameupload = Frame(None,None,None,framedict)
+
+            frameupload = Frame.LoadFrameFromDict(framedict)
             # frameRef = Frame(refframe, curcont.filestomonitor, os.path.join(self.rootpath, 'Files'))
 
             attnfiles = [file for file in request.files.keys()]
@@ -82,7 +85,7 @@ class CommitView(Resource):
                     filetrack.commitUTCdatetime = committime
                     # request.files[fileheader].save(os.path.join(self.rootpath, 'Files', filetrack.file_id))
                     content = request.files[fileheader].read()
-                    with open(os.path.join(self.rootpath, 'Files', filetrack.file_id), 'wb') as file:
+                    with open(os.path.join(self.rootpath, FILEFOLDER, filetrack.file_id), 'wb') as file:
                         file.write(content)
                     attnfiles.remove(fileheader)
 
@@ -100,11 +103,6 @@ class CommitView(Resource):
                     'message': 'Reached end of Commit Post'
                 }
                 return make_response(jsonify(responseObject))
-            # # frameupload.writeoutFrameYaml(newframefullpath)
-                # result = send_from_directory(safe_join(self.rootpath, 'Container', containerID, 'Main'), newrevfn)
-                # result.headers['file_name'] = newrevfn
-                # result.headers['branch'] = 'Main'
-                # result.headers['commitsuccess'] = True
             else:
                 frameupload.writeoutFrameYaml(newframefullpath)
                 result = send_from_directory(safe_join(self.rootpath, 'Container', containerID, branch), newrevfn)

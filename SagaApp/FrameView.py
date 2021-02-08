@@ -1,16 +1,20 @@
 import os
-import io
-from flask import Flask,flash, request, jsonify,redirect, url_for,send_from_directory , send_file, make_response, safe_join
-from flask_restful import Api, Resource
+from flask import request, jsonify, send_from_directory , make_response, safe_join
+from flask_restful import Resource
 import json
 import re
 import uuid
 import yaml
 from datetime import datetime
 from SagaApp.Frame import Frame
-from UserModel import User
+from SagaApp.UserModel import User
 from SagaApp.Container import Container
+from flask import current_app
+
+CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
+FILEFOLDER = current_app.config['FILEFOLDER']
 Rev = 'Rev'
+
 
 class FrameView(Resource):
 
@@ -28,9 +32,7 @@ class FrameView(Resource):
 
 
     def get(self):
-
         authcheckresult = self.authcheck()
-
         if not isinstance(authcheckresult, User):
             (resp, num) = authcheckresult
             return resp
@@ -40,18 +42,24 @@ class FrameView(Resource):
         containerID = request.form['containerID']
         branch = request.form['branch']
 
+        if 'rev' in request.form.keys():
+            rev = request.form['rev']
+
+            if os.path.exists(safe_join(self.rootpath,'Container',containerID,branch,rev)):
+                result = send_from_directory(safe_join(self.rootpath,'Container',containerID,branch),rev)
+                # result.headers['file_name'] = rev
+                result.headers['branch'] = branch
+                return result
+            else:
+                return {"response": "Invalid Frame Yaml" + rev}
+
+
         if os.path.exists(safe_join(self.rootpath,'Container',containerID)):
             if os.path.exists(safe_join(self.rootpath,'Container',containerID, branch)):
                 latestrevfn, revnum = self.latestRev(safe_join(self.rootpath,'Container', containerID, branch))
                 result = send_from_directory(safe_join(self.rootpath,'Container', containerID, branch),latestrevfn)
                 result.headers['file_name'] = latestrevfn
                 result.headers['branch'] = branch
-                return result
-            else:
-                latestrevfn, revnum = self.latestRev(safe_join(self.rootpath,'Container', containerID, 'Main'))
-                result = send_from_directory(safe_join(self.rootpath,'Container', containerID, 'Main'),latestrevfn)
-                result.headers['file_name'] = latestrevfn
-                result.headers['branch'] = 'Main'
                 return result
         else:
             return {"response": "Invalid Container ID"}
@@ -70,9 +78,9 @@ class FrameView(Resource):
         user = authcheckresult
 
         containerID = request.form.get('containerID')
-        curcont = Container(safe_join(self.rootpath, 'Container', containerID, 'containerstate.yaml'))
+        curcont = Container.LoadContainerFromYaml(safe_join(self.rootpath, 'Container', containerID, 'containerstate.yaml'))
 
-        if user.email in curcont.allowUsers:
+        if user.email in curcont.allowedUser:
             return user
         else:
             responseObject = {
@@ -85,17 +93,13 @@ class FrameView(Resource):
         updateinfo = json.loads(request.form['updateinfo'])
         commitmsg = request.form['commitmsg']
         latestrevfn, revnum = self.latestRev(safe_join(self.rootpath, 'Container', containerID, branch))
-        refframe = os.path.join(self.rootpath, 'Container', containerID, branch, latestrevfn)
 
-        with open(refframe) as file:
-            frameRefYaml = yaml.load(file, Loader=yaml.FullLoader)
-        frameRef = Frame(frameRefYaml,None)
+        frameRef = Frame.loadFramefromYaml(os.path.join(self.rootpath, 'Container', containerID, branch, latestrevfn))
         # print(frameRef)
         committime = datetime.timestamp(datetime.utcnow())
         for FileHeader, filetrackobj in frameRef.filestrack.items():
             if FileHeader in request.files.keys():
-                # print(FileHeader)
-                # print(filetrackobj)
+
                 filetrackobj.md5= updateinfo[FileHeader]['md5']
                 filetrackobj.file_name = updateinfo[FileHeader]['file_name']
                 filetrackobj.lastEdited = updateinfo[FileHeader]['lastEdited']
@@ -105,7 +109,7 @@ class FrameView(Resource):
                 filetrackobj.commitUTCdatetime = committime
                 # request.files[FileHeader].save(os.path.join(self.rootpath, 'Files', filetrackobj.file_id))
                 content = request.files[FileHeader].read()
-                with open(os.path.join(self.rootpath, 'Files', filetrackobj.file_id), 'wb') as file:
+                with open(os.path.join(self.rootpath, FILEFOLDER, filetrackobj.file_id), 'wb') as file:
                     file.write(content)
 
                 # print(filetrackobj.file_name)

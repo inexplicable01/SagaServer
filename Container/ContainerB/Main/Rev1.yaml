@@ -16,7 +16,7 @@ filestrack:
   file_name: B1.txt
   lastEdited: 1599099200.360922
   md5: a6bb4faacdff9dcdcb6f6e22bc51eac9
-  style: OutputFile
+  style: Required
 - FileHeader: MUD
   commitUTCdatetime: 1587625655.94801
   committedby: waichak
@@ -29,7 +29,20 @@ filestrack:
   file_name: MUD.txt
   lastEdited: 1587260650.963201
   md5: a6bb4faacdff9dcdcb6f6e22bc51eac9
-  style: OutputFile
+  style: Output
+- FileHeader: Dogs
+  commitUTCdatetime: 1587625655.94801
+  committedby: waichak
+  connection:
+    Rev: Rev1.yaml
+    branch: Main
+    connectionType: Input
+    refContainerId: ContainerA
+  file_id: Doggy.txt
+  file_name: Doggy.txt
+  lastEdited: 1587260650.963201
+  md5: a6bb4faacdff9dcdcb6f6e22bc51eac9
+  style: Output
 - FileHeader: MAN
   commitUTCdatetime: 1599108647.023557
   committedby: waichak
@@ -42,8 +55,8 @@ filestrack:
   file_name: MAN.txt
   lastEdited: 1599020562.1418214
   md5: 416ca527374fdd5a4414c32c6cc1b367
-  style: OutputFile
+  style: Output
 inlinks: null
 localfilepath: ''
 outlinks: null
-parentContainerId: ContainerB
+parentcontainerid: ContainerB
