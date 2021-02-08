@@ -3,11 +3,11 @@ from flask_sqlalchemy import SQLAlchemy
 # from flask_bcrypt import Bcrypt
 from flask_user import UserManager
 import datetime
-import mysql.connector
-import sshtunnel
+# import mysql.connector
+# import sshtunnel
 
-sshtunnel.SSH_TIMEOUT = 5.0
-sshtunnel.TUNNEL_TIMEOUT = 5.0
+# sshtunnel.SSH_TIMEOUT = 5.0
+# sshtunnel.TUNNEL_TIMEOUT = 5.0
 
 # with sshtunnel.SSHTunnelForwarder(
 #     ('ssh.pythonanywhere.com'),

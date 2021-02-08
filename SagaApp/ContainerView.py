@@ -70,41 +70,44 @@ class ContainerView(Resource):
         resp = make_response()
         resp.headers["response"] = "Incorrect Command"
         if command=="newContainer":
-            containerdict = json.loads(request.form['containerdictjson'])
-            # newcont = Container()
-            newcont = Container('containerstate.yaml',containerdict=containerdict)
-            framedict = json.loads(request.form['framedictjson'])
-            newframe = Frame(framedict, 'Container/specialsauce/Main/')
-            committime = datetime.timestamp(datetime.utcnow())
+            try:
+                containerdict = json.loads(request.form['containerdictjson'])
+                # newcont = Container()
+                newcont = Container('containerstate.yaml',containerdict=containerdict)
+                framedict = json.loads(request.form['framedictjson'])
+                newframe = Frame(framedict, 'Container/specialsauce/Main/')
+                committime = datetime.timestamp(datetime.utcnow())
+                return 'here'
+                if os.path.exists(safe_join(self.rootpath, 'Container', newcont.containerId)):
+                    resp.headers["response"] = "Container Already exists"
+                    return resp
+                else:
+                    os.mkdir(safe_join(self.rootpath, 'Container', newcont.containerId))
+                    os.mkdir(safe_join(self.rootpath, 'Container', newcont.containerId,'Main'))
 
-            if os.path.exists(safe_join(self.rootpath, 'Container', newcont.containerId)):
-                resp.headers["response"] = "Container Already exists"
-                return resp
-            else:
-                os.mkdir(safe_join(self.rootpath, 'Container', newcont.containerId))
-                os.mkdir(safe_join(self.rootpath, 'Container', newcont.containerId,'Main'))
+                    for FileHeader in request.files.keys():
+                        content = request.files[FileHeader].read()
+                        newframe.filestrack[FileHeader].file_id = uuid.uuid4().__str__()
+                        newframe.filestrack[FileHeader].md5 = hashlib.md5(content).hexdigest()
+                        # filetrackobj.committedby = user.email
+                        newframe.filestrack[FileHeader].style = 'Required'
+                        newframe.filestrack[FileHeader].commitUTCdatetime = committime
+                        with open(os.path.join(self.rootpath, 'Files', newframe.filestrack[FileHeader].file_id),
+                                  'wb') as file:
+                            file.write(content)
 
-                for FileHeader in request.files.keys():
-                    content = request.files[FileHeader].read()
-                    newframe.filestrack[FileHeader].file_id = uuid.uuid4().__str__()
-                    newframe.filestrack[FileHeader].md5 = hashlib.md5(content).hexdigest()
-                    # filetrackobj.committedby = user.email
-                    newframe.filestrack[FileHeader].style = 'Required'
-                    newframe.filestrack[FileHeader].commitUTCdatetime = committime
-                    with open(os.path.join(self.rootpath, 'Files', newframe.filestrack[FileHeader].file_id),
-                              'wb') as file:
-                        file.write(content)
+                        os.unlink(os.path.join(self.rootpath, 'Files', newframe.filestrack[FileHeader].file_id))
 
-                    os.unlink(os.path.join(self.rootpath, 'Files', newframe.filestrack[FileHeader].file_id))
-
-                newcont.save(environ='Server',
-                             outyamlfn=safe_join(self.rootpath, 'Container', newcont.containerId,'containerstate.yaml'))
-                newframe.writeoutFrameYaml( \
-                    safe_join(self.rootpath, 'Container', newcont.containerId,'Main','Rev1.yaml'))
+                    newcont.save(environ='Server',
+                                 outyamlfn=safe_join(self.rootpath, 'Container', newcont.containerId,'containerstate.yaml'))
+                    newframe.writeoutFrameYaml( \
+                        safe_join(self.rootpath, 'Container', newcont.containerId,'Main','Rev1.yaml'))
 
 
-                resp.headers["response"] = "Container Made"
-                return resp
+                    resp.headers["response"] = "Container Made"
+                    return resp
+            except Exception as e:
+                return 'error'
         else:
             resp = make_response()
             resp.headers["response"] = "Incorrect Command"
