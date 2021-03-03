@@ -49,7 +49,6 @@ def create_SagaApp(test_config=None):
         api.add_resource(FileView, "/FILES", resource_class_kwargs={'rootpath': rootpath})
         api.add_resource(Reset, "/RESET", resource_class_kwargs={'rootpath': rootpath})
         api.add_resource(HelloView, "/", resource_class_kwargs={'rootpath': rootpath})
-
         return app
 
 

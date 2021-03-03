@@ -9,6 +9,9 @@ FileHeaders:
   MUD:
     Container: ContainerB
     type: Output
+  Requirements:
+    Container: ContainerC
+    type: Output
   AModel1:
     Container: here
     type: Required
