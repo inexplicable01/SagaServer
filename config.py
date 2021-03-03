@@ -27,7 +27,7 @@ class ConfigClass(object):
     SQLALCHEMY_DATABASE_URI ='sqlite:///basic_app_test.sqlite'
     SQLALCHEMY_TRACK_MODIFICATIONS = True  # Avoids SQLAlchemy warning
     CONTAINERFOLDER = 'Container'
-
+    FILEFOLDER = 'Files'
     # # Flask-User settings
     USER_APP_NAME = "Flask-User Basic App"  # Shown in and email templates and page footers
     USER_ENABLE_EMAIL = False  # Enable email authentication

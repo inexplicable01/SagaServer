@@ -5,6 +5,7 @@ import yaml
 from SagaApp.FileObjects import FileTrack,FileConnection
 from SagaApp.Connection import FileConnection, ConnectionTypes
 import json
+from config import typeRequired,typeInput,typeOutput
 # from PyQt5.QtWidgets import *
 # from PyQt5 import uic
 # from PyQt5.QtGui import *
@@ -12,60 +13,90 @@ import json
 
 fileobjtypes = ['inputObjs', 'requiredObjs', 'outputObjs']
 
-blankFrame = {'parentContainerId':"",'FrameName': "", 'FrameInstanceId': "",'commitMessage': "",'inlinks': "",'outlinks': "",'AttachedFiles': "", 'commitUTCdatetime': "",'filestrack': ""}
 
 
 class Frame:
-    def __init__(self, framefn = None, filestomonitor = None,localfilepath = 'Default', framedict=None):
-
-        if framefn == None:
-            if framedict:
-                FrameYaml = framedict
-            else:
-                FrameYaml = blankFrame
-                localfilepath = localfilepath #generalize this file path
-        else:
-            with open(framefn,'r') as file:
-                FrameYaml = yaml.load(file, Loader=yaml.FullLoader)
-        # self.containerworkingfolder = os.path.dirname(containerfn)
-        self.parentContainerId = FrameYaml['parentContainerId']
-        self.FrameName = FrameYaml['FrameName']
-        self.FrameInstanceId = FrameYaml['FrameInstanceId']
-        self.commitMessage = FrameYaml['commitMessage']
-        self.filestomonitor = filestomonitor
-
-        self.inlinks = FrameYaml['inlinks']
-        self.outlinks = FrameYaml['outlinks']
-        self.AttachedFiles = FrameYaml['AttachedFiles']
+    @classmethod
+    def loadFramefromYaml(cls, framefn = None, filestomonitor = None,localfilepath = 'Default'):
+        with open(framefn,'r') as file:
+            framedict = yaml.load(file, Loader=yaml.FullLoader)
         try:
-            self.commitUTCdatetime = FrameYaml['commitUTCdatetime']
+            commitUTCdatetime = framedict['commitUTCdatetime']
         except:
-            self.commitUTCdatetime = 1587625655.939034
-        # self.inoutcheck()
-        self.localfilepath=localfilepath
-        self.filestrack = {}
-        for ftrack in FrameYaml['filestrack']:
+            commitUTCdatetime = 1587625655.939034
 
+        cframe = cls(parentcontainerid=framedict['parentcontainerid'],
+                     FrameName=framedict['FrameName'],
+                     FrameInstanceId=framedict['FrameInstanceId'],
+                     commitMessage=framedict['commitMessage'],
+                     inlinks=framedict['inlinks'],
+                     outlinks=framedict['outlinks'],
+                     AttachedFiles=framedict['AttachedFiles'],
+                     commitUTCdatetime=commitUTCdatetime,
+                     localfilepath=localfilepath,
+                     filestracklist=framedict['filestrack'],
+                     filestomonitor=filestomonitor)
+        return cframe
+
+
+    @classmethod
+    def InitiateFrame(cls, parentcontainerid, parentcontainername, localdir):
+        newframe = cls(filestracklist=[], FrameName='Rev1', parentcontainerid=parentcontainerid,parentcontainername=parentcontainername, localfilepath=localdir )
+        return newframe
+
+    @classmethod
+    def LoadFrameFromDict(cls, framedict, localfilepath='default',filestomonitor = None):
+        try:
+            commitUTCdatetime = framedict['commitUTCdatetime']
+        except:
+            commitUTCdatetime = 1587625655.939034
+
+        cframe = cls(parentcontainerid= framedict['parentcontainerid'],
+                     FrameName=framedict['FrameName'],
+                     FrameInstanceId=framedict['FrameInstanceId'],
+                     commitMessage=framedict['commitMessage'],
+                     inlinks=framedict['inlinks'],
+                     outlinks=framedict['outlinks'],
+                     AttachedFiles=framedict['AttachedFiles'],
+                     commitUTCdatetime=commitUTCdatetime,
+                     localfilepath=localfilepath,
+                     filestracklist=framedict['filestrack'],
+                     filestomonitor=filestomonitor)
+        return cframe
+
+    def __init__(self,parentcontainerid=None,parentcontainername=None, FrameName=None, FrameInstanceId=None,commitMessage=None,filestomonitor=None,
+                 inlinks=None,outlinks=None,AttachedFiles=None,commitUTCdatetime=None,localfilepath=None,filestracklist=None,
+                 ):
+        self.parentcontainerid = parentcontainerid
+        self.parentcontainername=parentcontainername
+        self.FrameName = FrameName
+        self.FrameInstanceId = FrameInstanceId
+        self.commitMessage = commitMessage
+        self.filestomonitor = filestomonitor
+        self.inlinks = inlinks
+        self.outlinks = outlinks
+        self.AttachedFiles = AttachedFiles
+        self.commitUTCdatetime = commitUTCdatetime
+        self.localfilepath = localfilepath
+        self.filestrack = {}
+        for ftrack in filestracklist:
             FileHeader = ftrack['FileHeader']
-            # cont= Container(os.path.join('Container/',self.parentContainerId, 'containerstate.yaml'))
             conn=None
             if 'connection' in ftrack.keys() and ftrack['connection']:
                 conn = FileConnection(ftrack['connection']['refContainerId'],
                     connectionType=ftrack['connection']['connectionType'],
                                          branch=ftrack['connection']['branch'],
                                          Rev=ftrack['connection']['Rev'])
-
             self.filestrack[FileHeader] = FileTrack(FileHeader=ftrack['FileHeader'],
                                                      file_name=ftrack['file_name'],
-                                                     localfilepath=self.localfilepath,
+                                                     localfilepath=localfilepath,
                                                      md5=ftrack['md5'],
                                                      style=ftrack['style'],
                                                      file_id=ftrack['file_id'],
                                                      commitUTCdatetime=ftrack['commitUTCdatetime'],
                                                      lastEdited=ftrack['lastEdited'],
                                                      connection=conn,
-                                                    persist=True)
-
+                                                     persist=True)
 
     def add_fileTrack(self, filepath,FileHeader):
 
@@ -73,11 +104,13 @@ class Frame:
         md5hash = hashlib.md5(fileb.read())
         md5 = md5hash.hexdigest()
         # print('md5',md5)
-        fileobj = FileTrack(FileHeader=FileHeader,
-                            file_name=os.path.basename(filepath),
-                            )
-        # print('fileobj', fileobj)
-        self.filestrack[FileHeader]=fileobj
+        # print(os.path.dirname(filepath))
+        self.filestrack[FileHeader]=FileTrack(FileHeader=FileHeader,
+                                                localfilepath = os.path.dirname(filepath),
+                                                file_name=os.path.basename(filepath),
+                                                style = typeRequired,
+                                                md5=md5
+                                                )
 
     def addfromOutputtoInputFileTotrack(self, file_name, fileheader, reffiletrack:FileTrack,style,refContainerId,branch,rev):
         # [path, file_name] = os.path.split(fullpath)
@@ -86,7 +119,6 @@ class Frame:
                               branch=branch,
                               Rev=rev)
 
-        # if os.path.exists(fullpath):
         newfiletrackobj = FileTrack(file_name=file_name,
                                     FileHeader=fileheader,
                                     style=style,
@@ -143,7 +175,7 @@ class Frame:
                 for FileHeader, filetrackobj in value.items():
                     filestrack.append(filetrackobj.dictify())
                 dictout[key] = filestrack
-            elif 'filestomonitor' ==key:
+            elif 'filestomonitor'==key:
                 continue
             else:
                 dictout[key] = value
@@ -173,34 +205,3 @@ class Frame:
                 continue
         return changes
 
-    def updateFrame(self):
-        for FileHeader in self.filestomonitor.keys():
-            ##  Is FileHeader in Frame, , if yes
-            ##
-            if FileHeader not in self.filestrack.keys():
-                # if no, go find file
-                print(self.filestrack.keys(),FileHeader)
-                path = QFileDialog.getOpenFileName(self, "Open")[0]
-                if path:
-                    self.cframe.add_fileTrack(path, FileHeader, 'Style')
-                    continue
-            ## Does the file exist?
-            # print('self.localfilepath', self.localfilepath)
-            path = self.localfilepath + '/' + self.filestrack[FileHeader].file_name
-            if not os.path.exists(path):
-                # if not, go find a new file to track
-                path = QFileDialog.getOpenFileName(self, "Open")[0]
-                if path:
-                    self.cframe.add_fileTrack(path, FileHeader, 'Style')
-                    # reassign key contrainobj with new fileobj
-                    continue
-            fileb = open(path, 'rb')
-            md5hash = hashlib.md5(fileb.read())
-            md5 = md5hash.hexdigest()
-            # calculate md5 of file, if md5 has changed, update md5
-            if md5 != self.filestrack[FileHeader].md5:
-                self.filestrack[FileHeader].md5 = md5
-                self.filestrack[FileHeader].lastEdited = os.path.getmtime(path)
-            # if file has been updated, update last edited
-            if os.path.getmtime(path) != self.filestrack[FileHeader].lastEdited:
-                self.filestrack[FileHeader].lastEdited = os.path.getmtime(path)

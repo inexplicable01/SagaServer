@@ -19,6 +19,9 @@ FileHeaders:
   M2:
     type: Required
     Container: here
+  Requirements:
+    Container: ContainerC
+    type: Input
 allowedUser:
 - usercemail@gmail.com
 - admin@example.com

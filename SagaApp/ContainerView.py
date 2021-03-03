@@ -13,8 +13,10 @@ from datetime import datetime
 from SagaApp.UserModel import User
 from config import typeInput
 from flask import current_app
+from config import typeRequired,typeInput,typeOutput
 
 CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
+FILEFOLDER = current_app.config['FILEFOLDER']
 
 class ContainerView(Resource):
 
@@ -102,7 +104,7 @@ class ContainerView(Resource):
             # newcont = Container()
             newcont = Container.LoadContainerFromDict(containerdict=containerdict)
             framedict = json.loads(request.form['framedictjson'])
-            newcont.workingFrame = Frame(None,None, None, framedict)
+            newcont.workingFrame = Frame.LoadFrameFromDict(framedict)
             newcont.revnum =1
             committime = datetime.timestamp(datetime.utcnow())
 
@@ -110,10 +112,26 @@ class ContainerView(Resource):
                 resp.headers["response"] = "Container Already exists"
                 return resp
             else:
+
                 os.mkdir(safe_join(self.rootpath, CONTAINERFOLDER, newcont.containerId))
                 os.mkdir(safe_join(self.rootpath, CONTAINERFOLDER, newcont.containerId,'Main'))
 
+                for fileheader, filecon in newcont.FileHeaders.items():
+                    if filecon['type'] == typeInput:
+                        containerid= filecon['Container']
+                        upstreamCont = Container.LoadContainerFromYaml(
+                            os.path.join(self.rootpath, CONTAINERFOLDER, containerid, 'containerstate.yaml'))
+                        if type(upstreamCont.FileHeaders[fileheader]['Container']) is list:
+                            upstreamCont.FileHeaders[fileheader]['Container'].append(newcont.containerId)
+                        else:
+                            upstreamCont.FileHeaders[fileheader]['Container']= [
+                                upstreamCont.FileHeaders[fileheader]['Container'],newcont.containerId]
+                        upstreamCont.save(environ='Server',
+                                         outyamlfn=os.path.join(self.rootpath, CONTAINERFOLDER, containerid,
+                                                                    'containerstate.yaml'))
+
                 for fileheader in request.files.keys():
+                    print('fileheader' + fileheader)
                     content = request.files[fileheader].read()
                     newcont.workingFrame.filestrack[fileheader].file_id = uuid.uuid4().__str__()
                     newcont.workingFrame.filestrack[fileheader].md5 = hashlib.md5(content).hexdigest()
@@ -121,7 +139,7 @@ class ContainerView(Resource):
                     newcont.workingFrame.filestrack[fileheader].style = 'Required'
                     newcont.workingFrame.filestrack[fileheader].commitUTCdatetime = committime
                     if newcont.workingFrame.filestrack[fileheader].connection:
-                        downcontainerid = newcont.workingFrame .filestrack[fileheader].connection.refContainerId
+                        downcontainerid = newcont.workingFrame.filestrack[fileheader].connection.refContainerId
                         downcontainer = Container.LoadContainerFromYaml(os.path.join(self.rootpath, CONTAINERFOLDER, downcontainerid,'containerstate.yaml'))
                         downcontainer.addFileObject(fileheader, {'Container': newcont.containerId, 'type': typeInput}, typeInput)
                         downcontainer.workingFrame.addfromOutputtoInputFileTotrack(newcont.workingFrame.filestrack[fileheader].file_name,
@@ -146,10 +164,11 @@ class ContainerView(Resource):
                     # load the container and add as input in downstream container
                     # take the latest frame in downstream container and add input file in
                     #  to filestrack  and save that too   new frame for
-                    with open(os.path.join(self.rootpath, 'Files', newcont.workingFrame.filestrack[fileheader].file_id),
+                    print('HELLO')
+                    with open(os.path.join(self.rootpath, FILEFOLDER, newcont.workingFrame.filestrack[fileheader].file_id),
                               'wb') as file:
                         file.write(content)
-                    # os.unlink(os.path.join(self.rootpath, 'Files', newframe.filestrack[FileHeader].file_id))
+                    # os.unlink(os.path.join(self.rootpath, FILEFOLDER, newframe.filestrack[FileHeader].file_id))
 
                 newcont.allowedUser.append(user.email)
                 newcont.save(environ='Server',
@@ -196,7 +215,31 @@ class ContainerView(Resource):
             # newcont = Container()
             # newcont = Container('containerstate.yaml',containerdict=containerdict)
             if os.path.exists(safe_join(self.rootpath, CONTAINERFOLDER, containerId)):
+                for fileheader, filecon in delCont.FileHeaders.items():
+                    if filecon['type']==typeOutput:
+                        for containerid in filecon['Container']:
+                            downstreamCont = Container.LoadContainerFromYaml(os.path.join(self.rootpath, CONTAINERFOLDER, containerid, 'containerstate.yaml'))
+                            downstreamCont.FileHeaders.pop(fileheader, None)
+                            downstreamCont.save(environ='Server',outyamlfn=os.path.join(self.rootpath, CONTAINERFOLDER, containerid, 'containerstate.yaml'))
+                    elif filecon['type']==typeInput:
+                        containerid= filecon['Container']
+                        upstreamcont = Container.LoadContainerFromYaml(
+                            os.path.join(self.rootpath, CONTAINERFOLDER, containerid, 'containerstate.yaml'))
+
+                        if type(upstreamcont.FileHeaders[fileheader]['Container']) is list:
+                            if len(upstreamcont.FileHeaders[fileheader]['Container'])>1:
+                                upstreamcont.FileHeaders[fileheader]['Container'].remove(delCont.containerId)
+                            else:
+                                upstreamcont.FileHeaders.pop(fileheader, None)
+                        else:
+                            upstreamcont.FileHeaders.pop(fileheader, None)
+
+                        upstreamcont.save(environ='Server',
+                                         outyamlfn=os.path.join(self.rootpath, CONTAINERFOLDER, containerid,
+                                                                'containerstate.yaml'))
+
                 resp.headers["response"] = "I'm gonna delete this"
+                resp.data='Deleted'
                 shutil.rmtree(safe_join(self.rootpath, CONTAINERFOLDER, containerId))
                 return resp
             else:
