@@ -224,14 +224,8 @@ class ContainerView(Resource):
                         containerid= filecon['Container']
                         upstreamcont = Container.LoadContainerFromYaml(
                             os.path.join(self.rootpath, CONTAINERFOLDER, containerid, 'containerstate.yaml'))
-
-                        if type(upstreamcont.FileHeaders[fileheader]['Container']) is list:
-                            if len(upstreamcont.FileHeaders[fileheader]['Container'])>1:
-                                upstreamcont.FileHeaders[fileheader]['Container'].remove(delCont.containerId)
-                            else:
-                                upstreamcont.FileHeaders.pop(fileheader, None)
-                        else:
-                            upstreamcont.FileHeaders.pop(fileheader, None)
+                        if delCont.containerId in upstreamcont.FileHeaders[fileheader]['Container']:
+                            upstreamcont.FileHeaders[fileheader]['Container'].remove(delCont.containerId)
 
                         upstreamcont.save(environ='Server',
                                          outyamlfn=os.path.join(self.rootpath, CONTAINERFOLDER, containerid,
