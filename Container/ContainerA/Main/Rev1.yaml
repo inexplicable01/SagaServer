@@ -10,6 +10,7 @@ commitUTCdatetime: 1599113667.076219
 filestrack:
 - FileHeader: Dogs
   commitUTCdatetime: 1604901789.912327
+  committedby: waichak
   connection:
     Rev: Rev1.yaml
     branch: Main
@@ -18,10 +19,13 @@ filestrack:
   file_id: Doggy.txt
   file_name: Doggy.txt
   lastEdited: 1604900773.659827
+  localfilepath: Default
   md5: 836bda472ef28cde8ae50b1d5b310bd7
-  style: Input
+  persist: true
+  style: Output
 - FileHeader: MUD
   commitUTCdatetime: 1604901789.912327
+  committedby: waichak
   connection:
     Rev: Rev1.yaml
     branch: Main
@@ -30,10 +34,13 @@ filestrack:
   file_id: MUD.txt
   file_name: MUD.txt
   lastEdited: 1604900820.0940084
+  localfilepath: Default
   md5: 3d07104ccf76f3118741bd07752a9368
+  persist: true
   style: Output
 - FileHeader: Requirements
   commitUTCdatetime: 1612761061.132673
+  committedby: waichak
   connection:
     Rev: Rev1.yaml
     branch: Main
@@ -42,16 +49,23 @@ filestrack:
   file_id: CustomerRequirements.docx
   file_name: CustomerRequirements.docx
   lastEdited: 1612251203.0
+  localfilepath: Default
   md5: c3dedf137a9c0edcfbb753a1fee2df9a
+  persist: true
   style: Output
 - FileHeader: AModel1
   commitUTCdatetime: 1599113666.812924
+  committedby: waichak
+  connection: null
   file_id: AModel1.txt
   file_name: AModel1.txt
   lastEdited: 1599099200.360922
+  localfilepath: Default
   md5: 959189c9b1b1e41c851e6362d60af8e0
+  persist: true
   style: Required
-inlinks:
-localfilepath: C:/Users/waich/Projects/ExampleDIR/GroupC
-outlinks:
+inlinks: null
+localfilepath: Default
+outlinks: null
 parentcontainerid: ContainerA
+parentcontainername: null

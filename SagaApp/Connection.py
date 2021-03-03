@@ -41,7 +41,7 @@ class FileConnection:
         str=''
         # print('FileHeader:   '+ self.FileHeader)
         str +='\n\t\trefContainerId:  ' + self.refContainerId + '\n'
-        str += '\t\tconnectionType:   ' + self.connectionType + '\n'
+        str += '\t\tconnectionType:   ' + self.connectionType.name + '\n'
         str += '\t\tbranch:   ' + self.branch + '\n'
         if self.Rev:
             str += '\t\tRev:   ' + self.Rev + '\n'

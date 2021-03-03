@@ -138,33 +138,32 @@ class ContainerView(Resource):
                     newcont.workingFrame.filestrack[fileheader].committedby = user.email
                     newcont.workingFrame.filestrack[fileheader].style = 'Required'
                     newcont.workingFrame.filestrack[fileheader].commitUTCdatetime = committime
-                    if newcont.workingFrame.filestrack[fileheader].connection:
-                        downcontainerid = newcont.workingFrame.filestrack[fileheader].connection.refContainerId
-                        downcontainer = Container.LoadContainerFromYaml(os.path.join(self.rootpath, CONTAINERFOLDER, downcontainerid,'containerstate.yaml'))
-                        downcontainer.addFileObject(fileheader, {'Container': newcont.containerId, 'type': typeInput}, typeInput)
-                        downcontainer.workingFrame.addfromOutputtoInputFileTotrack(newcont.workingFrame.filestrack[fileheader].file_name,
-                                                                                   fileheader,
-                                                                                   newcont.workingFrame.filestrack[fileheader],
-                                                                                   typeInput,
-                                                                                   newcont.containerId,
-                                                                                   'Main',
-                                                                                   'Rev' + str(newcont.revnum))
-                        downcontainer.save(environ='Server',
-                                     outyamlfn=safe_join(self.rootpath, CONTAINERFOLDER, downcontainer.containerId,
-                                                         'containerstate.yaml'))
-                        downcontainer.workingFrame.commitUTCdatetime = committime
-                        downcontainer.workingFrame.FrameInstanceId = uuid.uuid4().__str__()
-                        downcontainer.workingFrame.commitMessage = 'Commiting new frame based on ' + newcont.containerId +\
-                                                                   '   ' + newcont.workingFrame.commitMessage
-                        downcontainer.workingFrame.writeoutFrameYaml( \
-                            safe_join(self.rootpath, CONTAINERFOLDER, downcontainer.containerId, 'Main','Rev' + str(downcontainer.revnum+1) +'.yaml'))
-
-                        newcont.workingFrame.filestrack[fileheader].connection.Rev = 'Rev' + str(downcontainer.revnum+1)
-                    # if connection.connectionType is output look for the downstream container
+                    # if newcont.workingFrame.filestrack[fileheader].connection:
+                    #     downcontainerid = newcont.workingFrame.filestrack[fileheader].connection.refContainerId
+                    #     downcontainer = Container.LoadContainerFromYaml(os.path.join(self.rootpath, CONTAINERFOLDER, downcontainerid,'containerstate.yaml'))
+                    #     downcontainer.addFileObject(fileheader, {'Container': newcont.containerId, 'type': typeInput}, typeInput)
+                    #     downcontainer.workingFrame.addfromOutputtoInputFileTotrack(newcont.workingFrame.filestrack[fileheader].file_name,
+                    #                                                                fileheader,
+                    #                                                                newcont.workingFrame.filestrack[fileheader],
+                    #                                                                typeInput,
+                    #                                                                newcont.containerId,
+                    #                                                                'Main',
+                    #                                                                'Rev' + str(newcont.revnum))
+                    #     downcontainer.save(environ='Server',
+                    #                  outyamlfn=safe_join(self.rootpath, CONTAINERFOLDER, downcontainer.containerId,
+                    #                                      'containerstate.yaml'))
+                    #     downcontainer.workingFrame.commitUTCdatetime = committime
+                    #     downcontainer.workingFrame.FrameInstanceId = uuid.uuid4().__str__()
+                    #     downcontainer.workingFrame.commitMessage = 'Commiting new frame based on ' + newcont.containerId +\
+                    #                                                '   ' + newcont.workingFrame.commitMessage
+                    #     downcontainer.workingFrame.writeoutFrameYaml( \
+                    #         safe_join(self.rootpath, CONTAINERFOLDER, downcontainer.containerId, 'Main','Rev' + str(downcontainer.revnum+1) +'.yaml'))
+                    #
+                    #     newcont.workingFrame.filestrack[fileheader].connection.Rev = 'Rev' + str(downcontainer.revnum+1)
+                    # # if connection.connectionType is output look for the downstream container
                     # load the container and add as input in downstream container
                     # take the latest frame in downstream container and add input file in
                     #  to filestrack  and save that too   new frame for
-                    print('HELLO')
                     with open(os.path.join(self.rootpath, FILEFOLDER, newcont.workingFrame.filestrack[fileheader].file_id),
                               'wb') as file:
                         file.write(content)
