@@ -19,9 +19,10 @@ filestrack:
   file_id: de6461df-b8e5-439f-a9b1-64f1235a257a
   file_name: M1.txt
   lastEdited: 1604903982.7176037
+  localfilepath: Default
   md5: b8d9516e4c290600273e093548961cd1
+  persist: true
   style: Required
-  persist: True
 - FileHeader: M2
   commitUTCdatetime: 1604901789.912327
   committedby: waichak
@@ -29,9 +30,10 @@ filestrack:
   file_id: M2.txt
   file_name: M2.txt
   lastEdited: 1604900820.0940084
+  localfilepath: Default
   md5: 3d07104ccf76f3118741bd07752a9368
+  persist: true
   style: Required
-  persist: True
 - FileHeader: R1
   commitUTCdatetime: 1608628582.063398
   committedby: waichak
@@ -43,9 +45,10 @@ filestrack:
   file_id: aba92482-157e-4cf9-bcf9-704a2f757874
   file_name: R1.txt
   lastEdited: 1608610464.968125
+  localfilepath: Default
   md5: fb7f83722dec29fa7f4f6580ad3d1f73
+  persist: true
   style: Output
-  persist: True
 - FileHeader: MAN
   commitUTCdatetime: 1608600143.900474
   committedby: waichak
@@ -57,9 +60,10 @@ filestrack:
   file_id: 662c68fd-519d-4215-8326-871e7a09ebf6
   file_name: MAN.txt
   lastEdited: 1608581261.1547825
+  localfilepath: Default
   md5: 7fd2802a69ec3fafb2ba058e4c1766d8
+  persist: true
   style: Output
-  persist: True
 - FileHeader: Res_2_A
   commitUTCdatetime: 1587625658.441229
   committedby: waichak
@@ -71,9 +75,10 @@ filestrack:
   file_id: LongVideo.mp4
   file_name: LongVideo.mp4
   lastEdited: 1585452668.323447
+  localfilepath: Default
   md5: 64f79e458510f31085f645d4e3972289
+  persist: true
   style: Output
-  persist: True
 - FileHeader: Dogs
   commitUTCdatetime: 1598945795.04636
   committedby: waichak
@@ -85,16 +90,18 @@ filestrack:
   file_id: Doggy.txt
   file_name: Doggy.txt
   lastEdited: 1598848859.300705
+  localfilepath: Default
   md5: 924cc5b8e87b790e07b9de20b7a4e088
-  style: null
-  persist: True
+  persist: true
+  style: Input
 inlinks:
 - fromFrame: CORE
   infile: MUD.txt
 - fromFrame: EDL
   infile: MAN.txt
-localfilepath: ''
+localfilepath: Default
 outlinks:
 - outfile: R1.txt
   toFrame: Struct
 parentcontainerid: ContainerCID
+parentcontainername: null
