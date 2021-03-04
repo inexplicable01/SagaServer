@@ -24,38 +24,8 @@ Rev = 'Rev'
 blankcontainer = {'containerName':"" ,'containerId':"",'FileHeaders': {} ,'allowedUser':[]}
 
 class Container:
-    # def __init__(self, containerfn='Default',currentbranch='Main',revnum=None, containerdict=None):
-    #     if containerdict is None and containerfn == 'Default':
-    #         containeryaml = blankcontainer
-    #         self.containerworkingfolder = os.path.join(basedir, 'Container')
-    #     else:
-    #         if containerdict:
-    #             containeryaml = containerdict
-    #             self.containerworkingfolder = os.path.join(os.getcwd(),'Container',containeryaml['containerId'])
-    #         else:
-    #             self.containerworkingfolder = os.path.dirname(containerfn)
-    #             with open(containerfn) as file:
-    #                 containeryaml = yaml.load(file, Loader=yaml.FullLoader)
-    #     # self.containerfn = containerfn
-    #     self.containerName = containeryaml['containerName']
-    #     self.containerId = containeryaml['containerId']
-    #     self.FileHeaders = containeryaml['FileHeaders']
-    #     self.allowedUser = containeryaml['allowedUser']
-    #     # self.yamlTracking = containeryaml['yamlTracking']
-    #     self.currentbranch = currentbranch
-    #     self.filestomonitor = {}
-    #     for FileHeader, file in self.FileHeaders.items():
-    #         self.filestomonitor[FileHeader]= file['type']
-    #     self.refframe , self.revnum = FrameNumInBranch(\
-    #         os.path.join(basedir, 'Container', self.containerId, currentbranch),\
-    #         revnum)
-    #     try:
-    #         self.workingFrame = Frame(self.refframe, self.filestomonitor, self.containerworkingfolder)
-    #     except Exception as e:
-    #         self.workingFrame = Frame()
-
     def __init__(self, containerworkingfolder,containerName,containerId,
-                 FileHeaders,allowedUser,currentbranch,filestomonitor,revnum,refframe,
+                 FileHeaders,allowedUser,currentbranch,revnum,refframe,
                  workingFrame: Frame):
         self.containerworkingfolder = containerworkingfolder
         self.containerName = containerName
@@ -63,7 +33,7 @@ class Container:
         self.FileHeaders = FileHeaders
         self.allowedUser = allowedUser
         self.currentbranch = currentbranch
-        self.filestomonitor =filestomonitor
+        # self.filestomonitor =filestomonitor
         self.revnum =revnum
         self.refframe =refframe
         self.workingFrame= workingFrame
@@ -73,12 +43,9 @@ class Container:
         # containeryaml = containerdict
         containerworkingfolder = os.path.join(os.getcwd(), CONTAINERFOLDER, containerdict['containerId'])
         FileHeaders = containerdict['FileHeaders']
-        filestomonitor = {}
-        for FileHeader, file in FileHeaders.items():
-            filestomonitor[FileHeader]= file['type']
         refframe, revnum = FrameNumInBranch(os.path.join(containerworkingfolder, currentbranch), revnum)
         try:
-            workingFrame = Frame.loadFramefromYaml(refframe, filestomonitor, containerworkingfolder)
+            workingFrame = Frame.loadFramefromYaml(refframe, None, containerworkingfolder)
         except Exception as e:
             workingFrame = Frame.InitiateFrame(parentcontainerid=containerdict['containerId'],
                                                parentcontainername=containerdict['containerName'],
@@ -88,7 +55,7 @@ class Container:
                            containerId=containerdict['containerId'],
                            FileHeaders=FileHeaders,
                            allowedUser=containerdict['allowedUser'],
-                           currentbranch=currentbranch,filestomonitor=filestomonitor, revnum=revnum,
+                           currentbranch=currentbranch, revnum=revnum,
                            refframe=refframe, workingFrame=workingFrame)
         return container
 
@@ -100,7 +67,7 @@ class Container:
                            containerId=containerid,
                            FileHeaders={},
                            allowedUser=[],
-                           currentbranch="Main",filestomonitor={},revnum='1',
+                           currentbranch="Main",revnum='1',
                            refframe='dont have one yet', workingFrame = Frame.InitiateFrame(parentcontainerid=containerid, parentcontainername=containerName, localdir=localdir))
         return newcontainer
 
@@ -115,12 +82,9 @@ class Container:
                 if type(fileinfo['Container']) != list:
                     fileinfo['Container']=[fileinfo['Container']]
             FileHeaders[fileheader] = fileinfo
-        filestomonitor = {}
-        for FileHeader, file in FileHeaders.items():
-            filestomonitor[FileHeader]= file['type']
         try:
             refframe, revnum = FrameNumInBranch(os.path.join(containerworkingfolder, currentbranch), revnum)
-            workingFrame = Frame.loadFramefromYaml(refframe, filestomonitor, containerworkingfolder)
+            workingFrame = Frame.loadFramefromYaml(refframe, None, containerworkingfolder)
         except Exception as e:
             refframe = 'Dont have one yet'
             revnum='1'
@@ -130,7 +94,7 @@ class Container:
                            containerId=containeryaml['containerId'],
                            FileHeaders=FileHeaders,
                            allowedUser=containeryaml['allowedUser'],
-                           currentbranch=currentbranch,filestomonitor=filestomonitor, revnum=revnum,
+                           currentbranch=currentbranch, revnum=revnum,
                            refframe=refframe, workingFrame=workingFrame)
         return container
 
@@ -194,9 +158,7 @@ class Container:
         # # frameYamlfileb = framefs.get(file_id=ObjectId(curframe.FrameInstanceId))
         with open(self.refframe) as file:
             frameRefYaml = yaml.load(file, Loader=yaml.FullLoader)
-        frameRef = Frame.loadFramefromYaml(frameRefYaml, self.filestomonitor, self.containerworkingfolder)
-
-
+        frameRef = Frame.loadFramefromYaml(frameRefYaml, None, self.containerworkingfolder)
         filesToUpload = {}
         updateinfo = {}
         for FileHeader, filetrackobj in cframe.filestrack.items():
@@ -226,7 +188,7 @@ class Container:
             open(frameyamlfn, 'wb').write(response.content)
             with open(frameyamlfn) as file:
                 frameyaml = yaml.load(file, Loader=yaml.FullLoader)
-            newframe = Frame.loadFramefromYaml(frameyaml, self.filestomonitor,self.containerworkingfolder)
+            newframe = Frame.loadFramefromYaml(frameyaml, None,self.containerworkingfolder)
             # Write out new frame information
             # The frame file is saved to the frame FS
             self.refframe = frameyamlfn
@@ -251,13 +213,18 @@ class Container:
         return False, md5
         # Make new Yaml file  some meta data sohould exit in Yaml file
 
+    def filestomonitor(self):
+        ftm={}
+        for FileHeader, file in self.FileHeaders.items():
+            ftm[FileHeader] = file['type']
+        return ftm
 
     def commithistory(self):
         historyStr = ''
         # glob.glob() +'/'+ Rev + revnum + ".yaml"
         yamllist = glob.glob(self.containerworkingfolder + '/' + self.currentbranch + '*.yaml')
         for yamlfn in yamllist:
-            pastframe = Frame.loadFramefromYaml(yamlfn, self.filestomonitor,self.containerworkingfolder)
+            pastframe = Frame.loadFramefromYaml(yamlfn, None,self.containerworkingfolder)
             # print(pastframe.commitMessage)
             historyStr = historyStr + pastframe.FrameName + '\t' + pastframe.commitMessage + '\t\t\t\t' + \
                          time.ctime(pastframe.commitUTCdatetime) + '\t\n'
@@ -271,13 +238,6 @@ class Container:
 
         yaml.dump(self.dictify(), outyaml)
         outyaml.close()
-
-    def returnType(self, FileHeader):
-        if FileHeader in self.FileHeaders.keys():
-            return self.FileHeaders[FileHeader]['type']
-        else:
-            print(FileHeader + 'not in this frame')
-            return None
 
     def addFileObject(self, fileheader, fileInfo, fileType:str):
         if fileType ==typeInput:
@@ -302,10 +262,32 @@ class Container:
     def compare(cont1,cont2):
         return recursivecompare(cont1.dictify(), cont2.dictify())
 
+    # @staticmethod
+    # def compareFileHeaders(curcont:'Container', newcont:'Container'):
+    #     newcont2keys = list(newcont.keys())
+    #     diff={}
+    #     for fileheader, filevalue in curcont.FileHeaders.items():
+    #         if fileheader not in newcont.FileHeaders.keys:
+    #             diff[fileheader] = 'MissingInDict2'
+    #             continue
+    #         else:
+    #             newcont2keys.remove(key)
+    #         if dict2[key] != value:
+    #             identical = False
+    #             diff[key] = [value, dict2[key]]
+
+
 def recursivecompare(dict1, dict2):
     diff = {}
     identical = True
+    dict2keys = list(dict2.keys())
     for key, value in dict1.items():
+        if key not in dict2.keys():
+            # catches the keys missing in dict2 which is the new cont which means its something deleted
+            diff[key]='MissingInDict2'
+            continue
+        else:
+            dict2keys.remove(key)
         if type(value) is not dict:
             if dict2[key] != value:
                 identical = False
@@ -314,5 +296,9 @@ def recursivecompare(dict1, dict2):
             id, difference = recursivecompare(value, dict2[key])
             identical = identical if id else id
             diff[key] = difference
+    for remainingkey in dict2keys:
+        diff[remainingkey]='MissingInDict1'
+        # catches the keys missing in dict1 whic means the new cont has fileheaders curcont doesnt which means user added new fileheader
     return identical, diff
+
 

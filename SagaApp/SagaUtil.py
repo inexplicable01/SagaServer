@@ -21,7 +21,7 @@ def FrameNumInBranch(path, revnum):
     # add comment
 
     if revnum:
-        if os.path.exists(os.path.join(path, 'Rev')):
+        if os.path.exists(os.path.join(path, 'Rev' + str(revnum) + ".yaml")):
             return os.path.join(path, 'Rev' + str(revnum) + ".yaml"), revnum
         else:
             warnings.warn("Rev " + str(revnum) + " doesn't exist in " + path , Warning)

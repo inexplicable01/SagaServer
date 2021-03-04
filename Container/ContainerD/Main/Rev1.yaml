@@ -15,7 +15,9 @@ filestrack:
   file_id: R1.txt
   file_name: R1.txt
   lastEdited: 1599099200.360922
+  localfilepath: Default
   md5: a6bb4faacdff9dcdcb6f6e22bc51eac9
+  persist: true
   style: Input
 - FileHeader: DSomething
   commitUTCdatetime: 1587625655.94801
@@ -24,9 +26,12 @@ filestrack:
   file_id: DSomething.txt
   file_name: DSomething.txt
   lastEdited: 1587260650.963201
+  localfilepath: Default
   md5: a6bb4faacdff9dcdcb6f6e22bc51eac9
+  persist: true
   style: Required
 inlinks: null
-localfilepath: ''
+localfilepath: Default
 outlinks: null
 parentcontainerid: ContainerD
+parentcontainername: null

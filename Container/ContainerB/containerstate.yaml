@@ -1,18 +1,20 @@
-containerId: ContainerB
-containerName: ContainerB
 FileHeaders:
-  MUD:
-    Container: ContainerA
-    type: Input
+  B1:
+    Container: here
+    type: Required
   Dogs:
     Container: ContainerA
     type: Input
   MAN:
-    Container: ContainerC
+    Container:
+    - ContainerC
+    - appleproject
     type: Output
-  B1:
-    Container: here
-    type: Required
+  MUD:
+    Container: ContainerA
+    type: Input
 allowedUser:
 - userbemail@gmail.com
 - admin@example.com
+containerId: ContainerB
+containerName: ContainerB

@@ -9,6 +9,11 @@ typeInput='Input'
 typeOutput='Output'
 typeRequired='Required'
 
+changenewfile = 'New File Header Added'
+changemd5 = 'MD5 Changed'
+changedate = 'Date Change Only'
+changeremoved = 'File Header Removed'
+
 class BaseConfig:
     """Base configuration."""
     SECRET_KEY = os.getenv('SECRET_KEY', 'my_precious')
