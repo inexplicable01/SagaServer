@@ -42,11 +42,13 @@ def create_SagaApp(test_config=None):
         from SagaApp.CommitView import CommitView
         from SagaApp.ResetView import Reset
         from SagaApp.HelloView import HelloView
+        from SagaApp.SectionView import SectionView
         api.add_resource(ContainerView, "/CONTAINERS/<command>", methods=['GET', 'POST', 'DELETE'],
                          resource_class_kwargs={'rootpath': rootpath})
         api.add_resource(CommitView, "/COMMIT", methods=['POST'], resource_class_kwargs={'rootpath': rootpath})
         api.add_resource(FrameView, "/FRAMES", resource_class_kwargs={'rootpath': rootpath})
         api.add_resource(FileView, "/FILES", resource_class_kwargs={'rootpath': rootpath})
+        api.add_resource(SectionView, "/SECTION", resource_class_kwargs={'rootpath': rootpath})
         api.add_resource(Reset, "/RESET", resource_class_kwargs={'rootpath': rootpath})
         api.add_resource(HelloView, "/", resource_class_kwargs={'rootpath': rootpath})
         return app

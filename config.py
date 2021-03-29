@@ -14,6 +14,9 @@ changemd5 = 'MD5 Changed'
 changedate = 'Date Change Only'
 changeremoved = 'File Header Removed'
 
+SECTIONNAMEHOLDER = 'SECTIONNAMEHOLDER'
+SECTIONDIDHOLDER = 'SECTIONDIDHOLDER'
+
 class BaseConfig:
     """Base configuration."""
     SECRET_KEY = os.getenv('SECRET_KEY', 'my_precious')
@@ -31,6 +34,7 @@ class ConfigClass(object):
     # SQLALCHEMY_DATABASE_URI = 'mysql://FatPanda1985:Lowlevelpw01!@FatPanda1985.mysql.pythonanywhere-services.com/base.db'  # File-based SQL database
     SQLALCHEMY_DATABASE_URI ='sqlite:///basic_app_test.sqlite'
     SQLALCHEMY_TRACK_MODIFICATIONS = True  # Avoids SQLAlchemy warning
+    # CONTAINERFOLDER = 'Container'
     CONTAINERFOLDER = 'Container'
     FILEFOLDER = 'Files'
     # # Flask-User settings

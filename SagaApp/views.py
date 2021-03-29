@@ -40,7 +40,12 @@ class RegisterAPI(MethodView):
                 responseObject = {
                     'status': 'success',
                     'message': 'Successfully registered.',
-                    'auth_token': auth_token.decode()
+                    'auth_token': auth_token.decode(),
+                    'useremail': user.email,
+                    'first_name': user.first_name,
+                    'section_name': user.section_name,
+                    'section_id': user.section_id,
+                    'last_name': user.last_name
                 }
                 return make_response(jsonify(responseObject)), 201
             except Exception as e:
@@ -75,7 +80,11 @@ class LoginAPI(MethodView):
                         'status': 'success',
                         'message': 'Successfully logged in.',
                         'auth_token': auth_token.decode(),
-                        'useremail': user.email
+                        'useremail': user.email,
+                        'first_name': user.first_name,
+                        'section_name': user.section_name,
+                        'section_id': user.section_id,
+                        'last_name': user.last_name
                     }
                     return make_response(jsonify(responseObject)), 200
             else:
@@ -120,8 +129,69 @@ class UserAPI(MethodView):
                         'user_id': user.id,
                         'email': user.email,
                         'admin': user.admin,
-                        'registered_on': user.registered_on
+                        'registered_on': user.registered_on,
+                        'first_name': user.first_name,
+                        'section_name': user.section_name,
+                        'section_id': user.section_id,
+                        'last_name': user.last_name
                     }
+                }
+                return make_response(jsonify(responseObject)), 200
+            responseObject = {
+                'status': 'fail',
+                'message': resp
+            }
+            return make_response(jsonify(responseObject)), 401
+        else:
+            responseObject = {
+                'status': 'fail',
+                'message': 'Provide a valid auth token.'
+            }
+            return make_response(jsonify(responseObject)), 401
+
+    def post(self):
+        auth_header = request.headers.get('Authorization')
+        post_data = request.get_json()
+        # print(post_data)
+        if auth_header:
+            try:
+                auth_token = auth_header.split(" ")[1]
+            except IndexError:
+                responseObject = {
+                    'status': 'fail',
+                    'message': 'Bearer token malformed.'
+                }
+                return make_response(jsonify(responseObject)), 401
+        else:
+            auth_token = ''
+        if auth_token:
+            resp = User.decode_auth_token(auth_token)
+            if not isinstance(resp, str):
+                user = User.query.filter_by(id=resp).first()
+                nonupdatedpro={}
+                if post_data['updates']:
+                    for key, value in post_data['updates'].items():
+                        if key in vars(user).keys():
+                            setattr(user, key, value)
+                        else:
+                            nonupdatedpro[key] = value
+                    # print(user)
+                db.session.commit()
+                user = User.query.filter_by(id=resp).first()
+                # print(user)
+                responseObject = {
+                    'status': 'Update success',
+                    'data': {
+                        'user_id': user.id,
+                        'email': user.email,
+                        'admin': user.admin,
+                        'registered_on': user.registered_on,
+                        'first_name': user.first_name,
+                        'section_name': user.section_name,
+                        'section_id': user.section_id,
+                        'last_name': user.last_name
+                    },
+                    'nonupdatedproperty': nonupdatedpro
                 }
                 return make_response(jsonify(responseObject)), 200
             responseObject = {
@@ -199,10 +269,12 @@ auth_blueprint.add_url_rule(
     methods=['POST']
 )
 auth_blueprint.add_url_rule(
-    '/auth/status',
+    '/auth/userdetails',
     view_func=user_view,
-    methods=['GET']
+    methods=['GET', 'POST']
 )
+
+
 auth_blueprint.add_url_rule(
     '/auth/logout',
     view_func=logout_view,
