@@ -44,7 +44,6 @@ class FrameView(Resource):
 
         if 'rev' in request.form.keys():
             rev = request.form['rev']
-
             if os.path.exists(safe_join(self.rootpath,CONTAINERFOLDER, gid, containerID,branch,rev)):
                 result = send_from_directory(safe_join(self.rootpath,CONTAINERFOLDER, gid, containerID,branch),rev)
                 # result.headers['file_name'] = rev

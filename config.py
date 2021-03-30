@@ -34,8 +34,13 @@ class ConfigClass(object):
     # SQLALCHEMY_DATABASE_URI = 'mysql://FatPanda1985:Lowlevelpw01!@FatPanda1985.mysql.pythonanywhere-services.com/base.db'  # File-based SQL database
     SQLALCHEMY_DATABASE_URI ='sqlite:///basic_app_test.sqlite'
     SQLALCHEMY_TRACK_MODIFICATIONS = True  # Avoids SQLAlchemy warning
+<<<<<<< Updated upstream
     # CONTAINERFOLDER = 'Container'
     CONTAINERFOLDER = 'Container'
+=======
+    #CONTAINERFOLDER = 'Container'
+    CONTAINERFOLDER = 'ContainerAero'
+>>>>>>> Stashed changes
     FILEFOLDER = 'Files'
     # # Flask-User settings
     USER_APP_NAME = "Flask-User Basic App"  # Shown in and email templates and page footers
@@ -43,6 +48,8 @@ class ConfigClass(object):
     USER_ENABLE_USERNAME = False  # Disable username authentication
     USER_EMAIL_SENDER_NAME = USER_APP_NAME
     USER_EMAIL_SENDER_EMAIL = "noreply@example.com"
+
+    EXECUTABLE= "/home/FatPanda1985/mysite/static/executable"
 
 #
 # class DevelopmentConfig(BaseConfig):

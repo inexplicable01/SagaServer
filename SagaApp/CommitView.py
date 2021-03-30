@@ -120,7 +120,9 @@ class CommitView(Resource):
             branch = request.form['branch']
             updateinfo = json.loads(request.form['updateinfo'])
             commitmsg = request.form['commitmsg']
+
             latestrevfn, revnum = self.latestRev(safe_join(self.rootpath, CONTAINERFOLDER, gid, containerID, branch))
+
             # refframe = os.path.join(self.rootpath, 'Container', containerID, branch, latestrevfn)
 
             framedict = json.loads(request.form['framedictjson'])
@@ -152,14 +154,13 @@ class CommitView(Resource):
             frameupload.FrameName = Rev + str(revnum + 1)
             newrevfn = Rev + str(revnum + 1) + ".yaml"
             newframefullpath = os.path.join(self.rootpath, CONTAINERFOLDER,gid, containerID, branch, newrevfn)
+
             frameupload.writeoutFrameYaml(newframefullpath)
             # files saved new Rev Written
 
 
             if savenewcont:
                 newcont.save('Server', safe_join(self.rootpath, CONTAINERFOLDER,gid, containerID, 'containerstate.yaml'))
-
-
             result = send_from_directory(safe_join(self.rootpath, CONTAINERFOLDER,gid, containerID, branch), newrevfn)
             result.headers['file_name'] = newrevfn
             result.headers['branch'] = 'Main'

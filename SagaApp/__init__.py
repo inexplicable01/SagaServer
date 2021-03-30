@@ -2,7 +2,6 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 # from flask_bcrypt import Bcrypt
 from flask_user import UserManager
-import os
 from flask_restful import Api
 
 from config import ConfigClass, basedir
@@ -10,7 +9,7 @@ from config import ConfigClass, basedir
 db = SQLAlchemy()
 
 def create_SagaApp(test_config=None):
-    app = Flask(__name__)
+    app = Flask(__name__,template_folder='/home/FatPanda1985/mysite/serving_static/templates')
     app.config.from_object(ConfigClass)
     # if test_config is None:
     #     # load the instance config, if it exists, when not testing
