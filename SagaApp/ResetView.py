@@ -19,7 +19,7 @@ class Reset(Resource):
                 ziph.write(os.path.join(root, file),os.path.join(*folders[rootdepth+1:], file))
 
     def get(self):
-        shutil.rmtree(os.path.join(self.rootpath, 'Container'))
+        shutil.rmtree(os.path.join(self.rootpath, CONTAINERFOLDER))
         shutil.rmtree(os.path.join(self.rootpath, 'Files'))
         with zipfile.ZipFile(os.path.join(self.rootpath, 'SagaServer.zip'), 'r') as zip_ref:
             zip_ref.extractall(self.rootpath)
@@ -27,7 +27,7 @@ class Reset(Resource):
 
     def post(self):
         zipf = zipfile.ZipFile(os.path.join(self.rootpath, 'SagaServer.zip'), 'w', zipfile.ZIP_DEFLATED)
-        self.zipdir( 'Container', zipf)
+        self.zipdir( CONTAINERFOLDER, zipf)
         self.zipdir('Files', zipf)
         zipf.close()
         return {"Message":"Succesfully Saved Zip"}

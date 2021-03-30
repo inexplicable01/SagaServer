@@ -34,17 +34,24 @@ class ContainerView(Resource):
         self.rootpath = rootpath
 
     def get(self, command=None):
-
+        authcheckresult = self.authcheck()
+        if not isinstance(authcheckresult, User):
+            responseObject = {
+                'status': 'Sign in Failed',
+                'message': 'authcheck came back none'
+            }
+            return make_response(jsonify(responseObject))
+        user = authcheckresult
+        gid = user.group_id
         branch ='Main'
 
         if command=="containerID":
             containerID = request.form['containerID']
-            if os.path.exists(safe_join(self.rootpath, CONTAINERFOLDER, containerID)):
-                latestrevfn, revnum = self.latestRev(safe_join(self.rootpath, CONTAINERFOLDER, containerID, branch))
-                result = send_from_directory(safe_join(self.rootpath, CONTAINERFOLDER, containerID), 'containerstate.yaml' )
+            if os.path.exists(safe_join(self.rootpath, CONTAINERFOLDER,gid, containerID)):
+                latestrevfn, revnum = self.latestRev(safe_join(self.rootpath, CONTAINERFOLDER,gid, containerID, branch))
+                result = send_from_directory(safe_join(self.rootpath, CONTAINERFOLDER,gid, containerID), 'containerstate.yaml' )
                 result.headers['file_name'] = 'containerstate.yaml'
                 result.headers['branch'] = branch
-                # result.headers['suckonthis'] = current_app.config['SECRET_KEY']
                 result.headers['revnum'] = str(revnum)
                 return result
             else:
@@ -52,14 +59,14 @@ class ContainerView(Resource):
         elif command=="List":
             resp = make_response()
             containerinfolist = {}
-            for containerid in os.listdir(safe_join(self.rootpath, CONTAINERFOLDER)):
-                curcont = Container.LoadContainerFromYaml(safe_join(self.rootpath, CONTAINERFOLDER,containerid,'containerstate.yaml'))
+            for containerid in os.listdir(safe_join(self.rootpath, CONTAINERFOLDER, gid)):
+                curcont = Container.LoadContainerFromYaml(safe_join(self.rootpath, CONTAINERFOLDER,gid,containerid,'containerstate.yaml'))
                 containerinfolist[containerid] = {'ContainerDescription': curcont.containerName,
                                          'branches':[]}
-                for branch in os.listdir(safe_join(self.rootpath, CONTAINERFOLDER,containerid)):
-                    if os.path.isdir(safe_join(self.rootpath, CONTAINERFOLDER,containerid,branch)):
+                for branch in os.listdir(safe_join(self.rootpath, CONTAINERFOLDER,gid,containerid)):
+                    if os.path.isdir(safe_join(self.rootpath, CONTAINERFOLDER,gid,containerid,branch)):
                         containerinfolist[containerid]['branches'].append({'name': branch,
-                                                                    'revcount':len(glob(safe_join(self.rootpath, CONTAINERFOLDER,containerid,branch,'*')))})
+                                                                    'revcount':len(glob(safe_join(self.rootpath, CONTAINERFOLDER,gid,containerid,branch,'*')))})
 
             resp.headers["response"] = "returnlist"
             resp.headers["containerinfolist"] = json.dumps(containerinfolist)
@@ -74,7 +81,7 @@ class ContainerView(Resource):
             containerID = request.form['containerID']
             branch = request.form['branch']
             # result = send_from_directory(safe_join(self.rootpath, CONTAINERFOLDER, containerID, branch), 'Rev1.yaml')
-            filepath = safe_join(self.rootpath, CONTAINERFOLDER, containerID, branch)
+            filepath = safe_join(self.rootpath, CONTAINERFOLDER, gid, containerID, branch)
             resp = make_response()
             resp.data=json.dumps(os.listdir(filepath))
             return resp
@@ -89,13 +96,13 @@ class ContainerView(Resource):
         if not isinstance(authcheckresult, User):
             (resp, num) = authcheckresult
             responseObject = {
-                'status': 'fail',
-                'message': 'resp'
+                'status': 'Sign in Failed',
+                'message': 'authcheck came back none'
             }
             return make_response(jsonify(responseObject))
             # return resp, num # user would be a type of response if its not the actual class user
         user = authcheckresult
-
+        gid = user.group_id
 
         resp = make_response()
         resp.headers["response"] = "Incorrect Command"
@@ -108,26 +115,26 @@ class ContainerView(Resource):
             newcont.revnum =1
             committime = datetime.timestamp(datetime.utcnow())
 
-            if os.path.exists(safe_join(self.rootpath, CONTAINERFOLDER, newcont.containerId)):
+            if os.path.exists(safe_join(self.rootpath, CONTAINERFOLDER, gid, newcont.containerId)):
                 resp.headers["response"] = "Container Already exists"
                 return resp
             else:
 
-                os.mkdir(safe_join(self.rootpath, CONTAINERFOLDER, newcont.containerId))
-                os.mkdir(safe_join(self.rootpath, CONTAINERFOLDER, newcont.containerId,'Main'))
+                os.mkdir(safe_join(self.rootpath, CONTAINERFOLDER, gid, newcont.containerId))
+                os.mkdir(safe_join(self.rootpath, CONTAINERFOLDER, gid, newcont.containerId,'Main'))
 
                 for fileheader, filecon in newcont.FileHeaders.items():
                     if filecon['type'] == typeInput:
                         containerid= filecon['Container']
                         upstreamCont = Container.LoadContainerFromYaml(
-                            os.path.join(self.rootpath, CONTAINERFOLDER, containerid, 'containerstate.yaml'))
+                            os.path.join(self.rootpath, CONTAINERFOLDER,  gid, containerid, 'containerstate.yaml'))
                         if type(upstreamCont.FileHeaders[fileheader]['Container']) is list:
                             upstreamCont.FileHeaders[fileheader]['Container'].append(newcont.containerId)
                         else:
                             upstreamCont.FileHeaders[fileheader]['Container']= [
                                 upstreamCont.FileHeaders[fileheader]['Container'],newcont.containerId]
                         upstreamCont.save(environ='Server',
-                                         outyamlfn=os.path.join(self.rootpath, CONTAINERFOLDER, containerid,
+                                         outyamlfn=os.path.join(self.rootpath, CONTAINERFOLDER,  gid, containerid,
                                                                     'containerstate.yaml'))
 
                 for fileheader in request.files.keys():
@@ -171,11 +178,11 @@ class ContainerView(Resource):
 
                 newcont.allowedUser.append(user.email)
                 newcont.save(environ='Server',
-                             outyamlfn=safe_join(self.rootpath, CONTAINERFOLDER, newcont.containerId,'containerstate.yaml'))
+                             outyamlfn=safe_join(self.rootpath, CONTAINERFOLDER,  gid, newcont.containerId,'containerstate.yaml'))
                 newcont.workingFrame.commitUTCdatetime=committime
                 newcont.workingFrame.FrameInstanceId=uuid.uuid4().__str__()
                 newcont.workingFrame.writeoutFrameYaml( \
-                    safe_join(self.rootpath, CONTAINERFOLDER, newcont.containerId,'Main','Rev1.yaml'))
+                    safe_join(self.rootpath, CONTAINERFOLDER,  gid, newcont.containerId,'Main','Rev1.yaml'))
 
 
                 resp.headers["response"] = "Container Made"
@@ -200,10 +207,11 @@ class ContainerView(Resource):
             return make_response(jsonify(responseObject))
             # return resp, num # user would be a type of response if its not the actual class user
         user = authcheckresult
+        gid = user.group_id
 
         if command=="deleteContainer":
             containerId = request.form['containerId']
-            delCont = Container.LoadContainerFromYaml(os.path.join(self.rootpath, CONTAINERFOLDER, containerId, 'containerstate.yaml'))
+            delCont = Container.LoadContainerFromYaml(os.path.join(self.rootpath, CONTAINERFOLDER, gid, containerId, 'containerstate.yaml'))
 
             if user.email not in delCont.allowedUser:
                 responseObject = {
@@ -217,23 +225,23 @@ class ContainerView(Resource):
                 for fileheader, filecon in delCont.FileHeaders.items():
                     if filecon['type']==typeOutput:
                         for containerid in filecon['Container']:
-                            downstreamCont = Container.LoadContainerFromYaml(os.path.join(self.rootpath, CONTAINERFOLDER, containerid, 'containerstate.yaml'))
+                            downstreamCont = Container.LoadContainerFromYaml(os.path.join(self.rootpath, CONTAINERFOLDER,  gid, containerid, 'containerstate.yaml'))
                             downstreamCont.FileHeaders.pop(fileheader, None)
-                            downstreamCont.save(environ='Server',outyamlfn=os.path.join(self.rootpath, CONTAINERFOLDER, containerid, 'containerstate.yaml'))
+                            downstreamCont.save(environ='Server',outyamlfn=os.path.join(self.rootpath, CONTAINERFOLDER,  gid, containerid, 'containerstate.yaml'))
                     elif filecon['type']==typeInput:
                         containerid= filecon['Container']
                         upstreamcont = Container.LoadContainerFromYaml(
-                            os.path.join(self.rootpath, CONTAINERFOLDER, containerid, 'containerstate.yaml'))
+                            os.path.join(self.rootpath, CONTAINERFOLDER, gid, containerid, 'containerstate.yaml'))
                         if delCont.containerId in upstreamcont.FileHeaders[fileheader]['Container']:
                             upstreamcont.FileHeaders[fileheader]['Container'].remove(delCont.containerId)
 
                         upstreamcont.save(environ='Server',
-                                         outyamlfn=os.path.join(self.rootpath, CONTAINERFOLDER, containerid,
+                                         outyamlfn=os.path.join(self.rootpath, CONTAINERFOLDER,  gid,containerid,
                                                                 'containerstate.yaml'))
 
                 resp.headers["response"] = "I'm gonna delete this"
                 resp.data='Deleted'
-                shutil.rmtree(safe_join(self.rootpath, CONTAINERFOLDER, containerId))
+                shutil.rmtree(safe_join(self.rootpath, CONTAINERFOLDER,  gid, containerId))
                 return resp
             else:
                 resp.headers["response"] = "Container " + containerId + " doesn't exist"

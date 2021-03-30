@@ -1,6 +1,6 @@
 
 from SagaApp import db
-from config import ConfigClass
+from config import ConfigClass, SECTIONNAMEHOLDER, SECTIONDIDHOLDER
 from flask_sqlalchemy import SQLAlchemy
 import jwt
 import datetime
@@ -27,16 +27,21 @@ class User(db.Model,UserMixin):
     first_name = db.Column(db.String(100, collation='NOCASE'), nullable=False, server_default='')
     last_name = db.Column(db.String(100, collation='NOCASE'), nullable=False, server_default='')
 
+    section_name = db.Column(db.String(100, collation='NOCASE'), nullable=False, server_default='')
+    section_id = db.Column(db.String(100, collation='NOCASE'), nullable=False, server_default='')
+
     # Define the relationship to Role via UserRoles
     roles = db.relationship('Role', secondary='user_roles')
 
-    def __init__(self, email, password, first_name='default', last_name='Lee',admin=False):
+    def __init__(self, email, password, section_name=SECTIONNAMEHOLDER,section_id=SECTIONDIDHOLDER, first_name='default', last_name='Lee',admin=False):
         self.email = email
         self.password = password
         self.registered_on = datetime.datetime.now()
         self.admin = admin
         self.first_name = first_name
         self.last_name = last_name
+        self.section_name = section_name
+        self.section_id = section_id
 
     def encode_auth_token(self, user_id):
         """

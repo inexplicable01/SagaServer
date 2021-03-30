@@ -43,10 +43,10 @@ class CommitView(Resource):
             return make_response(jsonify(responseObject))
             # return resp, num # user would be a type of response if its not the actual class user
         user = authcheckresult
-
+        gid = user.group_id
         try:
             containerID = request.form.get('containerID')
-            curcont = Container.LoadContainerFromYaml(safe_join(self.rootpath, 'Container', containerID, 'containerstate.yaml'))
+            curcont = Container.LoadContainerFromYaml(safe_join(self.rootpath, CONTAINERFOLDER,  gid, containerID, 'containerstate.yaml'))
             if user.email not in curcont.allowedUser:
                 responseObject = {
                         'status': 'fail',
@@ -76,9 +76,9 @@ class CommitView(Resource):
                         print('Added new Input.  containerID needs an output update.  An Output update means add cont')
                         upstreamcontainerid = newcont.FileHeaders[fileheader]['Container']
                         upstreamcont = Container.LoadContainerFromYaml(
-                            safe_join(self.rootpath, CONTAINERFOLDER, upstreamcontainerid, 'containerstate.yaml'))
+                            safe_join(self.rootpath, CONTAINERFOLDER,gid, upstreamcontainerid, 'containerstate.yaml'))
                         upstreamcont.FileHeaders[fileheader]['Container'].append(containerID)
-                        upstreamcont.save('Server', safe_join(self.rootpath, CONTAINERFOLDER, upstreamcontainerid, 'containerstate.yaml'))
+                        upstreamcont.save('Server', safe_join(self.rootpath, CONTAINERFOLDER,gid, upstreamcontainerid, 'containerstate.yaml'))
                     elif newcont.FileHeaders[fileheader]['type'] == typeRequired:
                         print('Added new Entry to this container')
                     elif newcont.FileHeaders[fileheader]['type'] == typeOutput:
@@ -91,10 +91,10 @@ class CommitView(Resource):
                         print('Removed in  Input.  upstreamcontainerid needs an output update.  An Output update means remove cont')
                         upstreamcontainerid = curcont.FileHeaders[fileheader]['Container']
                         upstreamcont = Container.LoadContainerFromYaml(
-                            safe_join(self.rootpath, CONTAINERFOLDER, upstreamcontainerid, 'containerstate.yaml'))
+                            safe_join(self.rootpath, CONTAINERFOLDER, gid,upstreamcontainerid, 'containerstate.yaml'))
                         if containerID in upstreamcont.FileHeaders[fileheader]['Container']:
                             upstreamcont.FileHeaders[fileheader]['Container'].remove(containerID)
-                        upstreamcont.save('Server', safe_join(self.rootpath, CONTAINERFOLDER, upstreamcontainerid, 'containerstate.yaml'))
+                        upstreamcont.save('Server', safe_join(self.rootpath, CONTAINERFOLDER, gid, upstreamcontainerid, 'containerstate.yaml'))
                     elif curcont.FileHeaders[fileheader]['type'] == typeRequired:
                         print('Removed new Entry to this container')
                     elif curcont.FileHeaders[fileheader]['type'] == typeOutput:
@@ -105,7 +105,7 @@ class CommitView(Resource):
                         downcontstr=''
                         for downcontainerid in downcontaineridlist:# check if downstreamcontainer already has
                             downstreamcont = Container.LoadContainerFromYaml(
-                                safe_join(self.rootpath, CONTAINERFOLDER, downcontainerid, 'containerstate.yaml'))
+                                safe_join(self.rootpath, CONTAINERFOLDER, gid, downcontainerid, 'containerstate.yaml'))
                             if fileheader in downstreamcont.FileHeaders.keys():
                                 fileheaderremovedready = False
                                 downcontstr=downcontstr+downstreamcont.containerName+' '
@@ -120,7 +120,7 @@ class CommitView(Resource):
             branch = request.form['branch']
             updateinfo = json.loads(request.form['updateinfo'])
             commitmsg = request.form['commitmsg']
-            latestrevfn, revnum = self.latestRev(safe_join(self.rootpath, 'Container', containerID, branch))
+            latestrevfn, revnum = self.latestRev(safe_join(self.rootpath, CONTAINERFOLDER, gid, containerID, branch))
             # refframe = os.path.join(self.rootpath, 'Container', containerID, branch, latestrevfn)
 
             framedict = json.loads(request.form['framedictjson'])
@@ -151,16 +151,16 @@ class CommitView(Resource):
             frameupload.commitUTCdatetime = committime
             frameupload.FrameName = Rev + str(revnum + 1)
             newrevfn = Rev + str(revnum + 1) + ".yaml"
-            newframefullpath = os.path.join(self.rootpath, 'Container', containerID, branch, newrevfn)
+            newframefullpath = os.path.join(self.rootpath, CONTAINERFOLDER,gid, containerID, branch, newrevfn)
             frameupload.writeoutFrameYaml(newframefullpath)
             # files saved new Rev Written
 
 
             if savenewcont:
-                newcont.save('Server', safe_join(self.rootpath, 'Container', containerID, 'containerstate.yaml'))
+                newcont.save('Server', safe_join(self.rootpath, CONTAINERFOLDER,gid, containerID, 'containerstate.yaml'))
 
 
-            result = send_from_directory(safe_join(self.rootpath, 'Container', containerID, branch), newrevfn)
+            result = send_from_directory(safe_join(self.rootpath, CONTAINERFOLDER,gid, containerID, branch), newrevfn)
             result.headers['file_name'] = newrevfn
             result.headers['branch'] = 'Main'
             result.headers['commitsuccess'] = True
