@@ -5,12 +5,13 @@ from flask_user import UserManager
 from flask_restful import Api
 
 from config import ConfigClass, basedir
+import os
 
 db = SQLAlchemy()
 
 def create_SagaApp(test_config=None):
-    app = Flask(__name__, template_folder='C:/Users/waich/LocalGitProjects/SagaServer/templates/',
-                static_folder='C:/Users/waich/LocalGitProjects/SagaServer/static',
+    app = Flask(__name__, template_folder=os.path.join(basedir ,'templates'),
+                static_folder=os.path.join(basedir ,'static'),
                 )
     app.config.from_object(ConfigClass)
     # if test_config is None:
