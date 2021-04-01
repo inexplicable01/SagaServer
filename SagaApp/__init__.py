@@ -1,7 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 # from flask_bcrypt import Bcrypt
-from flask_user import UserManager
 from flask_restful import Api
 
 from config import ConfigClass, basedir
@@ -39,10 +38,8 @@ def create_SagaApp(test_config=None):
         from SagaApp.weblogic.auth import auth_web_blueprint
         from SagaApp.UserModel import User
         db.create_all()
-        ### user_manager No use right now, could be useful when we want to do API calls based on roles
-        user_manager = UserManager(app, db, User)
         from SagaApp.InitBase import InitBase
-        InitBase(user_manager,db)
+        InitBase(db)
         app.register_blueprint(auth_blueprint)
         app.register_blueprint(webpages_blueprint)
         app.register_blueprint(auth_web_blueprint)

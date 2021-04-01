@@ -6,7 +6,7 @@ worldmapgroupname='WorldMap'
 privateworldid = 'c752575b-7cc2-47e7-ae3a-97fe1ea5aeeb'
 privateworldname='PrivateMap'
 
-def InitBase(user_manager,db):
+def InitBase(db):
     if not User.query.filter(User.email == 'member@example.com').first():
         user = User(email='member@example.com',
                     # email_confirmed_at=datetime.datetime.utcnow(),
