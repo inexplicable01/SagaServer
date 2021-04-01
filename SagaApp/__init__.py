@@ -9,7 +9,9 @@ from config import ConfigClass, basedir
 db = SQLAlchemy()
 
 def create_SagaApp(test_config=None):
-    app = Flask(__name__,template_folder='/home/FatPanda1985/mysite/serving_static/templates')
+    app = Flask(__name__, template_folder='C:/Users/waich/LocalGitProjects/SagaServer/templates/',
+                static_folder='C:/Users/waich/LocalGitProjects/SagaServer/static',
+                )
     app.config.from_object(ConfigClass)
     # if test_config is None:
     #     # load the instance config, if it exists, when not testing
@@ -23,9 +25,17 @@ def create_SagaApp(test_config=None):
 
     db.init_app(app)
 
-    from SagaApp.views import auth_blueprint
+
+    # @app.route("/")
+    # def index():
+    #     return "hello world"
+    #
+    # api.add_resource(HelloView, "/", resource_class_kwargs={'rootpath': rootpath})
 
     with app.app_context():
+        from SagaApp.views import auth_blueprint
+        from SagaApp.weblogic.webpages import webpages_blueprint
+        from SagaApp.weblogic.auth import auth_web_blueprint
         from SagaApp.UserModel import User
         db.create_all()
         ### user_manager No use right now, could be useful when we want to do API calls based on roles
@@ -33,6 +43,9 @@ def create_SagaApp(test_config=None):
         from SagaApp.InitBase import InitBase
         InitBase(user_manager,db)
         app.register_blueprint(auth_blueprint)
+        app.register_blueprint(webpages_blueprint)
+        app.register_blueprint(auth_web_blueprint)
+        # app.add_url_rule('/',endpoint=)
         api = Api(app)
         rootpath = basedir
         from SagaApp.FileView import FileView
@@ -49,7 +62,6 @@ def create_SagaApp(test_config=None):
         api.add_resource(FileView, "/FILES", resource_class_kwargs={'rootpath': rootpath})
         api.add_resource(SectionView, "/SECTION", resource_class_kwargs={'rootpath': rootpath})
         api.add_resource(Reset, "/RESET", resource_class_kwargs={'rootpath': rootpath})
-        api.add_resource(HelloView, "/", resource_class_kwargs={'rootpath': rootpath})
         return app
 
 

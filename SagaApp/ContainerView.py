@@ -219,8 +219,7 @@ class ContainerView(Resource):
                         'message': 'User  is not allowed to commit to this Container'
                     }
                 return make_response(jsonify(responseObject)), 401
-            # newcont = Container()
-            # newcont = Container('containerstate.yaml',containerdict=containerdict)
+
             if os.path.exists(safe_join(self.rootpath, CONTAINERFOLDER, containerId)):
                 for fileheader, filecon in delCont.FileHeaders.items():
                     if filecon['type']==typeOutput:

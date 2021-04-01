@@ -1,0 +1,28 @@
+<!doctype html>
+<title>{% block title %}{% endblock %} - Saga</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+<nav>
+  <h1>Saga Version Control</h1>
+     <ul>
+    {% if g.user %}
+      <li><span>{{ g.user.first_name }}  {{ g.user.last_name }}</span>
+      <li><a href="{{ url_for('auth_web.logout') }}">Log Out</a>
+    {% else %}
+      <li><a href="{{ url_for('auth_web.register') }}">Register</a>
+      <li><a href="{{ url_for('auth_web.login') }}">Log In</a>
+    {% endif %}
+  </ul>
+</nav>
+<section class="content">
+  <nav>
+  <ul>
+      <li><a href="{{ url_for('webpages.hello') }}">Main</a>
+      <li><a href="{{ url_for('webpages.details') }}">Details</a>
+     <li><a href="{{ url_for('webpages.instructions') }}">Instructions</a>
+  </ul>
+    </nav>
+  <header>
+    {% block header %}{% endblock %}
+  </header>
+  {% block content %}{% endblock %}
+</section>

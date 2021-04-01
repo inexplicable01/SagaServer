@@ -21,16 +21,20 @@ class RegisterAPI(MethodView):
 
     def post(self):
         # get the post data
-        post_data = request.get_json()
+        # post_data = request.get_json()
+        email = request.form['username']
+        password = request.form['password']
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
         # check if user already exists
-        user = User.query.filter_by(email=post_data.get('email')).first()
+        user = User.query.filter_by(email=email).first()
         if not user:
             try:
                 user = User(
-                    email=post_data.get('email'),
-                    password=post_data.get('password'),
-                    first_name=post_data.get('first_name'),
-                    last_name=post_data.get('last_name')
+                    email=email,
+                    password=password,
+                    first_name=first_name,
+                    last_name=last_name
                 )
                 # insert the user
                 db.session.add(user)
