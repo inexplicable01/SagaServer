@@ -66,7 +66,7 @@ class SectionView(Resource):
             user.section_name=section_name
             os.mkdir(os.path.join(self.rootpath, CONTAINERFOLDER, newsectionid))
             newsection= {
-                "sectionId": newsectionid,
+                "sectionid": newsectionid,
                 "sectionname": section_name,
                 "description": new_description,
             }

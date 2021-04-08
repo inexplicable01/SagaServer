@@ -14,6 +14,22 @@
     <input name="first_name" id="first_name">
     <label for="last_name">Last Name</label>
     <input name="last_name" id="last_name">
+      <label for="sectionid">Section to Register to</label>
+    <select id="sectionid" name= sectionid method="GET" action="/">
+        {% for sectionkey, sectionvalue in sectioninfo.items()%}
+        <option value= {{sectionkey}}>{{ sectionvalue['sectionname'] }}   :  {{ sectionvalue['description'] }}</option>
+        {% endfor %}
+        <option value="NewSection">Create a new section.  You will start a whole new world from a blank state.</option>
+    </select>
+
+          <label for="sectionname">Section Name</label>
+    <input name="sectionname" id="sectionname">
+    <label for="sectiondescription">Section Description</label>
+    <input name="sectiondescription" id="sectiondescription">
+
     <input type="submit" value="Register">
   </form>
+
+
+
 {% endblock %}
