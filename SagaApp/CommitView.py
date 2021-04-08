@@ -43,7 +43,7 @@ class CommitView(Resource):
             return make_response(jsonify(responseObject))
             # return resp, num # user would be a type of response if its not the actual class user
         user = authcheckresult
-        gid = user.group_id
+        gid = user.section_id
         try:
             containerID = request.form.get('containerID')
             curcont = Container.LoadContainerFromYaml(safe_join(self.rootpath, CONTAINERFOLDER,  gid, containerID, 'containerstate.yaml'))

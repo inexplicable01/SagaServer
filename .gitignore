@@ -19,3 +19,4 @@ Container/ContainerC/containerstate.yaml
 commitError.txt
 SagaApp/basic_app_test.sqlite
 ContainerAero
+basic_app_test.sqlite

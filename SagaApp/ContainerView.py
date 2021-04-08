@@ -42,7 +42,7 @@ class ContainerView(Resource):
             }
             return make_response(jsonify(responseObject))
         user = authcheckresult
-        gid = user.group_id
+        gid = user.section_id
         branch ='Main'
 
         if command=="containerID":
@@ -102,7 +102,7 @@ class ContainerView(Resource):
             return make_response(jsonify(responseObject))
             # return resp, num # user would be a type of response if its not the actual class user
         user = authcheckresult
-        gid = user.group_id
+        gid = user.section_id
 
         resp = make_response()
         resp.headers["response"] = "Incorrect Command"
@@ -207,7 +207,7 @@ class ContainerView(Resource):
             return make_response(jsonify(responseObject))
             # return resp, num # user would be a type of response if its not the actual class user
         user = authcheckresult
-        gid = user.group_id
+        gid = user.section_id
 
         if command=="deleteContainer":
             containerId = request.form['containerId']
