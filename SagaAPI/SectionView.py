@@ -5,7 +5,7 @@ import uuid
 from SagaUser.UserModel import User, db
 import yaml
 from flask import current_app
-from config import SECTIONDIDHOLDER
+from Config import SECTIONDIDHOLDER,basedir
 
 CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
 FILEFOLDER = current_app.config['FILEFOLDER']
@@ -16,25 +16,34 @@ class SectionView(Resource):
         self.rootpath = rootpath
 
     def get(self, command=None):
-        authcheckresult = self.authcheck()
-        if not isinstance(authcheckresult, User):
-            responseObject = {
-                'status': 'Sign in Failed',
-                'message': 'authcheck came back none'
-            }
-            return make_response(jsonify(responseObject))
-        user = authcheckresult
-        section_id = request.form['section_id']
-        with open(os.path.join(self.rootpath, CONTAINERFOLDER, section_id, 'sectionstate.yaml')) as file:
-            sectionyaml = yaml.load(file, Loader=yaml.FullLoader)
 
-        section_id = user.section_id
-        branch ='Main'
         resp = make_response()
-        resp.headers["response"] = "Get description Section view"
-        print(sectionyaml)
-        resp.data = sectionyaml['description']
-        return resp
+        sectioninfo = {}
+        if command =='List':
+            for section in os.listdir(os.path.join(basedir, 'Container')):
+                sectionyamlfn = os.path.join(basedir, 'Container', section, 'sectionstate.yaml')
+                with open(sectionyamlfn, 'r') as yml:
+                    sectionyaml = yaml.load(yml, Loader=yaml.FullLoader)
+                # print(sectionyaml)
+                sectioninfo[section] = sectionyaml
+            resp.data = yaml.dump(sectioninfo)
+            return resp
+        else:
+            authcheckresult = self.authcheck()
+            if not isinstance(authcheckresult, User):
+                responseObject = {
+                    'status': 'Sign in Failed',
+                    'message': 'authcheck came back none'
+                }
+                return make_response(jsonify(responseObject))
+            user = authcheckresult
+            sectionid = request.form['sectionid']
+            with open(os.path.join(self.rootpath, CONTAINERFOLDER, sectionid, 'sectionstate.yaml')) as file:
+                sectionyaml = yaml.load(file, Loader=yaml.FullLoader)
+            resp.headers["response"] = "Get description Section view"
+            print(sectionyaml)
+            resp.data = sectionyaml['description']
+            return resp
 
 
     def post(self, command=None):
@@ -52,8 +61,8 @@ class SectionView(Resource):
         section_name = request.form['new_section_name']
         new_description = request.form['new_description']
         newsectionid = uuid.uuid4().__str__()
-        if SECTIONDIDHOLDER==user.section_id:
-            user.section_id = newsectionid
+        if SECTIONDIDHOLDER==user.sectionid:
+            user.sectionid = newsectionid
             user.section_name=section_name
             os.mkdir(os.path.join(self.rootpath, CONTAINERFOLDER, newsectionid))
             newsection= {

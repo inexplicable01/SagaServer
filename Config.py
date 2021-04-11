@@ -1,9 +1,11 @@
-# project/server/config.py
+# project/server/Config.py
 
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 # postgres_local_base = 'postgresql://postgres:@localhost/'
 database_name = 'flask_jwt_auth'
+
+ServerOrFront = 'Server'
 
 typeInput='Input'
 typeOutput='Output'

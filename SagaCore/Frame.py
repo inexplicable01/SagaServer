@@ -5,7 +5,7 @@ import yaml
 from SagaCore.FileObjects import FileTrack
 from SagaCore.Connection import FileConnection, ConnectionTypes
 import json
-from config import typeRequired, changedate,changeremoved,changemd5,changenewfile
+from Config import typeRequired, changedate,changeremoved,changemd5,changenewfile
 # from PyQt5.QtWidgets import *
 # from PyQt5 import uic
 # from PyQt5.QtGui import *

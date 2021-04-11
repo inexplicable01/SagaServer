@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 from flask_restful import Api
 
-from config import ConfigClass, basedir
+from Config import ConfigClass, basedir
 import os
 
 db = SQLAlchemy()
@@ -16,7 +16,7 @@ def create_SagaApp(test_config=None):
     app.config.from_object(ConfigClass)
     # if test_config is None:
     #     # load the instance config, if it exists, when not testing
-    #     app.config.from_pyfile("config.py", silent=True)
+    #     app.config.from_pyfile("Config.py", silent=True)
     # # else:
     # if test_config is not None:
     #     # load the test config if passed in
@@ -53,7 +53,7 @@ def create_SagaApp(test_config=None):
         api.add_resource(SagaOperationsView, "/SAGAOP/<command>", methods=['POST'], resource_class_kwargs={'rootpath': rootpath})
         api.add_resource(FrameView, "/FRAMES", resource_class_kwargs={'rootpath': rootpath})
         api.add_resource(FileView, "/FILES", resource_class_kwargs={'rootpath': rootpath})
-        api.add_resource(SectionView, "/SECTION", resource_class_kwargs={'rootpath': rootpath})
+        api.add_resource(SectionView, "/SECTION/<command>", resource_class_kwargs={'rootpath': rootpath})
         api.add_resource(Reset, "/RESET", resource_class_kwargs={'rootpath': rootpath})
         return app
 

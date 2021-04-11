@@ -1,6 +1,6 @@
 import yaml
 import os
-from config import basedir
+from Config import basedir
 import uuid
 from flask import current_app
 
@@ -24,9 +24,9 @@ class Section:
 
     @classmethod
     def CreateNewSection(cls, sectionname, description):
-        newsection_id = uuid.uuid4().__str__()
-        os.mkdir(os.path.join(basedir, CONTAINERFOLDER, newsection_id))
-        newsection = cls(sectionid= newsection_id,
+        newsectionid = uuid.uuid4().__str__()
+        os.mkdir(os.path.join(basedir, CONTAINERFOLDER, newsectionid))
+        newsection = cls(sectionid= newsectionid,
                          sectionname=sectionname,
                          description=description)
         newsection.saveSection()
@@ -43,7 +43,7 @@ class Section:
 
     def dictify(self):
         dictout = {}
-        keytosave = ['description', 'sectionname', 'section_id']
+        keytosave = ['description', 'sectionname', 'sectionid']
         for key, value in vars(self).items():
             if key in keytosave:
                 dictout[key] = value

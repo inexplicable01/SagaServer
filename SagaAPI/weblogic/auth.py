@@ -6,7 +6,7 @@ from flask import (
 from SagaAPI import db
 from SagaUser.UserModel import User
 import os
-from config import basedir
+from Config import basedir
 import yaml
 from flask import current_app
 from SagaCore.Section import Section
@@ -60,7 +60,7 @@ def register():
                     password=password,
                     first_name=first_name,
                     last_name=last_name,
-                    section_id=sectionid,
+                    sectionid=sectionid,
                     section_name=section_name
                 )
                 db.session.add(user)

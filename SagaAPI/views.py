@@ -4,9 +4,13 @@ from flask import Blueprint, request, make_response, jsonify
 from SagaAPI import db
 # from SagaApp.db import get_db
 from SagaUser.UserModel import User ,BlacklistToken
+from SagaCore.Section import Section
+from flask import current_app
+import os
+from Config import basedir
 
 auth_blueprint = Blueprint('auth', __name__)
-
+CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
 class RegisterAPI(MethodView):
     """
     User Registration Resource
@@ -22,10 +26,39 @@ class RegisterAPI(MethodView):
     def post(self):
         # get the post data
         # post_data = request.get_json()
-        email = request.form['username']
-        password = request.form['password']
-        first_name = request.form['first_name']
-        last_name = request.form['last_name']
+        try:
+            email = request.form['email']
+            password = request.form['password']
+            first_name = request.form['first_name']
+            last_name = request.form['last_name']
+        except Exception as e:
+            responseObject = {
+                'status': 'fail',
+                'message': 'missing either email, password, first_name, last_name ' + str(e)
+            }
+            return make_response(jsonify(responseObject)), 401
+
+        if 'sectionname' in request.form.keys():
+            ## User wants to make a new section
+            section_name = request.form['sectionname']
+            description = request.form['sectiondescription']
+            newsection = Section.CreateNewSection(section_name, description=description)
+            sectionid = newsection.sectionid
+            section_name = newsection.sectionname
+
+        elif 'sectionid' in request.form.keys():
+            sectionid = request.form['sectionid']
+            sectionyaml = os.path.join(basedir, CONTAINERFOLDER, sectionid, 'sectionstate.yaml')
+            cursection = Section.LoadSectionyaml(sectionyaml)
+            section_name = cursection.sectionname
+        else:
+            responseObject = {
+                'status': 'fail',
+                'message': 'Section definitions were not done well '
+            }
+            return make_response(jsonify(responseObject)), 401
+        ## this is not consistent with the website registration, additional work is needed for better seperation of concern
+
         # check if user already exists
         user = User.query.filter_by(email=email).first()
         if not user:
@@ -34,7 +67,9 @@ class RegisterAPI(MethodView):
                     email=email,
                     password=password,
                     first_name=first_name,
-                    last_name=last_name
+                    last_name=last_name,
+                    section_name=section_name,
+                    sectionid=sectionid,
                 )
                 # insert the user
                 db.session.add(user)
@@ -48,14 +83,14 @@ class RegisterAPI(MethodView):
                     'useremail': user.email,
                     'first_name': user.first_name,
                     'section_name': user.section_name,
-                    'section_id': user.section_id,
+                    'sectionid': user.sectionid,
                     'last_name': user.last_name
                 }
                 return make_response(jsonify(responseObject)), 201
             except Exception as e:
                 responseObject = {
                     'status': 'fail',
-                    'message': 'Some error occurred. Please try again.'
+                    'message': str(e) + ' Please try again.'
                 }
                 return make_response(jsonify(responseObject)), 401
         else:
@@ -87,7 +122,7 @@ class LoginAPI(MethodView):
                         'useremail': user.email,
                         'first_name': user.first_name,
                         'section_name': user.section_name,
-                        'section_id': user.section_id,
+                        'sectionid': user.sectionid,
                         'last_name': user.last_name
                     }
                     return make_response(jsonify(responseObject)), 200
@@ -136,7 +171,7 @@ class UserAPI(MethodView):
                         'registered_on': user.registered_on,
                         'first_name': user.first_name,
                         'section_name': user.section_name,
-                        'section_id': user.section_id,
+                        'sectionid': user.sectionid,
                         'last_name': user.last_name
                     }
                 }
@@ -192,7 +227,7 @@ class UserAPI(MethodView):
                         'registered_on': user.registered_on,
                         'first_name': user.first_name,
                         'section_name': user.section_name,
-                        'section_id': user.section_id,
+                        'sectionid': user.sectionid,
                         'last_name': user.last_name
                     },
                     'nonupdatedproperty': nonupdatedpro

@@ -42,14 +42,14 @@ class FrameView(Resource):
             return resp
             # return resp, num # user would be a type of response if its not the actual class user
         user = authcheckresult
-        section_id = user.section_id
+        sectionid = user.sectionid
         containerID = request.form['containerID']
         branch = request.form['branch']
 
         if 'rev' in request.form.keys():
             rev = request.form['rev']
-            if os.path.exists(safe_join(self.rootpath,CONTAINERFOLDER, section_id, containerID,branch,rev)):
-                result = send_from_directory(safe_join(self.rootpath,CONTAINERFOLDER, section_id, containerID,branch),rev)
+            if os.path.exists(safe_join(self.rootpath,CONTAINERFOLDER, sectionid, containerID,branch,rev)):
+                result = send_from_directory(safe_join(self.rootpath,CONTAINERFOLDER, sectionid, containerID,branch),rev)
                 # result.headers['file_name'] = rev
                 result.headers['branch'] = branch
                 return result
@@ -57,10 +57,10 @@ class FrameView(Resource):
                 return {"response": "Invalid Frame Yaml" + rev}
 
 
-        if os.path.exists(safe_join(self.rootpath,CONTAINERFOLDER, section_id, containerID)):
-            if os.path.exists(safe_join(self.rootpath,CONTAINERFOLDER, section_id, containerID, branch)):
-                latestrevfn, revnum = self.latestRev(safe_join(self.rootpath,CONTAINERFOLDER,  section_id, containerID, branch))
-                result = send_from_directory(safe_join(self.rootpath,CONTAINERFOLDER,  section_id, containerID, branch),latestrevfn)
+        if os.path.exists(safe_join(self.rootpath,CONTAINERFOLDER, sectionid, containerID)):
+            if os.path.exists(safe_join(self.rootpath,CONTAINERFOLDER, sectionid, containerID, branch)):
+                latestrevfn, revnum = self.latestRev(safe_join(self.rootpath,CONTAINERFOLDER,  sectionid, containerID, branch))
+                result = send_from_directory(safe_join(self.rootpath,CONTAINERFOLDER,  sectionid, containerID, branch),latestrevfn)
                 result.headers['file_name'] = latestrevfn
                 result.headers['branch'] = branch
                 return result
@@ -79,9 +79,9 @@ class FrameView(Resource):
     #         return make_response(jsonify(responseObject))
     #         # return resp, num # user would be a type of response if its not the actual class user
     #     user = authcheckresult
-    #     section_id = user.section_id
+    #     sectionid = user.sectionid
     #     containerID = request.form.get('containerID')
-    #     curcont = Container.LoadContainerFromYaml(safe_join(self.rootpath, CONTAINERFOLDER, section_id,  containerID, 'containerstate.yaml'))
+    #     curcont = Container.LoadContainerFromYaml(safe_join(self.rootpath, CONTAINERFOLDER, sectionid,  containerID, 'containerstate.yaml'))
     #
     #     if user.email in curcont.allowedUser:
     #         return user
@@ -95,9 +95,9 @@ class FrameView(Resource):
     #     branch = request.form['branch']
     #     updateinfo = json.loads(request.form['updateinfo'])
     #     commitmsg = request.form['commitmsg']
-    #     latestrevfn, revnum = self.latestRev(safe_join(self.rootpath, CONTAINERFOLDER, section_id, containerID, branch))
+    #     latestrevfn, revnum = self.latestRev(safe_join(self.rootpath, CONTAINERFOLDER, sectionid, containerID, branch))
     #
-    #     frameRef = Frame.loadFramefromYaml(os.path.join(self.rootpath, CONTAINERFOLDER, section_id, containerID, branch, latestrevfn))
+    #     frameRef = Frame.loadFramefromYaml(os.path.join(self.rootpath, CONTAINERFOLDER, sectionid, containerID, branch, latestrevfn))
     #     # print(frameRef)
     #     committime = datetime.timestamp(datetime.utcnow())
     #     for FileHeader, filetrackobj in frameRef.filestrack.items():
@@ -123,10 +123,10 @@ class FrameView(Resource):
     #     frameRef.commitUTCdatetime = committime
     #     frameRef.FrameName = Rev + str(revnum+1)
     #     newrevfn = Rev + str(revnum+1) + ".yaml"
-    #     newframefullpath =  os.path.join(self.rootpath, CONTAINERFOLDER, section_id, containerID, branch, newrevfn)
+    #     newframefullpath =  os.path.join(self.rootpath, CONTAINERFOLDER, sectionid, containerID, branch, newrevfn)
     #     frameRef.writeoutFrameYaml(newframefullpath)
     #
-    #     result = send_from_directory(safe_join(self.rootpath, CONTAINERFOLDER, section_id,containerID, 'Main'), newrevfn)
+    #     result = send_from_directory(safe_join(self.rootpath, CONTAINERFOLDER, sectionid,containerID, 'Main'), newrevfn)
     #     result.headers['file_name'] = newrevfn
     #     result.headers['branch'] = 'Main'
     #     result.headers['commitsuccess'] = True

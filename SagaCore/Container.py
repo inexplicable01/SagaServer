@@ -7,7 +7,7 @@ import glob
 import time
 import requests
 import json
-from config import typeInput, typeOutput, typeRequired
+from Config import typeInput, typeOutput, typeRequired
 from SagaCore.SagaUtil import FrameNumInBranch
 import uuid
 import io
@@ -36,9 +36,14 @@ class Container:
         self.workingFrame= workingFrame
 
     @classmethod
-    def LoadContainerFromDict(cls, containerdict, currentbranch='Main',revnum='1'):
+    def LoadContainerFromDict(cls, containerdict,sectionid, currentbranch='Main',revnum='1'):
         # containeryaml = containerdict
         containerworkingfolder = os.path.join(os.getcwd(), CONTAINERFOLDER, containerdict['containerId'])
+        ##This is problematic as this only works for Client side.    working folder is meant for client side only and can only serve as confusion for the server side
+        ## How to make sure Container class can be identical on client side and server side.
+        ## Need to think of a way to further remove seperation of concern.
+        ## Loading containers on Client side is fundamentally different than loading them on the server side.
+
         FileHeaders = containerdict['FileHeaders']
         refframe, revnum = FrameNumInBranch(os.path.join(containerworkingfolder, currentbranch), revnum)
         try:

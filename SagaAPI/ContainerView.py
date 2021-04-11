@@ -10,7 +10,6 @@ import re
 from SagaUser.UserModel import User
 from SagaAPI.SagaAPI_Util import authcheck
 from flask import current_app
-from config import typeInput,typeOutput
 
 CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
 FILEFOLDER = current_app.config['FILEFOLDER']
@@ -39,14 +38,14 @@ class ContainerView(Resource):
             }
             return make_response(jsonify(responseObject))
         user = authcheckresult
-        section_id = user.section_id
+        sectionid = user.sectionid
         branch ='Main'
 
         if command=="containerID":
             containerID = request.form['containerID']
-            if os.path.exists(safe_join(self.rootpath, CONTAINERFOLDER,section_id, containerID)):
-                latestrevfn, revnum = self.latestRev(safe_join(self.rootpath, CONTAINERFOLDER,section_id, containerID, branch))
-                result = send_from_directory(safe_join(self.rootpath, CONTAINERFOLDER,section_id, containerID), 'containerstate.yaml' )
+            if os.path.exists(safe_join(self.rootpath, CONTAINERFOLDER,sectionid, containerID)):
+                latestrevfn, revnum = self.latestRev(safe_join(self.rootpath, CONTAINERFOLDER,sectionid, containerID, branch))
+                result = send_from_directory(safe_join(self.rootpath, CONTAINERFOLDER,sectionid, containerID), 'containerstate.yaml' )
                 result.headers['file_name'] = 'containerstate.yaml'
                 result.headers['branch'] = branch
                 result.headers['revnum'] = str(revnum)
@@ -56,16 +55,16 @@ class ContainerView(Resource):
         elif command=="List":
             resp = make_response()
             containerinfolist = {}
-            for containerid in os.listdir(safe_join(self.rootpath, CONTAINERFOLDER, section_id)):
-                if not os.path.exists(safe_join(self.rootpath, CONTAINERFOLDER,section_id,containerid,'containerstate.yaml')):
+            for containerid in os.listdir(safe_join(self.rootpath, CONTAINERFOLDER, sectionid)):
+                if not os.path.exists(safe_join(self.rootpath, CONTAINERFOLDER,sectionid,containerid,'containerstate.yaml')):
                     continue
-                curcont = Container.LoadContainerFromYaml(safe_join(self.rootpath, CONTAINERFOLDER,section_id,containerid,'containerstate.yaml'))
+                curcont = Container.LoadContainerFromYaml(safe_join(self.rootpath, CONTAINERFOLDER,sectionid,containerid,'containerstate.yaml'))
                 containerinfolist[containerid] = {'ContainerDescription': curcont.containerName,
                                          'branches':[]}
-                for branch in os.listdir(safe_join(self.rootpath, CONTAINERFOLDER,section_id,containerid)):
-                    if os.path.isdir(safe_join(self.rootpath, CONTAINERFOLDER,section_id,containerid,branch)):
+                for branch in os.listdir(safe_join(self.rootpath, CONTAINERFOLDER,sectionid,containerid)):
+                    if os.path.isdir(safe_join(self.rootpath, CONTAINERFOLDER,sectionid,containerid,branch)):
                         containerinfolist[containerid]['branches'].append({'name': branch,
-                                                                    'revcount':len(glob(safe_join(self.rootpath, CONTAINERFOLDER,section_id,containerid,branch,'*')))})
+                                                                    'revcount':len(glob(safe_join(self.rootpath, CONTAINERFOLDER,sectionid,containerid,branch,'*')))})
 
             resp.headers["response"] = "returnlist"
             resp.headers["containerinfolist"] = json.dumps(containerinfolist)
@@ -80,7 +79,7 @@ class ContainerView(Resource):
             containerID = request.form['containerID']
             branch = request.form['branch']
             # result = send_from_directory(safe_join(self.rootpath, CONTAINERFOLDER, containerID, branch), 'Rev1.yaml')
-            filepath = safe_join(self.rootpath, CONTAINERFOLDER, section_id, containerID, branch)
+            filepath = safe_join(self.rootpath, CONTAINERFOLDER, sectionid, containerID, branch)
             resp = make_response()
             resp.data=json.dumps(os.listdir(filepath))
             return resp

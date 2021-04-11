@@ -1,5 +1,5 @@
 import os
-from config import basedir, typeInput,typeOutput
+from Config import basedir, typeInput,typeOutput
 from SagaCore.Frame import Frame
 from SagaCore.Container import Container
 

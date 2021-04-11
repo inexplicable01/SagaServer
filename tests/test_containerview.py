@@ -2,7 +2,7 @@ import json
 import os
 
 BASE = "http://127.0.0.1:5000/"
-from config import basedir , typeRequired
+from Config import basedir , typeRequired
 #
 #
 # from flask import g
