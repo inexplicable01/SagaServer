@@ -33,3 +33,9 @@
 
 
 {% endblock %}
+
+{% block error %}
+    {% if responseObject %}
+        <h3>ERRROR!!!!!   {{responseObject['message']}}</h3>
+    {% endif %}
+{% endblock %}
