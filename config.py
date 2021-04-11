@@ -43,6 +43,15 @@ class ConfigClass(object):
     USER_EMAIL_SENDER_NAME = USER_APP_NAME
     USER_EMAIL_SENDER_EMAIL = "noreply@example.com"
 
+    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_PORT = 587
+    MAIL_USE_TLS = True
+    MAIL_USE_SSL = False
+    MAIL_USERNAME = 'sagaworkflow@gmail.com'
+    MAIL_PASSWORD = 'stfujimmy'
+    MAIL_DEBUG= True
+    MAIL_DEFAULT_SENDER = 'sagaworkflow@gmail.com'
+
     EXECUTABLE= "/home/FatPanda1985/mysite/static/executable"
 
 #

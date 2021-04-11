@@ -1,19 +1,15 @@
-import functools
-
 from flask import (
     Blueprint, flash, g, redirect, render_template,
     request, session, url_for
 )
-from werkzeug.security import check_password_hash, generate_password_hash
 
-from SagaApp import db
-from SagaApp.UserModel import User
+from SagaAPI import db
+from SagaUser.UserModel import User
 import os
 from config import basedir
 import yaml
-import uuid
 from flask import current_app
-from SagaApp.Section import Section
+from SagaCore.Section import Section
 
 CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
 

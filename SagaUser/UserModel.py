@@ -1,5 +1,5 @@
 
-from SagaApp import db
+from SagaAPI import db
 from config import ConfigClass, SECTIONNAMEHOLDER, SECTIONDIDHOLDER
 from flask_sqlalchemy import SQLAlchemy
 import jwt
@@ -50,7 +50,7 @@ class User(db.Model,UserMixin):
         """
         try:
             payload = {
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=600),
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=36000),
                 'iat': datetime.datetime.utcnow(),
                 'sub': user_id
             }

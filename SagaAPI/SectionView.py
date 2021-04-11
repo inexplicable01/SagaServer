@@ -1,20 +1,11 @@
 import os
-from flask import request, send_from_directory, safe_join,make_response, jsonify
+from flask import request, make_response, jsonify
 from flask_restful import Resource
-from SagaApp.Container import Container
-from SagaApp.Frame import Frame
-from glob import glob
-import json
-import re
-import shutil
 import uuid
-import hashlib
-from datetime import datetime
-from SagaApp.UserModel import User, db
+from SagaUser.UserModel import User, db
 import yaml
-from config import typeInput
 from flask import current_app
-from config import typeRequired,typeInput,typeOutput, SECTIONDIDHOLDER
+from config import SECTIONDIDHOLDER
 
 CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
 FILEFOLDER = current_app.config['FILEFOLDER']
@@ -37,7 +28,7 @@ class SectionView(Resource):
         with open(os.path.join(self.rootpath, CONTAINERFOLDER, section_id, 'sectionstate.yaml')) as file:
             sectionyaml = yaml.load(file, Loader=yaml.FullLoader)
 
-        gid = user.section_id
+        section_id = user.section_id
         branch ='Main'
         resp = make_response()
         resp.headers["response"] = "Get description Section view"

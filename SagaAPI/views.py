@@ -1,9 +1,9 @@
 from flask.views import MethodView
 from flask import Blueprint, request, make_response, jsonify
 
-from SagaApp import db
+from SagaAPI import db
 # from SagaApp.db import get_db
-from SagaApp.UserModel import User ,BlacklistToken
+from SagaUser.UserModel import User ,BlacklistToken
 
 auth_blueprint = Blueprint('auth', __name__)
 

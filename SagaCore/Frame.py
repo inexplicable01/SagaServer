@@ -2,10 +2,10 @@ import hashlib
 import os
 import yaml
 # from SagaApp.Container import Container
-from SagaApp.FileObjects import FileTrack,FileConnection
-from SagaApp.Connection import FileConnection, ConnectionTypes
+from SagaCore.FileObjects import FileTrack
+from SagaCore.Connection import FileConnection, ConnectionTypes
 import json
-from config import typeRequired,typeInput,typeOutput,changedate,changeremoved,changemd5,changenewfile
+from config import typeRequired, changedate,changeremoved,changemd5,changenewfile
 # from PyQt5.QtWidgets import *
 # from PyQt5 import uic
 # from PyQt5.QtGui import *

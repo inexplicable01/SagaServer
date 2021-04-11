@@ -1,8 +1,7 @@
 import hashlib
 import os
-import json
 from datetime import datetime
-from SagaApp.Connection import FileConnection
+from SagaCore.Connection import FileConnection
 
 class FileTrack:
     def __init__(self, FileHeader, localfilepath, \

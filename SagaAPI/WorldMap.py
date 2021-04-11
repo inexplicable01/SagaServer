@@ -1,7 +1,7 @@
 import os
-from config import basedir, typeInput,typeOutput,typeRequired
-from SagaApp.Frame import Frame
-from SagaApp.Container import Container
+from config import basedir, typeInput,typeOutput
+from SagaCore.Frame import Frame
+from SagaCore.Container import Container
 
 def checkworldmapconnections():
     flowtrackerUp2Down={}

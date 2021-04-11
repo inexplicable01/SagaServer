@@ -1,4 +1,4 @@
-from SagaApp.UserModel import User, Role
+from SagaUser.UserModel import User, Role
 
 worldmapid = 'fc925b23-30b8-4d77-9310-289b85ef8eb0'
 worldmapgroupname='WorldMap'
