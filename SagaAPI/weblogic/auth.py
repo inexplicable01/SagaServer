@@ -11,6 +11,7 @@ import yaml
 from flask import current_app
 from SagaCore.Section import Section
 from datetime import datetime
+import traceback
 CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
 
 auth_web_blueprint = Blueprint('auth_web', __name__, url_prefix='/auth_web')
@@ -71,6 +72,8 @@ def register():
                 # errorfile.write(datetime.now().isoformat() + ': Container: ' + request.form.get('containerID') +'\n')
                 errorfile.write(datetime.now().isoformat() + str(e) + '\n')
                 errorfile.write(datetime.now().isoformat() + 'ErrorType' + str(e) + '\n')
+                errorfile.write(traceback.format_exc())
+
                 errorfile.write('\n')
             responseObject = {
                 'status': 'fail',
