@@ -1,0 +1,19 @@
+FileHeaders:
+  Res_2_A:
+    Container: ContainerC
+    type: Input
+  anotherexcelfiel:
+    Container: appleproject
+    type: Input
+  special1:
+    Container: here
+    type: Required
+  special2:
+    Container: here
+    type: Required
+allowedUser:
+- usercemail@gmail.com
+- admin@example.com
+- member@example.com
+containerId: specialsauce
+containerName: specialsauce

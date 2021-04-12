@@ -1,15 +1,17 @@
+import pytest
 import json
 import os
-
+import io
+import uuid
 BASE = "http://127.0.0.1:5000/"
-from Config import basedir , typeRequired
+from config import basedir , typeInput, typeOutput, typeRequired
 #
 #
 # from flask import g
 # from flask import session
 #
 # from SagaApp import db
-from SagaCore.Container import Container
+from SagaApp.Container import Container
 
 frontendtestdir = os.path.join(basedir, 'frontendtest')
 

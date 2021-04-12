@@ -1,0 +1,29 @@
+FileHeaders:
+  Dogs:
+    Container: ContainerA
+    type: Input
+  M1:
+    Container: here
+    type: Required
+  M2:
+    Container: here
+    type: Required
+  MAN:
+    Container: ContainerB
+    type: Input
+  R1:
+    Container:
+    - ContainerD
+    type: Output
+  Requirements:
+    Container: ContainerA
+    type: Input
+  Res_2_A:
+    Container:
+    - specialsauce
+    type: Output
+allowedUser:
+- usercemail@gmail.com
+- admin@example.com
+containerId: ContainerC
+containerName: ContainerC

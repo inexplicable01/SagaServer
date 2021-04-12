@@ -4,7 +4,7 @@ import tempfile
 import pytest
 import shutil
 
-from SagaAPI import create_SagaApp
+from SagaApp import create_SagaApp
 import os
 
 # # read in SQL for populating test data
@@ -40,7 +40,7 @@ def app():
 
     # close and remove the temporary database
     os.close(db_fd)
-    os.unlink('SagaAPI/basic_app_contest.sqlite')
+    os.unlink('SagaApp/basic_app_contest.sqlite')
     # os.rmdir('Containertest')
     # shutil.rmtree('Containertest')
     # shutil.rmtree('Filestest')

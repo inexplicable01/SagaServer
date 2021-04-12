@@ -1,0 +1,20 @@
+FileHeaders:
+  B1:
+    Container: here
+    type: Required
+  Dogs:
+    Container: ContainerA
+    type: Input
+  MAN:
+    Container:
+    - ContainerC
+    - appleproject
+    type: Output
+  MUD:
+    Container: ContainerA
+    type: Input
+allowedUser:
+- userbemail@gmail.com
+- admin@example.com
+containerId: ContainerB
+containerName: ContainerB

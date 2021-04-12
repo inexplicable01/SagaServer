@@ -1,0 +1,37 @@
+AttachedFiles: null
+FrameInstanceId: 5f5051835f77438e1133derc
+FrameName: Rev1
+commitMessage: Ready to submit as a results of such and such change.
+commitUTCdatetime: 1599113667.076219
+filestrack:
+- FileHeader: R1
+  commitUTCdatetime: 1599113666.812924
+  committedby: waichak
+  connection:
+    Rev: Rev1.yaml
+    branch: Main
+    connectionType: Input
+    refContainerId: ContainerC
+  file_id: R1.txt
+  file_name: R1.txt
+  lastEdited: 1599099200.360922
+  localfilepath: Default
+  md5: a6bb4faacdff9dcdcb6f6e22bc51eac9
+  persist: true
+  style: Input
+- FileHeader: DSomething
+  commitUTCdatetime: 1587625655.94801
+  committedby: waichak
+  connection: null
+  file_id: DSomething.txt
+  file_name: DSomething.txt
+  lastEdited: 1587260650.963201
+  localfilepath: Default
+  md5: a6bb4faacdff9dcdcb6f6e22bc51eac9
+  persist: true
+  style: Required
+inlinks: null
+localfilepath: Default
+outlinks: null
+parentcontainerid: ContainerD
+parentcontainername: null
