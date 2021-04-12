@@ -1,6 +1,6 @@
 import os
-from SagaApp.Container import Container
-from SagaApp.Frame import Frame
+from SagaCore.Container import Container
+from SagaCore.Frame import Frame
 
 framedict= {}
 for cont in os.listdir('Container'):

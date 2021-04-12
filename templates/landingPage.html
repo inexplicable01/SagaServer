@@ -1,0 +1,29 @@
+{% extends 'Core.html' %}
+
+{% block header %}
+  <h1>{% block title %}Welcome to Saga Version Control{% endblock %}</h1>
+{% endblock %}
+
+
+{% block content %}
+    <h3> Think beyond Git</h3>
+    <ol>
+        <p>Saga is the newest way of doing workflow, file management and version control
+        Saga is invented by Mechnical Engineers who wants add intelligence to our filing system.
+        </p>
+        <p>Saga keeps adds the ability of tracking inputs and outputs to repository so that workers
+        can have seperated workspace but highly integrated at the same time</p>
+      <p> Saga provides greater Flexilibity to manage folder structure. </p>
+    </ol>
+
+
+
+    {% if g.user %}
+        <a href="static/executable/SagaGui.zip">Download Saga</a>
+    {% else %}
+
+    <p>We don't want to be one of those people that asks for your data, but
+    Saga will need a user profile to function properly!</p>
+<p>Please <a href="{{ url_for('auth_web.register') }}">Register</a> or <a href="{{ url_for('auth_web.login') }}">Login</a></p>
+    {% endif %}
+{% endblock %}
