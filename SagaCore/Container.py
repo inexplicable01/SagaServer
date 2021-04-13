@@ -36,7 +36,7 @@ class Container:
         self.workingFrame= workingFrame
 
     @classmethod
-    def LoadContainerFromDict(cls, containerdict,sectionid, currentbranch='Main',revnum='1'):
+    def LoadContainerFromDict(cls, containerdict, currentbranch='Main',revnum='1'):
         # containeryaml = containerdict
         containerworkingfolder = os.path.join(os.getcwd(), CONTAINERFOLDER, containerdict['containerId'])
         ##This is problematic as this only works for Client side.    working folder is meant for client side only and can only serve as confusion for the server side
