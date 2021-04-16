@@ -17,6 +17,7 @@ import shutil
 import uuid
 import hashlib
 from datetime import datetime
+import traceback
 from SagaCore.SagaOp import SagaOp
 
 Rev='Rev'
@@ -170,7 +171,7 @@ class SagaOperationsView(Resource):
                             file.write(content)
                         if filetrack.connection:
                             if filetrack.connection.connectionType.name == typeOutput:
-                                for downcontainerid  in curcont.FileHeaders[fileheader]['Container']:
+                                for downcontainerid  in newcont.FileHeaders[fileheader]['Container']:
                                     downstreamcont = Container.LoadContainerFromYaml(
                                         safe_join(self.rootpath, CONTAINERFOLDER, sectionid, downcontainerid,
                                                   'containerstate.yaml'))
@@ -250,11 +251,13 @@ class SagaOperationsView(Resource):
                 # errorfile.write(datetime.now().isoformat() + ': Container: ' + request.form.get('containerID') +'\n')
                 errorfile.write(datetime.now().isoformat() + str(e)+'\n')
                 errorfile.write(datetime.now().isoformat() + 'ErrorType' + str(e)+'\n')
+                errorfile.write(datetime.now().isoformat() + 'Tracebacj' + traceback.format_exc() + '\n')
                 errorfile.write('\n')
             responseObject = {
                 'status': 'fail',
                 'message': str(e),
-                'ErrorType':str(e)
+                'ErrorType':str(e),
+                'traceback': traceback.format_exc()
             }
 
             return make_response(jsonify(responseObject))
