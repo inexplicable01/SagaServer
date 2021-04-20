@@ -6,6 +6,9 @@ worldmapgroupname='WorldMap'
 privateworldid = 'c752575b-7cc2-47e7-ae3a-97fe1ea5aeeb'
 privateworldname='PrivateMap'
 
+mechdemoid='102a7375-b8a7-4bb6-9368-e292a2389acc'
+mechdemoname= 'MECHDEMO'
+
 def InitBase(db):
     if not Section.query.filter(Section.sectionid == worldmapid).first():
         section = Section(
@@ -19,6 +22,13 @@ def InitBase(db):
         section = Section(
             sectionid=privateworldid,
             sectionname=privateworldname,
+        )
+        db.session.add(section)
+        db.session.commit()
+    if not Section.query.filter(Section.sectionid == privateworldid).first():
+        section = Section(
+            sectionid=mechdemoid,
+            sectionname=mechdemoname,
         )
         db.session.add(section)
         db.session.commit()
@@ -177,5 +187,27 @@ def InitBase(db):
         #
         # agentrole = Role.query.filter(Role.name == 'Agent').first()
         # user.roles.append(agentrole)
+        db.session.add(user)
+        db.session.commit()
+
+    if not User.query.filter(User.email == 'user1@mechdemo.com').first():
+        user = User(email='user1@mechdemo.com',
+                    password='user1password',
+                    sectionid=mechdemoid,
+                    sectionname=mechdemoname,
+                    first_name='Bob',
+                    last_name='Smith',
+                    role='Agent')
+        db.session.add(user)
+        db.session.commit()
+
+    if not User.query.filter(User.email == 'user2@mechdemo.com').first():
+        user = User(email='user2@mechdemo.com',
+                    password='user2password',
+                    sectionid=mechdemoid,
+                    sectionname=mechdemoname,
+                    first_name='Jane',
+                    last_name='Doe',
+                    role='Agent')
         db.session.add(user)
         db.session.commit()
