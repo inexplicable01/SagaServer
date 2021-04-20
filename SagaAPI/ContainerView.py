@@ -31,6 +31,8 @@ class ContainerView(Resource):
 
     def get(self, command=None):
         authcheckresult = authcheck(request.headers.get('Authorization'))
+        # sectionid = request.headers.get('sectionid')
+        sectionid = request.form['sectionid']
         if not isinstance(authcheckresult, User):
             responseObject = {
                 'status': 'Sign in Failed',
@@ -38,7 +40,7 @@ class ContainerView(Resource):
             }
             return make_response(jsonify(responseObject))
         user = authcheckresult
-        sectionid = user.sectionid
+
         branch ='Main'
 
         if command=="containerID":

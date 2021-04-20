@@ -40,32 +40,32 @@ class SagaOp():
                                       outyamlfn=os.path.join(rootpath, CONTAINERFOLDER, sectionid, containerid,
                                                              'containerstate.yaml'))
 
-                    for fileheader in files.keys():
-                        print('fileheader' + fileheader)
-                        content = files[fileheader].read()
-                        newcont.workingFrame.filestrack[fileheader].file_id = uuid.uuid4().__str__()
-                        newcont.workingFrame.filestrack[fileheader].md5 = hashlib.md5(content).hexdigest()
-                        newcont.workingFrame.filestrack[fileheader].committedby = user.email
-                        newcont.workingFrame.filestrack[fileheader].style = 'Required'
-                        newcont.workingFrame.filestrack[fileheader].commitUTCdatetime = committime
-                        with open(os.path.join(rootpath, FILEFOLDER,
-                                               newcont.workingFrame.filestrack[fileheader].file_id),
-                                  'wb') as file:
-                            file.write(content)
-                        # os.unlink(os.path.join(self.rootpath, FILEFOLDER, newframe.filestrack[FileHeader].file_id))
+            for fileheader in files.keys():
+                print('fileheader' + fileheader)
+                content = files[fileheader].read()
+                newcont.workingFrame.filestrack[fileheader].file_id = uuid.uuid4().__str__()
+                newcont.workingFrame.filestrack[fileheader].md5 = hashlib.md5(content).hexdigest()
+                newcont.workingFrame.filestrack[fileheader].committedby = user.email
+                newcont.workingFrame.filestrack[fileheader].style = 'Required'
+                newcont.workingFrame.filestrack[fileheader].commitUTCdatetime = committime
+                with open(os.path.join(rootpath, FILEFOLDER,
+                                       newcont.workingFrame.filestrack[fileheader].file_id),
+                          'wb') as file:
+                    file.write(content)
+                # os.unlink(os.path.join(self.rootpath, FILEFOLDER, newframe.filestrack[FileHeader].file_id))
 
-                    newcont.allowedUser.append(user.email)
-                    newcont.save(environ='Server',
-                                 outyamlfn=safe_join(rootpath, CONTAINERFOLDER, sectionid, newcont.containerId,
-                                                     'containerstate.yaml'))
-                    newcont.workingFrame.commitUTCdatetime = committime
-                    newcont.workingFrame.FrameInstanceId = uuid.uuid4().__str__()
-                    newcont.workingFrame.writeoutFrameYaml( \
-                        safe_join(rootpath, CONTAINERFOLDER, sectionid, newcont.containerId, 'Main', 'Rev1.yaml'))
+            newcont.allowedUser.append(user.email)
+            newcont.save(environ='Server',
+                         outyamlfn=safe_join(rootpath, CONTAINERFOLDER, sectionid, newcont.containerId,
+                                             'containerstate.yaml'))
+            newcont.workingFrame.commitUTCdatetime = committime
+            newcont.workingFrame.FrameInstanceId = uuid.uuid4().__str__()
+            newcont.workingFrame.writeoutFrameYaml( \
+                safe_join(rootpath, CONTAINERFOLDER, sectionid, newcont.containerId, 'Main', 'Rev1.yaml'))
 
 
-                    return {"message":"Container Made",
-                            "data":json.dumps(
-                        {'containerdictjson': newcont.dictify(),
-                         'framedictjson': newcont.workingFrame.dictify()})
-                    }
+            return {"message":"Container Made",
+                    "data":json.dumps(
+                {'containerdictjson': newcont.dictify(),
+                 'framedictjson': newcont.workingFrame.dictify()})
+            }

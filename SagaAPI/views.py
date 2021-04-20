@@ -76,14 +76,19 @@ class RegisterAPI(MethodView):
                 db.session.commit()
                 # generate the auth token
                 auth_token = user.encode_auth_token(user.id)
+                sectionids = []
+                sectionnames = []
+                for section in user.sections:
+                    sectionids.append(section.sectionid)
+                    sectionnames.append(section.sectionname)
                 responseObject = {
                     'status': 'success',
                     'message': 'Successfully registered.',
                     'auth_token': auth_token.decode(),
                     'useremail': user.email,
                     'first_name': user.first_name,
-                    'section_name': user.section_name,
-                    'sectionid': user.sectionid,
+                    'section_name': sectionnames,
+                    'sectionid': sectionids,
                     'last_name': user.last_name
                 }
                 return make_response(jsonify(responseObject)), 201
@@ -115,14 +120,19 @@ class LoginAPI(MethodView):
             if user and user.password==post_data.get('password'):
                 auth_token = user.encode_auth_token(user.id)
                 if auth_token:
+                    sectionids =[]
+                    sectionnames=[]
+                    for section in user.sections:
+                        sectionids.append(section.sectionid)
+                        sectionnames.append(section.sectionname)
                     responseObject = {
                         'status': 'success',
                         'message': 'Successfully logged in.',
                         'auth_token': auth_token.decode(),
                         'useremail': user.email,
                         'first_name': user.first_name,
-                        'section_name': user.section_name,
-                        'sectionid': user.sectionid,
+                        'section_name': sectionnames,
+                        'sectionid': sectionids,
                         'last_name': user.last_name
                     }
                     return make_response(jsonify(responseObject)), 200
@@ -162,6 +172,11 @@ class UserAPI(MethodView):
             resp = User.decode_auth_token(auth_token)
             if not isinstance(resp, str):
                 user = User.query.filter_by(id=resp).first()
+                sectionids = []
+                sectionnames = []
+                for section in user.sections:
+                    sectionids.append(section.sectionid)
+                    sectionnames.append(section.sectionname)
                 responseObject = {
                     'status': 'success',
                     'data': {
@@ -170,8 +185,8 @@ class UserAPI(MethodView):
                         'admin': user.admin,
                         'registered_on': user.registered_on,
                         'first_name': user.first_name,
-                        'section_name': user.section_name,
-                        'sectionid': user.sectionid,
+                        'section_name': sectionnames,
+                        'sectionid': sectionids,
                         'last_name': user.last_name
                     }
                 }

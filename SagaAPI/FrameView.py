@@ -37,14 +37,16 @@ class FrameView(Resource):
 
     def get(self):
         authcheckresult = authcheck(request.headers.get('Authorization'))
+        containerID = request.form['containerID']
+        branch = request.form['branch']
+        sectionid = request.form['sectionid']
         if not isinstance(authcheckresult, User):
             (resp, num) = authcheckresult
             return resp
             # return resp, num # user would be a type of response if its not the actual class user
         user = authcheckresult
-        sectionid = user.sectionid
-        containerID = request.form['containerID']
-        branch = request.form['branch']
+        # sectionid = user.sectionid
+
 
         if 'rev' in request.form.keys():
             rev = request.form['rev']

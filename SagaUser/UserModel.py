@@ -5,6 +5,8 @@ from flask_sqlalchemy import SQLAlchemy
 import jwt
 import datetime
 from flask_user import UserMixin
+# from sqlalchemy.dialects.postgresql import UUID
+import uuid
 
 # db = SQLAlchemy()
 
@@ -27,21 +29,42 @@ class User(db.Model,UserMixin):
     first_name = db.Column(db.String(100, collation='NOCASE'), nullable=False, server_default='')
     last_name = db.Column(db.String(100, collation='NOCASE'), nullable=False, server_default='')
 
-    section_name = db.Column(db.String(100, collation='NOCASE'), nullable=False, server_default='')
-    sectionid = db.Column(db.String(100, collation='NOCASE'), nullable=False, server_default='')
+    # section_name = db.Column(db.String(100, collation='NOCASE'), nullable=False, server_default='')
+    # sectionid = db.Column(db.String(100, collation='NOCASE'), nullable=False, server_default='')
 
     # Define the relationship to Role via UserRoles
     roles = db.relationship('Role', secondary='user_roles')
+    sections = db.relationship('Section', secondary='user_sections')
 
-    def __init__(self, email, password, section_name=SECTIONNAMEHOLDER,sectionid=SECTIONDIDHOLDER, first_name='default', last_name='Lee',admin=False):
+    def __init__(self, email, password, sectionname=SECTIONNAMEHOLDER,
+                 sectionid=SECTIONDIDHOLDER, first_name='default',
+                 last_name='Lee',admin=False,role='Agent'):
         self.email = email
         self.password = password
         self.registered_on = datetime.datetime.now()
         self.admin = admin
         self.first_name = first_name
         self.last_name = last_name
-        self.section_name = section_name
-        self.sectionid = sectionid
+        # self.section_name = section_name
+        # self.sectionid = sectionid
+        agentrole = Role.query.filter(Role.name == role).first()
+        if agentrole:
+            self.roles.append(agentrole)
+        else:
+            role=Role(name=role)
+            db.session.add(role)
+            db.session.commit()
+
+        usersection = Section.query.filter(Section.sectionid == sectionid).first()
+        if usersection:
+            self.sections.append(usersection)
+        else:
+            section = Section(
+                sectionid=sectionid,
+                sectionname=sectionname,
+            )
+            db.session.add(section)
+            db.session.commit()
 
     def encode_auth_token(self, user_id):
         """
@@ -89,6 +112,19 @@ class UserRoles(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'))
     role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'))
+
+# Define the UserSections association table
+class UserSections(db.Model):
+    __tablename__ = 'user_sections'
+    user_sectionid = db.Column(db.Integer(), primary_key=True)
+    user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'))
+    section_id = db.Column(db.Integer(), db.ForeignKey('sections.id', ondelete='CASCADE'))
+
+class Section(db.Model):
+    __tablename__ = 'sections'
+    id = db.Column(db.Integer(), primary_key=True)
+    sectionid = db.Column(db.String(100), unique=True)
+    sectionname = db.Column(db.String(500), unique=True)
 
 class BlacklistToken(db.Model):
     """

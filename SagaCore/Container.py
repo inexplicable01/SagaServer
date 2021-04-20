@@ -287,6 +287,7 @@ def recursivecompare(dict1, dict2):
         if key not in dict2.keys():
             # catches the keys missing in dict2 which is the new cont which means its something deleted
             diff[key]='MissingInDict2'
+            identical = False
             continue
         else:
             dict2keys.remove(key)
