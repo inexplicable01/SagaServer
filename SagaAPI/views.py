@@ -122,17 +122,17 @@ class LoginAPI(MethodView):
                 if auth_token:
                     sectionids =[]
                     sectionnames=[]
-                    for section in user.sections:
-                        sectionids.append(section.sectionid)
-                        sectionnames.append(section.sectionname)
+                    # for section in user.sections:
+                    #     sectionids.append(section.sectionid)
+                    #     sectionnames.append(section.sectionname)
                     responseObject = {
                         'status': 'success',
                         'message': 'Successfully logged in.',
                         'auth_token': auth_token.decode(),
                         'useremail': user.email,
                         'first_name': user.first_name,
-                        'section_name': sectionnames,
-                        'sectionid': sectionids,
+                        'section_name': user.sections[0].sectionname,
+                        'sectionid': user.sections[0].sectionid,
                         'last_name': user.last_name
                     }
                     return make_response(jsonify(responseObject)), 200
@@ -185,8 +185,8 @@ class UserAPI(MethodView):
                         'admin': user.admin,
                         'registered_on': user.registered_on,
                         'first_name': user.first_name,
-                        'section_name': sectionnames,
-                        'sectionid': sectionids,
+                        'section_name': user.sections[0].sectionname,
+                        'sectionid': user.sections[0].sectionid,
                         'last_name': user.last_name
                     }
                 }
