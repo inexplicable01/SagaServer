@@ -211,3 +211,14 @@ def InitBase(db):
                     role='Agent')
         db.session.add(user)
         db.session.commit()
+
+    if not User.query.filter(User.email == 'o.petrenko@gmail.com').first():
+        user = User(email='o.petrenko@gmail.com',
+                    password='password',
+                    sectionid=mechdemoid,
+                    sectionname=mechdemoname,
+                    first_name='Oleg',
+                    last_name='Petrenko',
+                    role='Agent')
+        db.session.add(user)
+        db.session.commit()
