@@ -25,7 +25,7 @@ def InitBase(db):
         )
         db.session.add(section)
         db.session.commit()
-    if not Section.query.filter(Section.sectionid == privateworldid).first():
+    if not Section.query.filter(Section.sectionid == mechdemoid).first():
         section = Section(
             sectionid=mechdemoid,
             sectionname=mechdemoname,
@@ -219,6 +219,28 @@ def InitBase(db):
                     sectionname=mechdemoname,
                     first_name='Oleg',
                     last_name='Petrenko',
+                    role='Agent')
+        db.session.add(user)
+        db.session.commit()
+
+    if not User.query.filter(User.email == 'bob@bob.com').first():
+        user = User(email='bob@bob.com',
+                    password='password',
+                    sectionid=mechdemoid,
+                    sectionname=mechdemoname,
+                    first_name='Bob',
+                    last_name='Structure',
+                    role='Agent')
+        db.session.add(user)
+        db.session.commit()
+
+    if not User.query.filter(User.email == 'jane@jane.com').first():
+        user = User(email='jane@jane.com',
+                    password='password',
+                    sectionid=mechdemoid,
+                    sectionname=mechdemoname,
+                    first_name='Aero',
+                    last_name='Jane',
                     role='Agent')
         db.session.add(user)
         db.session.commit()
