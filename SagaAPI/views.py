@@ -68,7 +68,7 @@ class RegisterAPI(MethodView):
                     password=password,
                     first_name=first_name,
                     last_name=last_name,
-                    section_name=section_name,
+                    sectionname=section_name,
                     sectionid=sectionid,
                 )
                 # insert the user

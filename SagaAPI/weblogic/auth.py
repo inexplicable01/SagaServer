@@ -61,7 +61,7 @@ def register():
                     first_name=first_name,
                     last_name=last_name,
                     sectionid=sectionid,
-                    section_name=section_name
+                    sectionname=section_name
                 )
                 db.session.add(user)
                 db.session.commit()
