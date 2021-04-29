@@ -9,6 +9,9 @@ privateworldname='PrivateMap'
 mechdemoid='102a7375-b8a7-4bb6-9368-e292a2389acc'
 mechdemoname= 'MECHDEMO'
 
+sagafolderid = '359b0947-0e8b-4d96-a4c7-3b1ade4b170f'
+sagafoldername = 'SAGAFolder'
+
 def InitBase(db):
     if not Section.query.filter(Section.sectionid == worldmapid).first():
         section = Section(
@@ -25,6 +28,15 @@ def InitBase(db):
         )
         db.session.add(section)
         db.session.commit()
+
+    if not Section.query.filter(Section.sectionid == sagafolderid).first():
+        section = Section(
+            sectionid=sagafolderid,
+            sectionname=sagafoldername,
+        )
+        db.session.add(section)
+        db.session.commit()
+
     if not Section.query.filter(Section.sectionid == mechdemoid).first():
         section = Section(
             sectionid=mechdemoid,
@@ -110,14 +122,20 @@ def InitBase(db):
     if not User.query.filter(User.email == 'waichak.luk@gmail.com').first():
         user = User(email='waichak.luk@gmail.com',
                     password='passwordW',
-                    sectionid=worldmapid,
-                    sectionname=worldmapgroupname,
+                    sectionid=sagafolderid,
+                    sectionname=sagafoldername,
                     role='Agent'
                     )
-        # user.sections.append(Section(sectionid=worldmapid, sectionname=worldmapgroupname))
-        #
-        # agentrole = Role.query.filter(Role.name == 'Agent').first()
-        # user.roles.append(agentrole)
+        db.session.add(user)
+        db.session.commit()
+
+    if not User.query.filter(User.email == 'jimmyleong113@gmail.com').first():
+        user = User(email='jimmyleong113@gmail.com',
+                    password='passwordJ',
+                    sectionid=sagafolderid,
+                    sectionname=sagafoldername,
+                    role='Agent'
+                    )
         db.session.add(user)
         db.session.commit()
 
