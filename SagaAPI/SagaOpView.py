@@ -62,7 +62,9 @@ class SagaOperationsView(Resource):
                 updateinfo = json.loads(request.form['updateinfo'])
                 commitmsg = request.form['commitmsg']
                 curcont = Container.LoadContainerFromYaml(safe_join(self.rootpath, CONTAINERFOLDER,  sectionid, containerID, 'containerstate.yaml'))
-                if user.email not in curcont.allowedUser:
+                containerdict = json.loads(request.form['containerdictjson'])
+                newcont = Container.LoadContainerFromDict(containerdict)
+                if user.email not in newcont.allowedUser:### this is really bad
                     responseObject = {
                             'status': 'fail',
                             'message': 'User  is not allowed to commit to this Container'

@@ -2,6 +2,7 @@
 from flask_mail import Message,Mail
 from flask import current_app
 from SagaCore.Container import Container
+from SagaCore.FileObjects import FileTrack
 from datetime import datetime
 
 def prepcontent(mailjobs,email, fileheader, filetrack, user, upcont:Container,commitmsg,committime,newrevnum):
@@ -23,8 +24,9 @@ class MailSender():
     def __init__(self):
         self.mail = Mail(current_app)
         self.mailjobs={} ## Mailjobs keys are the emails and the values are the content
+        self.thismailjobs={}
 
-    def prepareMail(self,recipemail, fileheader, filetrack, user, upcont:Container,commitmsg,committime,newrevnum):
+    def prepareMailDownstream(self,recipemail, fileheader, filetrack:FileTrack, user, upcont:Container,commitmsg,committime,newrevnum):
 
         if type(recipemail) is list:
             for email in recipemail:
@@ -32,6 +34,18 @@ class MailSender():
         elif type(recipemail) is str:
             self.mailjobs = prepcontent(self.mailjobs, recipemail, fileheader, filetrack, user, upcont, commitmsg,
                                         committime, newrevnum)
+
+    def prepareMailthisContainer(self,thiscontainer:Container, updatedfiles,user,commitmsg,committime,newrevnum):
+
+        for email in thiscontainer.allowedUser:
+            self.thismailjobs[email] = {
+            'title': "Notice your container " + thiscontainer.containerName + "  has been updated",
+            'commitmessage': commitmsg,
+            'committedby': user.first_name + ' ' + user.last_name + ', ' + user.email,
+            'committime': datetime.fromtimestamp(committime).isoformat(),
+            'newrev': newrevnum,
+            'updatedfiles' : updatedfiles}
+
 
     def sendMail(self):
 
@@ -43,6 +57,18 @@ class MailSender():
             for fileheader, filetrack in content['updatedfiles'].items():
                 emailcontent = emailcontent + ' Filehandle  ' + fileheader + ' : ' + filetrack.file_name + ' is updated \n'
 
+
+            msg.body = emailcontent
+            # msg.html = "<b>emailcontent</b>"
+            self.mail.send(msg)
+
+        for recipemail, content in self.thismailjobs.items():
+            msg = Message(content['title'],recipients=[recipemail])
+            emailcontent = content['title'] + '\n'
+            emailcontent = emailcontent + 'Committed By ' + content['committedby'] + ' on ' + content['committime'] + '\n'
+            emailcontent = emailcontent + ' The Commit Message : ' + content['commitmessage'] +  '\n'
+            for fileheader, filetrack in content['updatedfiles'].items():
+                emailcontent = emailcontent + ' Filehandle  ' + fileheader + ' : ' + filetrack.file_name + ' is updated \n'
 
             msg.body = emailcontent
             # msg.html = "<b>emailcontent</b>"

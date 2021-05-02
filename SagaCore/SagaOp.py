@@ -83,10 +83,10 @@ class SagaOp():
                  'framedictjson': newcont.workingFrame.dictify()})
             }
 
-    def commit(self,curcont:Container,newcont,user,sectionid,commitframe:Frame, commitmsg ,updateinfo,files, mailsender, branch='Main'):
+    def commit(self,curcont:Container,newcont:Container,user,sectionid,commitframe:Frame, commitmsg ,updateinfo,files, mailsender, branch='Main'):
         identical, diff = Container.compare(curcont, newcont)
         if not identical:
-            if user.email not in curcont.allowedUser:
+            if user.email not in newcont.allowedUser:
                 return {
                     'status': 'fail',
                     'message': 'User  is not allowed to change the container.',
@@ -142,9 +142,9 @@ class SagaOp():
                         }
         latestrevfn, revnum = self.latestRev(safe_join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId, branch))
 
-        attnfiles = [file for file in request.files.keys()]
+        attnfiles = [file for file in files.keys()]
         committime = datetime.timestamp(datetime.utcnow())
-
+        updatedfiles={}
         for fileheader, filetrack in commitframe.filestrack.items():
             if fileheader in attnfiles:
                 filetrack.md5 = updateinfo[fileheader]['md5']
@@ -164,13 +164,14 @@ class SagaOp():
                             downstreamcont = Container.LoadContainerFromYaml(
                                 safe_join(self.rootpath, CONTAINERFOLDER, sectionid, downcontainerid,
                                           'containerstate.yaml'))
-                            mailsender.prepareMail(recipemail=downstreamcont.allowedUser,
+                            mailsender.prepareMailDownstream(recipemail=downstreamcont.allowedUser,
                                                    fileheader=fileheader,
                                                    filetrack=filetrack, user=user, upcont=curcont,
                                                    commitmsg=commitmsg,
                                                    committime=committime,
                                                    newrevnum=revnum + 1)
                 attnfiles.remove(fileheader)
+                updatedfiles[fileheader]=filetrack
 
         for newfiles in attnfiles:
             print('Add a FileTrack to frameRef.filestrack for ' + newfiles)
@@ -182,6 +183,13 @@ class SagaOp():
         newframefullpath = os.path.join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId, branch, newrevfn)
 
         commitframe.writeoutFrameYaml(newframefullpath)
+
+        mailsender.prepareMailthisContainer(thiscontainer =newcont,
+                                   updatedfiles=updatedfiles,
+                                    user=user,
+                                   commitmsg=commitmsg,
+                                   committime=committime,
+                                   newrevnum=revnum + 1)
         mailsender.sendMail()
 
         if savenewcont:
