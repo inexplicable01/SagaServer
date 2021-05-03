@@ -21,14 +21,14 @@ class FileView(Resource):
         else:
             return {"response": "Invalid file ID  "+file_id}
 
-    def post(self):
-
-        try:
-            for fileheader in request.files.keys():
-                content = request.files[fileheader].read()
-                with open(os.path.join(self.rootpath, FILEFOLDER, fileheader),
-                          'wb') as file:
-                    file.write(content)
-            return {"response":"Success"}
-        except Exception as e:
-            return {"response":"fail"}
+    # def post(self):
+    #
+    #     try:
+    #         for fileheader in request.files.keys():
+    #             content = request.files[fileheader].read()
+    #             with open(os.path.join(self.rootpath, FILEFOLDER, fileheader),
+    #                       'wb') as file:
+    #                 file.write(content)
+    #         return {"response":"Success"}
+    #     except Exception as e:
+    #         return {"response":"fail"}

@@ -35,6 +35,9 @@ class ConfigClass(object):
     # Flask-SQLAlchemy settings
     # SQLALCHEMY_DATABASE_URI = 'mysql://FatPanda1985:Lowlevelpw01!@FatPanda1985.mysql.pythonanywhere-services.com/base.db'  # File-based SQL database
     SQLALCHEMY_DATABASE_URI ='sqlite:///basic_app_test.sqlite'
+    SQLALCHEMY_BINDS = {
+        'filerecords': 'sqlite:///filerecords.sqlite',
+    }
     SQLALCHEMY_TRACK_MODIFICATIONS = True  # Avoids SQLAlchemy warning
     CONTAINERFOLDER = 'Container'
     FILEFOLDER = 'Files'

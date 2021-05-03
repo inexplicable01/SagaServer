@@ -4,7 +4,7 @@ from flask import (
 )
 
 from SagaAPI import db
-from SagaUser.UserModel import User
+from SagaDB.UserModel import User
 import os
 from Config import basedir
 import yaml

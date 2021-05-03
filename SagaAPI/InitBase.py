@@ -1,4 +1,5 @@
-from SagaUser.UserModel import User, Role, Section
+from SagaDB.UserModel import User, Role, Section
+from SagaDB.FileRecordModel import FileRecord
 
 worldmapid = 'fc925b23-30b8-4d77-9310-289b85ef8eb0'
 worldmapgroupname='WorldMap'
@@ -13,6 +14,13 @@ sagafolderid = '359b0947-0e8b-4d96-a4c7-3b1ade4b170f'
 sagafoldername = 'SAGAFolder'
 
 def InitBase(db):
+    # if not FileRecord.query.filter(FileRecord.file_id== 'asdf').first():
+    #     f = FileRecord(
+    #         file_id='asdf', filename='roiwejhrbe',revnum=3,containerid='asdfasdf',containername='asdfa'
+    #     )
+    #     db.session.add(f)
+    #     db.session.commit()
+
     if not Section.query.filter(Section.sectionid == worldmapid).first():
         section = Section(
             sectionid=worldmapid,

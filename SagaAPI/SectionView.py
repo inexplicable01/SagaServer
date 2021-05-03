@@ -2,7 +2,7 @@ import os
 from flask import request, make_response, jsonify
 from flask_restful import Resource
 import uuid
-from SagaUser.UserModel import User, db
+from SagaDB.UserModel import User, db
 import yaml
 from flask import current_app
 from Config import SECTIONDIDHOLDER,basedir

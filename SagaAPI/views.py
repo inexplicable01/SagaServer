@@ -3,7 +3,8 @@ from flask import Blueprint, request, make_response, jsonify
 
 from SagaAPI import db
 # from SagaApp.db import get_db
-from SagaUser.UserModel import User ,BlacklistToken
+from SagaDB.UserModel import User,BlacklistToken
+
 from SagaCore.Section import Section
 from flask import current_app
 import os

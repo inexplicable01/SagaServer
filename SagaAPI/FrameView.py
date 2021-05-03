@@ -6,7 +6,7 @@ import re
 import uuid
 from datetime import datetime
 from SagaCore.Frame import Frame
-from SagaUser.UserModel import User
+from SagaDB.UserModel import User
 from SagaAPI.SagaAPI_Util import authcheck
 from SagaCore.Container import Container
 from flask import current_app

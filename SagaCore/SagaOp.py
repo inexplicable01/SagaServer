@@ -65,7 +65,7 @@ class SagaOp():
                                        newcont.workingFrame.filestrack[fileheader].file_id),
                           'wb') as file:
                     file.write(content)
-                # os.unlink(os.path.join(self.rootpath, FILEFOLDER, newframe.filestrack[FileHeader].file_id))
+
 
             newcont.allowedUser.append(user.email)
             newcont.save(environ='Server',
@@ -158,6 +158,7 @@ class SagaOp():
                 content = files[fileheader].read()
                 with open(os.path.join(self.rootpath, FILEFOLDER, filetrack.file_id), 'wb') as file:
                     file.write(content)
+
                 if filetrack.connection:
                     if filetrack.connection.connectionType.name == typeOutput:
                         for downcontainerid in newcont.FileHeaders[fileheader]['Container']:

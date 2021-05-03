@@ -1,6 +1,6 @@
 from flask import make_response, jsonify
 import json
-from SagaUser.UserModel import User
+from SagaDB.UserModel import User
 
 def authcheck(auth_header):
     if auth_header:

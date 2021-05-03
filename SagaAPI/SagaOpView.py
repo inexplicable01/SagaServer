@@ -5,7 +5,8 @@ from SagaCore.Container import Container
 from SagaCore.Frame import Frame
 import re
 import uuid
-from SagaUser.UserModel import User
+from SagaDB.UserModel import User
+from SagaDB.FileRecordModel import FileRecord
 from flask import current_app
 import json
 from Config import typeInput, typeOutput, typeRequired

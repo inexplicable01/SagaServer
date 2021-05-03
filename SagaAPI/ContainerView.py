@@ -7,7 +7,7 @@ from glob import glob
 import json
 import re
 
-from SagaUser.UserModel import User
+from SagaDB.UserModel import User
 from SagaAPI.SagaAPI_Util import authcheck
 from flask import current_app
 
