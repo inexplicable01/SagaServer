@@ -127,6 +127,16 @@ def InitBase(db):
         db.session.add(user)
         db.session.commit()
 
+    if not User.query.filter(User.email == 'jcasteret.usperson@c-s-inc.us').first():
+        user = User(email='jcasteret.usperson@c-s-inc.us',
+                    password='passwordJ',
+                    sectionid=sagafolderid,
+                    sectionname=sagafoldername,
+                    role='Agent'
+                    )
+        db.session.add(user)
+        db.session.commit()
+
     if not User.query.filter(User.email == 'waichak.luk@gmail.com').first():
         user = User(email='waichak.luk@gmail.com',
                     password='passwordW',
@@ -136,7 +146,6 @@ def InitBase(db):
                     )
         db.session.add(user)
         db.session.commit()
-
     if not User.query.filter(User.email == 'jimmyleong113@gmail.com').first():
         user = User(email='jimmyleong113@gmail.com',
                     password='passwordJ',
