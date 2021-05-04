@@ -132,7 +132,7 @@ def InitBase(db):
                     password='passwordJ',
                     sectionid=sagafolderid,
                     sectionname=sagafoldername,
-                    role='Agent'
+                    role='Agent',first_name='Jerome',last_name='C'
                     )
         db.session.add(user)
         db.session.commit()
@@ -142,7 +142,7 @@ def InitBase(db):
                     password='passwordW',
                     sectionid=sagafolderid,
                     sectionname=sagafoldername,
-                    role='Agent'
+                    role='Agent',first_name='Wai',last_name='Luk'
                     )
         db.session.add(user)
         db.session.commit()
@@ -151,7 +151,7 @@ def InitBase(db):
                     password='passwordJ',
                     sectionid=sagafolderid,
                     sectionname=sagafoldername,
-                    role='Agent'
+                    role='Agent',first_name='Jimmy',last_name='Leong'
                     )
         db.session.add(user)
         db.session.commit()
