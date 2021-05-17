@@ -4,6 +4,7 @@ from flask import current_app
 from SagaCore.Container import Container
 from SagaCore.FileObjects import FileTrack
 from datetime import datetime
+from SagaDB.UserModel import User
 
 def prepcontent(mailjobs,email, fileheader, filetrack, user, upcont:Container,commitmsg,committime,newrevnum):
     if email in mailjobs.keys():
@@ -45,6 +46,32 @@ class MailSender():
             'committime': datetime.fromtimestamp(committime).isoformat(),
             'newrev': newrevnum,
             'updatedfiles' : updatedfiles}
+
+    def containerAddSagaUser(self, email, cont:Container, sourceuser: User, timestamp):
+        title = "Notice:  You have been added contributor to the Container "+ cont.containerName
+        msg = Message( title,
+                      recipients=[email])
+        emailcontent = title + '\n'
+        emailcontent = emailcontent + 'You now have full rights to edit container '+ cont.containerName + '\n'
+        emailcontent = emailcontent + 'User ' + sourceuser.first_name + ' ' + sourceuser.last_name + ' added you on ' + datetime.fromtimestamp(timestamp).isoformat() +  '\n'
+
+        msg.body = emailcontent
+        # msg.html = "<b>emailcontent</b>"
+        self.mail.send(msg)
+
+    def containerAddNonSagaUser(self,email, cont:Container, sourceuser: User, timestamp):
+        title = "Notice:  You have been added contributor to the Container " + cont.containerName
+        msg = Message(title,
+                      recipients=[email])
+        emailcontent = title + '\n'
+        emailcontent = emailcontent + 'You are being invited to Saga to edit ' + cont.containerName + '\n'
+
+        emailcontent = emailcontent + 'User ' + sourceuser.first_name + ' ' + sourceuser.last_name + ' added you on ' + datetime.fromtimestamp(
+            timestamp).isoformat() + '\n'
+
+        msg.body = emailcontent
+        # msg.html = "<b>emailcontent</b>"
+        self.mail.send(msg)
 
 
     def sendMail(self):

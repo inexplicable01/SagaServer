@@ -31,6 +31,7 @@ def create_SagaApp(test_config=None):
         from SagaAPI.SectionView import SectionView
         from SagaAPI.MailTestView import MailTestView
         from SagaAPI.MaintenanceView import MaintenanceView
+        from SagaAPI.PermissionView import PermissionsView
         # from SagaAPI.FileView import FileView
         db.create_all()
         from SagaAPI.InitBase import InitBase
@@ -51,6 +52,9 @@ def create_SagaApp(test_config=None):
         api.add_resource(SectionView, "/SECTION/<command>", resource_class_kwargs={'rootpath': rootpath})
         api.add_resource(Reset, "/RESET", resource_class_kwargs={'rootpath': rootpath})
         api.add_resource(MaintenanceView, "/MAINTENANCE/<command>", resource_class_kwargs={'rootpath': rootpath})
+        api.add_resource(PermissionsView, "/PERMISSIONS/<command>", methods=['GET', 'POST'],
+                         resource_class_kwargs={'rootpath': rootpath})
+
         return app
 
 

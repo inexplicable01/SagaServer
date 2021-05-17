@@ -10,6 +10,8 @@ from Config import typeRequired, changedate,changeremoved,changemd5,changenewfil
 # from PyQt5 import uic
 # from PyQt5.QtGui import *
 # from PyQt5.QtCore import *
+from Config import BASE
+import requests
 
 fileobjtypes = ['inputObjs', 'requiredObjs', 'outputObjs']
 
@@ -223,3 +225,20 @@ class Frame:
         for removedheaders in refframefileheaders:
             changes[removedheaders] = {'reason': changeremoved}
         return changes, alterfiletracks
+
+    def downloadInputFile(self, fileheader, workingdir, environ='Server'):
+        response = requests.get(BASE + 'FILES',
+                                data={'file_id': self.filestrack[fileheader].file_id,
+                                      'file_name': self.filestrack[fileheader].file_name})
+        # Loops through the filestrack in curframe and request files listed in the frame
+        if response.headers['status']=='Failed':
+            print('File Retrieve failed.  ' + self.filestrack[fileheader].file_name + '  ' + self.filestrack[fileheader].file_id)
+            return
+        if environ=='Server':
+            fn = os.path.join(workingdir, self.filestrack[fileheader].file_id)
+        else:
+            fn = os.path.join(workingdir, response.headers['file_name'])
+        with open(fn, 'wb') as f:
+            for data in response.iter_content(1024):
+                f.write(data)
+

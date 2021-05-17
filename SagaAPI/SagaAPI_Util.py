@@ -15,14 +15,14 @@ def authcheck(auth_header):
     else:
         auth_token = ''
     if auth_token:
-        resp = User.decode_auth_token(auth_token)
-        if not isinstance(resp, str):
-            user = User.query.filter_by(id=resp).first()
+        decoderesponse = User.decode_auth_token(auth_token)
+        if not isinstance(decoderesponse, str):
+            user = User.query.filter_by(id=decoderesponse).first()
             if user:
                 return user
         responseObject = {
             'status': 'fail',
-            'message': resp
+            'message': decoderesponse
         }
         return make_response(jsonify(responseObject)), 401
     else:

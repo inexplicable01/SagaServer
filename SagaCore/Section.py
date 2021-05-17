@@ -3,9 +3,9 @@ import os
 from Config import basedir
 import uuid
 from flask import current_app
-
-CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
-
+#
+# CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
+CONTAINERFOLDER = 'Container'
 
 class Section:
     def __init__(self, sectionid, sectionname, description):
@@ -21,6 +21,16 @@ class Section:
                      sectionname=sectionyaml['sectionname'],
                      description=sectionyaml['description'])
         return section
+
+    @classmethod
+    def LoadSectionFromDict(cls, sectiondict ):
+        # containeryaml = containerdict
+        # ['description', 'sectionname', 'sectionid']
+        sect = cls(description=sectiondict['description'],
+                           sectionname=sectiondict['sectionname'],
+                           sectionid=sectiondict['sectionid'])
+
+        return sect
 
     @classmethod
     def CreateNewSection(cls, sectionname, description):
@@ -49,5 +59,13 @@ class Section:
                 dictout[key] = value
         return dictout
 
+    def save(self,outyamlfn):
+        # if environ=='FrontEnd':
+        #     outyaml = open(os.path.join(self.containerworkingfolder, self.containerName), 'w')
+        # elif environ=='Server':
+        #     outyaml = open(os.path.join(CONTAINERFOLDER, 'containerstate.yaml'), 'w')
+        outyaml = open(outyamlfn, 'w')
+        yaml.dump(self.dictify(), outyaml)
+        outyaml.close()
 
 

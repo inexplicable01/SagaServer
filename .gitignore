@@ -22,3 +22,6 @@ ContainerAero
 basic_app_test.sqlite
 registerError.txt
 /SagaAPI/filerecords.sqlite
+Container*
+File*
+token.txt

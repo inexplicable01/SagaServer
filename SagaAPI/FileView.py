@@ -4,7 +4,7 @@ from flask import Flask,flash, request, redirect, url_for,send_from_directory , 
 from flask_restful import Api, Resource
 from flask import current_app
 FILEFOLDER = current_app.config['FILEFOLDER']
-
+import json
 
 class FileView(Resource):
 
@@ -17,9 +17,14 @@ class FileView(Resource):
         if os.path.exists(safe_join(self.rootpath,FILEFOLDER,file_id)):
             result = send_from_directory(safe_join(self.rootpath,FILEFOLDER),file_id)
             result.headers['file_name'] = file_name
+            result.headers['status'] = 'Success'
             return result
         else:
-            return {"response": "Invalid file ID  "+file_id}
+            resp = make_response()
+            resp.headers['status'] = 'Failed'
+            resp.data = json.dumps({ "response": "Invalid file ID  "+file_id})
+
+            return resp
 
     # def post(self):
     #

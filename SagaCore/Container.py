@@ -36,9 +36,14 @@ class Container:
         self.workingFrame= workingFrame
 
     @classmethod
-    def LoadContainerFromDict(cls, containerdict, currentbranch='Main',revnum='1'):
+    def LoadContainerFromDict(cls, containerdict, currentbranch='Main',revnum='1', environ='FrontEnd', sectionid=''):
         # containeryaml = containerdict
-        containerworkingfolder = os.path.join(os.getcwd(), CONTAINERFOLDER, containerdict['containerId'])
+
+        if environ=='FrontEnd':
+            containerworkingfolder = os.path.join(os.getcwd(), CONTAINERFOLDER, containerdict['containerId'])
+        elif environ=='Server':
+            containerworkingfolder = os.path.join( CONTAINERFOLDER, sectionid, containerdict['containerId'])
+
         ##This is problematic as this only works for Client side.    working folder is meant for client side only and can only serve as confusion for the server side
         ## How to make sure Container class can be identical on client side and server side.
         ## Need to think of a way to further remove seperation of concern.
@@ -232,11 +237,11 @@ class Container:
                          time.ctime(pastframe.commitUTCdatetime) + '\t\n'
         return historyStr
 
-    def save(self, environ='FrontEnd', outyamlfn = ''):
+    def save(self, environ='Server', outyamlfn = ''):
         if environ=='FrontEnd':
             outyaml = open(os.path.join(self.containerworkingfolder, self.containerName), 'w')
         elif environ=='Server':
-            outyaml = open(outyamlfn, 'w')
+            outyaml = open(os.path.join(self.containerworkingfolder, 'containerstate.yaml'), 'w')
 
         yaml.dump(self.dictify(), outyaml)
         outyaml.close()
@@ -259,6 +264,13 @@ class Container:
             if key in keytosave:
                 dictout[key] = value
         return dictout
+
+    def addAllowedUser(self, new_email):
+        if new_email not in self.allowedUser:
+            self.allowedUser.append(new_email)
+            self.save()
+            return True , 'User Added to ' + self.containerName
+        return False , 'User is already in the allowedUser, Container '+ self.containerName+ ' was not Updated'
 
     @staticmethod
     def compare(cont1,cont2):

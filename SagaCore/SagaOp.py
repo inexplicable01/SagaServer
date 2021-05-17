@@ -5,10 +5,13 @@ import os
 from flask import safe_join,current_app
 from Config import typeInput, typeOutput, typeRequired
 from flask import request, send_from_directory, safe_join,make_response,jsonify
+from SagaDB.UserModel import User
 import uuid
 import hashlib
 import json
 import re
+from flask_mail import Message,Mail
+from SagaCore.MailSender import MailSender
 
 Rev='Rev'
 CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
@@ -17,6 +20,8 @@ FILEFOLDER = current_app.config['FILEFOLDER']
 class SagaOp():
     def __init__(self,rootpath):
         self.rootpath = rootpath
+        # self.mail = Mail(current_app)
+        self.mailsender = MailSender()
 
     def latestRev(self, path):
         #add comment
@@ -83,10 +88,10 @@ class SagaOp():
                  'framedictjson': newcont.workingFrame.dictify()})
             }
 
-    def commit(self,curcont:Container,newcont:Container,user,sectionid,commitframe:Frame, commitmsg ,updateinfo,files, mailsender, branch='Main'):
+    def commit(self,curcont:Container,newcont:Container,user,sectionid,commitframe:Frame, commitmsg ,updateinfo,files, branch='Main'):
         identical, diff = Container.compare(curcont, newcont)
         if not identical:
-            if user.email not in newcont.allowedUser:
+            if user.email not in curcont.allowedUser:
                 return {
                     'status': 'fail',
                     'message': 'User  is not allowed to change the container.',
@@ -165,7 +170,7 @@ class SagaOp():
                             downstreamcont = Container.LoadContainerFromYaml(
                                 safe_join(self.rootpath, CONTAINERFOLDER, sectionid, downcontainerid,
                                           'containerstate.yaml'))
-                            mailsender.prepareMailDownstream(recipemail=downstreamcont.allowedUser,
+                            self.mailsender.prepareMailDownstream(recipemail=downstreamcont.allowedUser,
                                                    fileheader=fileheader,
                                                    filetrack=filetrack, user=user, upcont=curcont,
                                                    commitmsg=commitmsg,
@@ -185,13 +190,13 @@ class SagaOp():
 
         commitframe.writeoutFrameYaml(newframefullpath)
 
-        mailsender.prepareMailthisContainer(thiscontainer =newcont,
+        self.mailsender.prepareMailthisContainer(thiscontainer =newcont,
                                    updatedfiles=updatedfiles,
                                     user=user,
                                    commitmsg=commitmsg,
                                    committime=committime,
                                    newrevnum=revnum + 1)
-        mailsender.sendMail()
+        self.mailsender.sendMail()
 
         if savenewcont:
             newcont.save('Server',
@@ -201,3 +206,29 @@ class SagaOp():
             'newrevfn':newrevfn,
             'commitsuccess' : True
         }
+
+    ##Expected to return result, ServerMessage, allowedUser
+    def AddUserToContainer(self,user, containerId, new_email, sectionid):
+        contpath = os.path.join(
+            os.path.join(self.rootpath, CONTAINERFOLDER, sectionid, containerId, 'containerstate.yaml'))
+        if os.path.exists(contpath):
+            cont = Container.LoadContainerFromYaml(contpath)
+            if user.email in cont.allowedUser:
+                added, executionmessage = cont.addAllowedUser(new_email)
+                if not added:
+                    return False, executionmessage, []
+                addeduser = User.query.filter(User.email == new_email).first()
+                # user = User.query.filter_by(id=decoderesponse).first()
+                if addeduser:
+                    if addeduser.sections[0].sectionid==sectionid:
+                        self.mailsender.containerAddSagaUser(new_email,cont, user, datetime.now().timestamp())
+                        return True, 'User '+addeduser.email+ ' is added', cont.allowedUser
+                    else:
+                        return False, 'Cannot Add User.  The user you are trying to add belongs to a different section.', []
+                else:
+                    self.mailsender.containerAddNonSagaUser(new_email,cont)
+                    return True, 'Non Saga user is sent an email invtied to join this container', cont.allowedUser
+            else:  ## User not an allowedUser
+                return False, 'User is not allowed to Add', []
+        else:
+            return False, 'Could not find container' + containerId, []

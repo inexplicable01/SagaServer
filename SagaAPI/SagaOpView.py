@@ -11,8 +11,8 @@ from flask import current_app
 import json
 from Config import typeInput, typeOutput, typeRequired
 from SagaAPI.SagaAPI_Util import authcheck
-from flask_mail import Message,Mail
-from SagaCore.MailSender import MailSender
+
+
 from SagaCore.Frame import Frame
 import shutil
 import uuid
@@ -29,7 +29,6 @@ class SagaOperationsView(Resource):
 
     def __init__(self, rootpath):
         self.rootpath = rootpath
-        self.mail = Mail(current_app)
         self.sagaop = SagaOp(rootpath)
 
     def post(self, command=None):
@@ -37,11 +36,7 @@ class SagaOperationsView(Resource):
 
         if not isinstance(authcheckresult, User):
             (resp, num) = authcheckresult
-            responseObject = {
-                'status': 'fail',
-                'message': 'User Check came back failed'
-            }
-            return make_response(jsonify(responseObject))
+            return resp, num
             # return resp, num # user would be a type of response if its not the actual class user
         user = authcheckresult
         sectionid = user.sections[0].sectionid
@@ -63,9 +58,9 @@ class SagaOperationsView(Resource):
                 updateinfo = json.loads(request.form['updateinfo'])
                 commitmsg = request.form['commitmsg']
                 curcont = Container.LoadContainerFromYaml(safe_join(self.rootpath, CONTAINERFOLDER,  sectionid, containerID, 'containerstate.yaml'))
-                containerdict = json.loads(request.form['containerdictjson'])
-                newcont = Container.LoadContainerFromDict(containerdict)
-                if user.email not in newcont.allowedUser:### this is really bad
+                # containerdict = json.loads(request.form['containerdictjson'])
+                # newcont = Container.LoadContainerFromDict(containerdict)
+                if user.email not in curcont.allowedUser:
                     responseObject = {
                             'status': 'fail',
                             'message': 'User  is not allowed to commit to this Container'
@@ -75,8 +70,8 @@ class SagaOperationsView(Resource):
                 newcont = Container.LoadContainerFromDict(containerdict=containerdict)
                 framedict = json.loads(request.form['framedictjson'])
                 commitframe = Frame.LoadFrameFromDict(framedict)
-                mailsender = MailSender()
-                commitreport = self.sagaop.commit(curcont,newcont, user , sectionid, commitframe, commitmsg, updateinfo, request.files,mailsender)
+                # mailsender = MailSender()
+                commitreport = self.sagaop.commit(curcont,newcont, user , sectionid, commitframe, commitmsg, updateinfo, request.files)
 
                 if commitreport['commitsuccess']:
                     commitresponse = send_from_directory(

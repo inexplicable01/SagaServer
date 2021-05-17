@@ -66,6 +66,13 @@ class User(db.Model,UserMixin):
             db.session.add(section)
             db.session.commit()
 
+    def printinfo(self):
+        return {
+        'email': self.email,
+        'first_name': self.first_name,
+        'last_name': self.last_name
+        }
+
     def encode_auth_token(self, user_id):
         """
         Generates the Auth Token
