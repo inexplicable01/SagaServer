@@ -1,6 +1,6 @@
 from flask_restful import Resource
 # from flask import , Flask, send_file, send_from_directory, , abort
-from flask import render_template,request,make_response,safe_join,current_app
+from flask import render_template,request,make_response,safe_join,current_app,jsonify
 from SagaDB.UserModel import User
 from SagaAPI.SagaAPI_Util import authcheck
 from Config import basedir
@@ -38,6 +38,6 @@ class UserView(Resource):
                 if os.path.exists(containerfn):
                     curcont = Container.LoadContainerFromYaml(containerfn)
                     usercontainerinfo['usercontainers'][containerid] = curcont.containerName
-            resp.data = json.dumps(usercontainerinfo)
-            return resp
+            # resp.data = json.dumps(usercontainerinfo)
+            return make_response(jsonify(usercontainerinfo)), 200
 
