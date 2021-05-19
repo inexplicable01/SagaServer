@@ -30,7 +30,7 @@ class UserView(Resource):
             resp.headers["status"] = "Retrieval Success"
             # print(user.sections[0].sectionname)
             usercontainerinfo={
-                'usersectionid': user.sections[0].sectionname,
+                'usersectionname': user.sections[0].sectionname,
                 'usercontainers':{}
             }
             for containerid in os.listdir(safe_join(basedir, CONTAINERFOLDER, sectionid)):
