@@ -76,7 +76,7 @@ class RegisterAPI(MethodView):
                 db.session.add(user)
                 db.session.commit()
                 # generate the auth token
-                auth_token, exp = user.encode_auth_token(user.id)
+                auth_token, exptimestamp = user.encode_auth_token(user.id)
                 sectionids = []
                 sectionnames = []
                 for section in user.sections:
@@ -91,8 +91,9 @@ class RegisterAPI(MethodView):
                     'section_name': sectionnames,
                     'sectionid': sectionids,
                     'last_name': user.last_name,
-                        'exp':exp
+                        'exptimestamp':exptimestamp
                 }
+                # print('exp' + exptimestamp)
                 return make_response(jsonify(responseObject)), 201
             except Exception as e:
                 responseObject = {
@@ -120,7 +121,7 @@ class LoginAPI(MethodView):
                 email=post_data.get('email')
             ).first()
             if user and user.password==post_data.get('password'):
-                auth_token, exp = user.encode_auth_token(user.id)
+                auth_token, exptimestamp = user.encode_auth_token(user.id)
                 if auth_token:
                     sectionids =[]
                     sectionnames=[]
@@ -136,8 +137,9 @@ class LoginAPI(MethodView):
                         'section_name': user.sections[0].sectionname,
                         'sectionid': user.sections[0].sectionid,
                         'last_name': user.last_name,
-                        'exp':exp
+                        'exptimestamp':exptimestamp
                     }
+                    # print('exp' + exptimestamp)
                     return make_response(jsonify(responseObject)), 200
             else:
                 responseObject = {

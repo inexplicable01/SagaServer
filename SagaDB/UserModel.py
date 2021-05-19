@@ -94,7 +94,7 @@ class User(db.Model,UserMixin):
                 payload,
                 ConfigClass.SECRET_KEY,
                 algorithm='HS256'
-            ), exp
+            ), exp.timestamp()
         except Exception as e:
             return e
 
