@@ -4,16 +4,17 @@ from flask import Flask,flash, request, redirect, url_for,send_from_directory , 
 from flask_restful import Api, Resource
 import zipfile
 import shutil
-from SagaCore.Container import Container
+from SagaCore.Container import Container, recursivecompare
 from SagaCore.Section import Section
 from SagaCore.Frame import Frame
 from SagaAPI import db
-from SagaDB.UserModel import User
+from SagaDB.UserModel import User, Role
 from SagaDB.FileRecordModel import FileRecord
 from flask import current_app
 import re
 import glob
 import json
+from SagaAPI.SagaAPI_Util import authcheck
 
 
 CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
@@ -114,9 +115,84 @@ class MaintenanceView(Resource):
 
 
 
-    def post(self):
-        zipf = zipfile.ZipFile(os.path.join(self.rootpath, 'SagaServer.zip'), 'w', zipfile.ZIP_DEFLATED)
-        self.zipdir( CONTAINERFOLDER, zipf)
-        self.zipdir('Files', zipf)
-        zipf.close()
-        return {"Message":"Succesfully Saved Zip"}
+
+    def post(self, command=None):
+        if command=='SyncToServer':
+            authcheckresult = authcheck(request.headers.get('Authorization'))
+
+            if not isinstance(authcheckresult, User):
+                (resp, num) = authcheckresult
+                return resp, num
+                # return resp, num # user would be a type of response if its not the actual class user
+            user = authcheckresult
+            sectionid = user.sections[0].sectionid
+            resp = make_response()
+            resp.headers["status"] = 'Syncing'
+            adminrole = Role.query.filter(Role.name == 'Admin').first()
+            missingfiles=[]
+            if adminrole not in user.roles:
+                resp.headers["status"] = 'User not an Admin!!'
+                return resp
+            else:
+                resp.headers["status"] = 'User is an Admin!!'
+                dictinfo = json.loads(request.form['dictinfo'])
+                # print(dictinfo)
+                comparesummary={}
+                for sectionid, sectioninfo in dictinfo.items():
+                    print(sectionid)
+                    #
+                    localsect = Section.LoadSectionFromDict(sectioninfo['sectiondict'])
+                    ### Check if section exists
+                    ### Check if not create it
+                    if os.path.exists(os.path.join('Container',sectionid, 'sectionstate.yaml')):
+                        serversect = Section.LoadSectionyaml(os.path.join('Container',sectionid, 'sectionstate.yaml'))
+                        identical, diff = recursivecompare(serversect.dictify(), sectioninfo['sectiondict'])
+                        if not identical:
+                            comparesummary[sectionid] = diff
+                    else:
+                        os.mkdir(os.path.join('Container', sectionid))
+                        localsect.save(outyamlfn=os.path.join('Container', sectionid, 'sectionstate.yaml'))
+
+                    # sect.save(outyamlfn=os.path.join('Container', sectionid, 'sectionstate.yaml'))
+                    for containerid, containerdict in sectioninfo['sectioncondtiondict'].items():
+                        # os.mkdir(os.path.join('Container', sectionid, containerid))
+                        localcont = Container.LoadContainerFromDict(containerdict['contdict'], environ='Server',
+                                                               sectionid=sectionid)
+                        if os.path.exists(os.path.join('Container', sectionid, containerid,'containerstate.yaml')):
+                            servercont = Container.LoadContainerFromYaml(os.path.join('Container', sectionid, containerid,'containerstate.yaml'))
+                        else:
+                            os.mkdir(os.path.join('Container', sectionid, containerid))
+                            os.mkdir(os.path.join('Container', sectionid, containerid,'Main'))
+                            localcont.save(environ='Server')
+                        identical, diff = recursivecompare(servercont.dictify(), containerdict['contdict'])
+                        if not identical:
+                            comparesummary[containerid] = diff
+                        # cont.save(environ='Server')
+                        print(sectionid, sectioninfo['sectiondict']['sectionname'], containerid)
+                        print(containerdict['contdict'])
+                        # os.mkdir(os.path.join('Container', sectionid, containerid, 'Main'))
+                        for revnum, framdict in sectioninfo['sectioncondtiondict'][containerid]['framelist'].items():
+                            print(revnum)
+                            localframe = Frame.LoadFrameFromDict(framdict)
+                            framefn =os.path.join('Container', sectionid, containerid, 'Main',
+                                                                               'Rev' + str(revnum) + '.yaml')
+                            if os.path.exists(framefn):
+                                serverframe=Frame.loadFramefromYaml(framefn)
+                            else:
+                                # os.mkdir(os.path.join('Container', sectionid, containerid))
+                                localframe.writeoutFrameYaml(framefn)
+                            identical, diff = recursivecompare(serverframe.dictify(), framdict)
+                            if not identical:
+                                comparesummary[containerid+'_'+str(revnum)] = diff
+
+                            for fileheader, filetrack in localframe.filestrack.items():
+                                if not os.path.exists(os.path.join('Files', filetrack.file_id)):
+                                    missingfiles.append(filetrack.file_id)
+
+
+
+                resp.data = json.dumps({'compare':comparesummary, 'missingfiles':missingfiles})
+                return resp
+
+
+        # return {"Message":"Succesfully Saved Zip"}

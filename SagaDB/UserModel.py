@@ -30,7 +30,7 @@ class User(db.Model,UserMixin):
     last_name = db.Column(db.String(100, collation='NOCASE'), nullable=False, server_default='')
 
     # section_name = db.Column(db.String(100, collation='NOCASE'), nullable=False, server_default='')
-    # sectionid = db.Column(db.String(100, collation='NOCASE'), nullable=False, server_default='')
+    currentsectionid = db.Column(db.String(100))
 
     # Define the relationship to Role via UserRoles
     roles = db.relationship('Role', secondary='user_roles')
@@ -52,19 +52,24 @@ class User(db.Model,UserMixin):
             self.roles.append(agentrole)
         else:
             role=Role(name=role)
+            self.roles.append(role)
             db.session.add(role)
             db.session.commit()
 
         usersection = Section.query.filter(Section.sectionid == sectionid).first()
         if usersection:
             self.sections.append(usersection)
+            self.currentsectionid=usersection.sectionid
         else:
             section = Section(
                 sectionid=sectionid,
                 sectionname=sectionname,
             )
+            self.sections.append(section)
+            self.currentsectionid = section.sectionid
             db.session.add(section)
             db.session.commit()
+            # d
 
     def printinfo(self):
         return {
@@ -79,8 +84,9 @@ class User(db.Model,UserMixin):
         :return: string
         """
         try:
+            exp=datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=36000)
             payload = {
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=36000),
+                'exp': exp,
                 'iat': datetime.datetime.utcnow(),
                 'sub': user_id
             }
@@ -88,7 +94,7 @@ class User(db.Model,UserMixin):
                 payload,
                 ConfigClass.SECRET_KEY,
                 algorithm='HS256'
-            )
+            ), exp
         except Exception as e:
             return e
 
@@ -130,6 +136,7 @@ class UserSections(db.Model):
 class Section(db.Model):
     __tablename__ = 'sections'
     id = db.Column(db.Integer(), primary_key=True)
+    # children = db.relationship("User")
     sectionid = db.Column(db.String(100), unique=True)
     sectionname = db.Column(db.String(500), unique=True)
 

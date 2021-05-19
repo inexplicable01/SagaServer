@@ -9,7 +9,8 @@ import datetime
 from SagaCore.Container import Container
 from SagaCore.Section import Section
 from SagaCore.Frame import Frame
-Python = "http://fatpanda1985.pythonanywhere.com/"
+from os.path import join
+# BASE = "http://fatpanda1985.pythonanywhere.com/"
 response = requests.post(BASE + 'auth/login',
                          json={"email": adminlogin['email'],
                                "password": adminlogin['password']}
@@ -66,7 +67,6 @@ def pushToServer(authtoken):
 
         if os.path.exists(sectfn):
             sect = Section.LoadSectionyaml(sectfn)
-
             dictinfo[sectionid] = {'sectiondict': sect.dictify(), 'sectioncondtiondict': {}}
 
             for containerid in os.listdir(os.path.join(CONTAINERFOLDER, sectionid)):
@@ -86,3 +86,25 @@ def pushToServer(authtoken):
                         revnum = int(revnum[0])
                         dictinfo[sectionid]['sectioncondtiondict'][containerid]['framelist'][
                             revnum] = pastframe.dictify()
+
+    response=requests.post(BASE + 'MAINTENANCE/SyncToServer',
+                          headers={"Authorization": 'Bearer ' + authtoken['auth_token']},
+                          data={'dictinfo':json.dumps(dictinfo)})
+
+    print(response.headers["status"])
+    summary =json.loads(response.content)
+    print(summary)
+    for diffheader, diffdict in summary['compare'].items():
+        print(diffheader, diffdict)
+    for file_id in summary['missingfiles']:
+        print('sending file '+ file_id)
+        filepath = join('Files',file_id)
+        filesToUpload={file_id:open(filepath,'rb')}
+        response = requests.post(BASE + 'FILES',
+                                 headers={"Authorization": 'Bearer ' + authtoken['auth_token']},
+                                 data={'file_id': file_id},
+                                 files=filesToUpload)
+        print(response.headers["status"])
+
+
+pushToServer(authtoken)
