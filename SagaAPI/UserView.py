@@ -39,5 +39,5 @@ class UserView(Resource):
                     curcont = Container.LoadContainerFromYaml(containerfn)
                     usercontainerinfo['usercontainers'][containerid] = curcont.containerName
             # resp.data = json.dumps(usercontainerinfo)
-            return make_response(jsonify(usercontainerinfo)), 200
+            return make_response(jsonify(usercontainerinfo))
 
