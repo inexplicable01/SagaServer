@@ -26,7 +26,7 @@ def create_SagaApp(test_config=None):
         from SagaAPI.FrameView import FrameView
         from SagaAPI.ContainerView import ContainerView
         from SagaAPI.SagaOpView import SagaOperationsView
-        from SagaAPI.ResetView import Reset
+        from SagaAPI.UserView import UserView
         from SagaAPI.HelloView import HelloView
         from SagaAPI.SectionView import SectionView
         from SagaAPI.MailTestView import MailTestView
@@ -50,7 +50,8 @@ def create_SagaApp(test_config=None):
         api.add_resource(FrameView, "/FRAMES", resource_class_kwargs={'rootpath': rootpath})
         api.add_resource(FileView, "/FILES", resource_class_kwargs={'rootpath': rootpath})
         api.add_resource(SectionView, "/SECTION/<command>", resource_class_kwargs={'rootpath': rootpath})
-        api.add_resource(Reset, "/RESET", resource_class_kwargs={'rootpath': rootpath})
+        # api.add_resource(Reset, "/RESET", resource_class_kwargs={'rootpath': rootpath})
+        api.add_resource(UserView, "/USER/<command>", resource_class_kwargs={'rootpath': rootpath})
         api.add_resource(MaintenanceView, "/MAINTENANCE/<command>", resource_class_kwargs={'rootpath': rootpath})
         api.add_resource(PermissionsView, "/PERMISSIONS/<command>", methods=['GET', 'POST'],
                          resource_class_kwargs={'rootpath': rootpath})

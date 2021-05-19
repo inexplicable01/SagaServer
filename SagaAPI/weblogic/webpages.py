@@ -24,7 +24,7 @@ def details():
     # users = User.query.filter_by(email='usercemail@gmail.com')
     containerinfolist = {}
     if g.user is not None:
-        sectionid = g.user.sectionid
+        sectionid = g.user.currentsectionid
         for containerid in os.listdir(safe_join(basedir, CONTAINERFOLDER, sectionid)):
             containerfn = safe_join(basedir, CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml')
             if os.path.exists(containerfn):
