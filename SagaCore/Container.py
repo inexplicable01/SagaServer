@@ -41,7 +41,7 @@ class Container:
 
         if environ=='FrontEnd':
             containerworkingfolder = os.path.join(os.getcwd(), CONTAINERFOLDER, containerdict['containerId'])
-        elif environ=='Server':
+        elif revnum:
             containerworkingfolder = os.path.join( CONTAINERFOLDER, sectionid, containerdict['containerId'])
 
         ##This is problematic as this only works for Client side.    working folder is meant for client side only and can only serve as confusion for the server side

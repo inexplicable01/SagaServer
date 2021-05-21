@@ -59,7 +59,7 @@ class SagaOperationsView(Resource):
                         }
                     return make_response(jsonify(responseObject)), 401
                 containerdict= json.loads(request.form['containerdictjson'])
-                newcont = Container.LoadContainerFromDict(containerdict=containerdict)
+                newcont = Container.LoadContainerFromDict(containerdict=containerdict, environ='Server', sectionid=sectionid)
                 framedict = json.loads(request.form['framedictjson'])
                 commitframe = Frame.LoadFrameFromDict(framedict)
                 # mailsender = MailSender()
