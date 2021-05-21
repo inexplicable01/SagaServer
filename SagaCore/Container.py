@@ -42,7 +42,7 @@ class Container:
         if environ=='FrontEnd':
             containerworkingfolder = os.path.join(os.getcwd(), CONTAINERFOLDER, containerdict['containerId'])
         elif environ=='Server':
-            containerworkingfolder = os.path.join(os.getcwd(),CONTAINERFOLDER, sectionid, containerdict['containerId'])
+            containerworkingfolder = os.path.join(os.getcwd(), 'mysite', CONTAINERFOLDER, sectionid, containerdict['containerId'])
 
         ##This is problematic as this only works for Client side.    working folder is meant for client side only and can only serve as confusion for the server side
         ## How to make sure Container class can be identical on client side and server side.
