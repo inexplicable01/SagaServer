@@ -146,6 +146,7 @@ def InitBase(db):
         for ind, sectionid in enumerate(basesectionids):
             sect = Section.query.filter(Section.sectionid == sectionid).first()
             user.sections.append(sect)
+        db.session.add(user)
         db.session.commit()
 
 
