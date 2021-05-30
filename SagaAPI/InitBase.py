@@ -28,6 +28,13 @@ ArchitectDemoid = '028b524a-1459-4b3a-a1c0-c3694e259318'
 ArchitectDemoname = 'ArchitectDemo'
 AccountingDemoid = 'a19df2b1-4f53-4265-8e9c-16d9a8b441c5'
 AccountingDemoname = 'AccountingDemo'
+
+basesectionids = [worldmapid,privateworldid,mechdemoid,sagafolderid,electricalid,CADDemoid,ManufacturingDemoid,
+MovieDemoid,ArchitectDemoid,AccountingDemoid]
+basesectiondescrip=[worldmapgroupname,privateworldname,mechdemoname,sagafoldername,ElectricalDemoname,
+CADDemoname,ManufacturingDemoname,MovieDemoname,ArchitectDemoname,AccountingDemoname]
+
+
 def InitBase(db):
     # if not FileRecord.query.filter(FileRecord.file_id== 'asdf').first():
     #     f = FileRecord(
@@ -35,46 +42,15 @@ def InitBase(db):
     #     )
     #     db.session.add(f)
     #     db.session.commit()
+    for ind, sectionid in enumerate(basesectionids):
+        if not Section.query.filter(Section.sectionid == sectionid).first():
+            section = Section(
+                sectionid=sectionid,
+                sectionname=basesectiondescrip[ind],
+            )
+            db.session.add(section)
+            db.session.commit()
 
-    if not Section.query.filter(Section.sectionid == worldmapid).first():
-        section = Section(
-            sectionid=worldmapid,
-            sectionname=worldmapgroupname,
-        )
-        db.session.add(section)
-        db.session.commit()
-
-    if not Section.query.filter(Section.sectionid == worldmapid).first():
-        section = Section(
-            sectionid=worldmapid,
-            sectionname=worldmapgroupname,
-        )
-        db.session.add(section)
-        db.session.commit()
-
-    if not Section.query.filter(Section.sectionid == privateworldid).first():
-        section = Section(
-            sectionid=privateworldid,
-            sectionname=privateworldname,
-        )
-        db.session.add(section)
-        db.session.commit()
-
-    if not Section.query.filter(Section.sectionid == sagafolderid).first():
-        section = Section(
-            sectionid=sagafolderid,
-            sectionname=sagafoldername,
-        )
-        db.session.add(section)
-        db.session.commit()
-
-    if not Section.query.filter(Section.sectionid == mechdemoid).first():
-        section = Section(
-            sectionid=mechdemoid,
-            sectionname=mechdemoname,
-        )
-        db.session.add(section)
-        db.session.commit()
 
     if not Role.query.filter(Role.name == 'Agent').first():
         roles = Role(name = 'Agent')
@@ -167,33 +143,9 @@ def InitBase(db):
                     sectionname=sagafoldername,
                     role='Admin',first_name='Wai',last_name='Luk'
                     )
-        # electricalid = '0867eb8f-c9e5-4dbb-a58f-da82b5685c8b'
-        # CADDemoid = '5a4cdb98-ca23-4d36-93e0-74c49fa7d1fc'
-        # ManufacturingDemoid = '7f172a4c-a378-4b30-8e4b-242ab7853381'
-        # MovieDemoid = '8ebbfab3-565e-4ce6-bb62-488033cb437e'
-        # ArchitectDemoid = '028b524a-1459-4b3a-a1c0-c3694e259318'
-        # AccountingDemoid = 'a19df2b1-4f53-4265-8e9c-16d9a8b441c5'
-
-        worldsect = Section.query.filter(Section.sectionid == worldmapid).first()
-        privatesect = Section.query.filter(Section.sectionid == privateworldid).first()
-        # if not Section.query.filter(Section.sectionid == sagafolderid).first()
-        mechdemo= Section.query.filter(Section.sectionid == mechdemoid).first()
-        electrical= Section.query.filter(Section.sectionid == electricalid).first()
-        CADDemo= Section.query.filter(Section.sectionid == CADDemoid).first()
-        ManufacturingDemo= Section.query.filter(Section.sectionid == ManufacturingDemoid).first()
-        MovieDemo= Section.query.filter(Section.sectionid == MovieDemoid).first()
-        ArchitectDemo= Section.query.filter(Section.sectionid == ArchitectDemoid).first()
-        AccountingDemo = Section.query.filter(Section.sectionid == AccountingDemoid).first()
-        user.sections.append(privatesect)
-        user.sections.append(worldsect)
-        user.sections.append(mechdemo)
-        user.sections.append(electrical)
-        user.sections.append(CADDemo)
-        user.sections.append(ManufacturingDemo)
-        user.sections.append(MovieDemo)
-        user.sections.append(ArchitectDemo)
-        user.sections.append(AccountingDemo)
-        db.session.add(user)
+        for ind, sectionid in enumerate(basesectionids):
+            sect = Section.query.filter(Section.sectionid == sectionid).first()
+            user.sections.append(sect)
         db.session.commit()
 
 

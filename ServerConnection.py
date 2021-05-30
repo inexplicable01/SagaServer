@@ -1,5 +1,5 @@
 import requests
-from Config import BASE, adminlogin
+from Config import BASE, adminlogin,waichak
 import re
 import glob
 import json
@@ -10,10 +10,12 @@ from SagaCore.Container import Container
 from SagaCore.Section import Section
 from SagaCore.Frame import Frame
 from os.path import join
-PYTHONANYWHERE = "http://fatpanda1985.pythonanywhere.com/"
-response = requests.post(PYTHONANYWHERE + 'auth/login',
-                         json={"email": adminlogin['email'],
-                               "password": adminlogin['password']}
+# PYTHONANYWHERE = "http://fatpanda1985.pythonanywhere.com/"
+data = {"email": waichak['email'],
+        "password": waichak['password']}
+
+response = requests.post(BASE + 'auth/login',
+                    data=data
                          )
 authtoken = response.json()
 print('usertoken[status] ' + authtoken['status'])
