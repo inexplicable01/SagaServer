@@ -11,6 +11,7 @@ from SagaCore.Section import Section
 from SagaCore.Frame import Frame
 from os.path import join
 PYTHONANYWHERE = "http://fatpanda1985.pythonanywhere.com/"
+PYTHONANYWHERE = BASE
 data = {"email": waichak['email'],
         "password": waichak['password']}
 
@@ -66,7 +67,6 @@ def pushToServer(authtoken):
     dictinfo = {}
     for sectionid in os.listdir(os.path.join( CONTAINERFOLDER)):
         sectfn = os.path.join( CONTAINERFOLDER, sectionid, 'sectionstate.yaml')
-
         if os.path.exists(sectfn):
             sect = Section.LoadSectionyaml(sectfn)
             dictinfo[sectionid] = {'sectiondict': sect.dictify(), 'sectioncondtiondict': {}}
