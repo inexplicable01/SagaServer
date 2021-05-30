@@ -10,8 +10,8 @@ from SagaCore.Container import Container
 from SagaCore.Section import Section
 from SagaCore.Frame import Frame
 from os.path import join
-# BASE = "http://fatpanda1985.pythonanywhere.com/"
-response = requests.post(BASE + 'auth/login',
+PYTHONANYWHERE = "http://fatpanda1985.pythonanywhere.com/"
+response = requests.post(PYTHONANYWHERE + 'auth/login',
                          json={"email": adminlogin['email'],
                                "password": adminlogin['password']}
                          )
@@ -23,7 +23,7 @@ CONTAINERFOLDER='Container'
 print(authtoken)
 
 def syncFromServer(authtoken):
-    response = requests.get(BASE + 'MAINTENANCE/SyncFromServer')
+    response = requests.get(PYTHONANYWHERE + 'MAINTENANCE/SyncFromServer')
                              # json={"email": adminlogin['email'],
                              #       "password": adminlogin['password']}
                              # )
@@ -68,7 +68,6 @@ def pushToServer(authtoken):
         if os.path.exists(sectfn):
             sect = Section.LoadSectionyaml(sectfn)
             dictinfo[sectionid] = {'sectiondict': sect.dictify(), 'sectioncondtiondict': {}}
-
             for containerid in os.listdir(os.path.join(CONTAINERFOLDER, sectionid)):
                 yamlfn = os.path.join(CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml')
                 if os.path.exists(yamlfn):
@@ -77,7 +76,6 @@ def pushToServer(authtoken):
                         'contdict': cont.dictify(),
                         'framelist': {}
                     }
-                    # print(cont.containerId)
                     yamllist = glob.glob(
                         os.path.join( CONTAINERFOLDER, sectionid, containerid, 'Main', 'Rev*.yaml'))
                     for yamlframefn in yamllist:
@@ -87,24 +85,51 @@ def pushToServer(authtoken):
                         dictinfo[sectionid]['sectioncondtiondict'][containerid]['framelist'][
                             revnum] = pastframe.dictify()
 
-    response=requests.post(BASE + 'MAINTENANCE/SyncToServer',
+    response=requests.post(PYTHONANYWHERE + 'MAINTENANCE/SyncToServer',
                           headers={"Authorization": 'Bearer ' + authtoken['auth_token']},
                           data={'dictinfo':json.dumps(dictinfo)})
 
     print(response.headers["status"])
     summary =json.loads(response.content)
-    print(summary)
+    # print(summary)
     for diffheader, diffdict in summary['compare'].items():
         print(diffheader, diffdict)
     for file_id in summary['missingfiles']:
         print('sending file '+ file_id)
         filepath = join('Files',file_id)
         filesToUpload={file_id:open(filepath,'rb')}
-        response = requests.post(BASE + 'FILES',
+        response = requests.post(PYTHONANYWHERE + 'FILES',
                                  headers={"Authorization": 'Bearer ' + authtoken['auth_token']},
                                  data={'file_id': file_id},
                                  files=filesToUpload)
         print(response.headers["status"])
+
+    # dictinfo={}
+    # for sectionid in os.listdir(os.path.join(CONTAINERFOLDER)):
+    #     sectfn = os.path.join(CONTAINERFOLDER, sectionid, 'sectionstate.yaml')
+    #     if os.path.exists(sectfn):
+    #         sect = Section.LoadSectionyaml(sectfn)
+    #         dictinfo[sectionid] = {'sectiondict': sect.dictify(), 'sectioncondtiondict': {}}
+    #         for containerid in os.listdir(os.path.join(CONTAINERFOLDER, sectionid)):
+    #             yamlfn = os.path.join(CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml')
+    #             if os.path.exists(yamlfn):
+    #                 cont = Container.LoadContainerFromYaml(yamlfn)
+    #                 dictinfo[sectionid]['sectioncondtiondict'][containerid] = {
+    #                     'contdict': cont.dictify(),
+    #                     'framelist': {}
+    #                 }
+    #                 yamllist = glob.glob(
+    #                     os.path.join( CONTAINERFOLDER, sectionid, containerid, 'Main', 'Rev*.yaml'))
+    #                 for yamlframefn in yamllist:
+    #                     pastframe = Frame.loadFramefromYaml(yamlframefn, None)
+    #                     revnum = re.findall('Rev(\d+).yaml', os.path.basename(yamlframefn))
+    #                     revnum = int(revnum[0])
+    #                     dictinfo[sectionid]['sectioncondtiondict'][containerid]['framelist'][
+    #                         revnum] = pastframe.dictify()
+    #
+    #     response=requests.post(PYTHONANYWHERE + 'MAINTENANCE/SyncUpSection',
+    #                           headers={"Authorization": 'Bearer ' + authtoken['auth_token']},
+    #                           data={'dictinfo':json.dumps(dictinfo)})
 
 
 pushToServer(authtoken)

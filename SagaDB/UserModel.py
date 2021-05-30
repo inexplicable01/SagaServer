@@ -8,7 +8,10 @@ from flask_user import UserMixin
 # from sqlalchemy.dialects.postgresql import UUID
 import uuid
 
-# db = SQLAlchemy()
+worldmapid = 'fc925b23-30b8-4d77-9310-289b85ef8eb0'
+worldmapgroupname='WorldMap'
+
+
 
 class User(db.Model,UserMixin):
     __tablename__ = 'users'
@@ -30,7 +33,10 @@ class User(db.Model,UserMixin):
     last_name = db.Column(db.String(100, collation='NOCASE'), nullable=False, server_default='')
 
     # section_name = db.Column(db.String(100, collation='NOCASE'), nullable=False, server_default='')
-    currentsectionid = db.Column(db.String(100))
+    # currentsectionid = db.Column(db.String(100))
+
+    currentsection_id = db.Column(db.Integer, db.ForeignKey('sections.id', ondelete='CASCADE'))
+    currentsection = db.relationship("Section", foreign_keys=[currentsection_id])
 
     # Define the relationship to Role via UserRoles
     roles = db.relationship('Role', secondary='user_roles')
@@ -38,15 +44,15 @@ class User(db.Model,UserMixin):
 
     def __init__(self, email, password, sectionname=SECTIONNAMEHOLDER,
                  sectionid=SECTIONDIDHOLDER, first_name='default',
-                 last_name='Lee',admin=False,role='Agent'):
+                 last_name='Lee',admin=False,role='Agent', currentsection=None):
+        # worldmapsection = Section.query.filter(Section.sectionid == worldmapid).first()
         self.email = email
         self.password = password
         self.registered_on = datetime.datetime.now()
         self.admin = admin
         self.first_name = first_name
         self.last_name = last_name
-        # self.section_name = section_name
-        # self.sectionid = sectionid
+
         agentrole = Role.query.filter(Role.name == role).first()
         if agentrole:
             self.roles.append(agentrole)
@@ -58,8 +64,9 @@ class User(db.Model,UserMixin):
 
         usersection = Section.query.filter(Section.sectionid == sectionid).first()
         if usersection:
+            self.currentsection = usersection
             self.sections.append(usersection)
-            self.currentsectionid=usersection.sectionid
+            # self.currentsectionid=usersection.sectionid
         else:
             section = Section(
                 sectionid=sectionid,
@@ -113,6 +120,17 @@ class User(db.Model,UserMixin):
         except jwt.InvalidTokenError:
             return 'Invalid token. Please log in again.'
 
+    def switchToSection(self, sectionid):
+        usersection = Section.query.filter(Section.sectionid == sectionid).first()
+        if usersection:
+            for section in self.sections:
+                if sectionid == section.sectionid:
+                    self.currentsection = usersection
+                    return {'status': 'User Current Section successfully changed'}
+            return {'status': sectionid + ' not a part of the users allowed sections. Request Ignored.'}
+        else:
+            return {'status':'Sectionid '+ sectionid + ' does not exist. Request Ignored.'}
+
     # Define the Role data-model
 class Role(db.Model):
     __tablename__ = 'roles'
@@ -137,6 +155,7 @@ class Section(db.Model):
     __tablename__ = 'sections'
     id = db.Column(db.Integer(), primary_key=True)
     # children = db.relationship("User")
+    users = db.relationship("User")
     sectionid = db.Column(db.String(100), unique=True)
     sectionname = db.Column(db.String(500), unique=True)
 

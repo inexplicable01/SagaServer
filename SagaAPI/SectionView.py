@@ -2,9 +2,10 @@ import os
 from flask import request, make_response, jsonify
 from flask_restful import Resource
 import uuid
-from SagaDB.UserModel import User, db
+from SagaDB.UserModel import User, db, Section
 import yaml
 from flask import current_app
+
 from Config import SECTIONDIDHOLDER,basedir
 
 CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
@@ -58,28 +59,39 @@ class SectionView(Resource):
             return make_response(jsonify(responseObject))
             # return resp, num # user would be a type of response if its not the actual class user
         user = authcheckresult
-        section_name = request.form['new_section_name']
-        new_description = request.form['new_description']
-        newsectionid = uuid.uuid4().__str__()
-        if SECTIONDIDHOLDER==user.sectionid:
-            user.sectionid = newsectionid
-            user.section_name=section_name
-            os.mkdir(os.path.join(self.rootpath, CONTAINERFOLDER, newsectionid))
-            newsection= {
-                "sectionid": newsectionid,
-                "sectionname": section_name,
-                "description": new_description,
-            }
-
-            sectionyaml = open(os.path.join(self.rootpath, CONTAINERFOLDER, newsectionid,'sectionstate.yaml'), 'w')
-            yaml.dump(newsection, sectionyaml)
-            sectionyaml.close()
-            db.session.commit()
+        if command=='newsection':
             resp = make_response()
-            resp.data = newsection
-            return resp
-        else:
-            resp = make_response()
+            try:
+                section_name = request.form['newsectionname']
+                new_description = request.form['newsectiondescription']
+                newsectionid = uuid.uuid4().__str__()
+                # if SECTIONDIDHOLDER==user.sectionid:
+                # user.sectionid = newsectionid
+                # user.section_name=section_name
+                os.mkdir(os.path.join(self.rootpath, CONTAINERFOLDER, newsectionid))
+                newsection= {
+                    "sectionid": newsectionid,
+                    "sectionname": section_name,
+                    "description": new_description,
+                }
+                sectionyaml = open(os.path.join(self.rootpath, CONTAINERFOLDER, newsectionid,'sectionstate.yaml'), 'w')
+                yaml.dump(newsection, sectionyaml)
+                sectionyaml.close()
+                section = Section(
+                    sectionid=newsectionid,
+                    sectionname=section_name,
+                )
+                db.session.add(section)
+                user.currentsection = section
+                user.sections.append(section)
+                db.session.commit()
+                resp.data = newsection
+                resp.headers['status'] = 'New Section ' + section_name+ ' Created with ' + newsectionid
+                return resp
+            except Exception as e:
+                resp.headers['status'] = 'New Section ' + section_name+ ' Failed'
+                resp.headers['exception'] = e.__str__()
+                return resp
 
 
 

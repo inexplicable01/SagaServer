@@ -40,7 +40,7 @@ class ContainerView(Resource):
             }
             return make_response(jsonify(responseObject))
         user = authcheckresult
-        sectionid = user.sections[0].sectionid
+        sectionid = user.currentsection.sectionid
         branch ='Main'
 
         if command=="containerID":

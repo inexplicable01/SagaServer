@@ -3,12 +3,12 @@ from flask import Blueprint, request, make_response, jsonify
 
 from SagaAPI import db
 # from SagaApp.db import get_db
-from SagaDB.UserModel import User,BlacklistToken
+from SagaDB.UserModel import User,BlacklistToken, UserSections
 
 from SagaCore.Section import Section
 from flask import current_app
 import os
-from Config import basedir
+from Config import basedir,worldmapid
 
 auth_blueprint = Blueprint('auth', __name__)
 CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
@@ -39,27 +39,30 @@ class RegisterAPI(MethodView):
             }
             return make_response(jsonify(responseObject)), 401
 
-        if 'sectionname' in request.form.keys():
-            ## User wants to make a new section
-            section_name = request.form['sectionname']
-            description = request.form['sectiondescription']
-            newsection = Section.CreateNewSection(section_name, description=description)
-            sectionid = newsection.sectionid
-            section_name = newsection.sectionname
-
-        elif 'sectionid' in request.form.keys():
-            sectionid = request.form['sectionid']
-            sectionyaml = os.path.join(basedir, CONTAINERFOLDER, sectionid, 'sectionstate.yaml')
-            cursection = Section.LoadSectionyaml(sectionyaml)
-            section_name = cursection.sectionname
-        else:
-            responseObject = {
-                'status': 'fail',
-                'message': 'Section definitions were not done well '
-            }
-            return make_response(jsonify(responseObject)), 401
+        # if 'sectionname' in request.form.keys():
+        #     ## User wants to make a new section
+        #     section_name = request.form['sectionname']
+        #     description = request.form['sectiondescription']
+        #     newsection = Section.CreateNewSection(section_name, description=description)
+        #     sectionid = newsection.sectionid
+        #     section_name = newsection.sectionname
+        #
+        # elif 'sectionid' in request.form.keys():
+        #     sectionid = request.form['sectionid']
+        #     sectionyaml = os.path.join(basedir, CONTAINERFOLDER, sectionid, 'sectionstate.yaml')
+        #     cursection = Section.LoadSectionyaml(sectionyaml)
+        #     section_name = cursection.sectionname
+        # else:
+        #     responseObject = {
+        #         'status': 'fail',
+        #         'message': 'Section definitions were not done well '
+        #     }
+        #     return make_response(jsonify(responseObject)), 401
         ## this is not consistent with the website registration, additional work is needed for better seperation of concern
-
+        sectionid = worldmapid
+        sectionyaml = os.path.join(basedir, CONTAINERFOLDER, sectionid, 'sectionstate.yaml')
+        cursection = Section.LoadSectionyaml(sectionyaml)
+        section_name = cursection.sectionname
         # check if user already exists
         user = User.query.filter_by(email=email).first()
         if not user:
@@ -88,10 +91,12 @@ class RegisterAPI(MethodView):
                     'auth_token': auth_token.decode(),
                     'useremail': user.email,
                     'first_name': user.first_name,
-                    'section_name': sectionnames,
-                    'sectionid': sectionids,
+                    'current_sectionname': user.currentsection.sectionname,
+                    'current_sectionid': user.currentsection.sectionid,
+                    'sectionname_list': sectionnames,
+                    'sectionid_list': sectionids,
                     'last_name': user.last_name,
-                        'exptimestamp':exptimestamp
+                    'exptimestamp':exptimestamp
                 }
                 # print('exp' + exptimestamp)
                 return make_response(jsonify(responseObject)), 201
@@ -115,12 +120,14 @@ class LoginAPI(MethodView):
     def post(self):
         # get the post data
         post_data = request.get_json()
+        email = request.form['email']
+        password= request.form['password']
         try:
             # fetch the user data
             user = User.query.filter_by(
-                email=post_data.get('email')
+                email=email
             ).first()
-            if user and user.password==post_data.get('password'):
+            if user and user.password==password:
                 auth_token, exptimestamp = user.encode_auth_token(user.id)
                 if auth_token:
                     sectionids =[]
@@ -134,8 +141,10 @@ class LoginAPI(MethodView):
                         'auth_token': auth_token.decode(),
                         'useremail': user.email,
                         'first_name': user.first_name,
-                        'section_name': user.sections[0].sectionname,
-                        'sectionid': user.sections[0].sectionid,
+                        'current_sectionname': user.currentsection.sectionname,
+                        'current_sectionid': user.currentsection.sectionid,
+                        'sectionname_list':sectionnames,
+                        'sectionid_list': sectionids,
                         'last_name': user.last_name,
                         'exptimestamp':exptimestamp
                     }
@@ -190,8 +199,10 @@ class UserAPI(MethodView):
                         'admin': user.admin,
                         'registered_on': user.registered_on,
                         'first_name': user.first_name,
-                        'section_name': user.sections[0].sectionname,
-                        'sectionid': user.sections[0].sectionid,
+                        'current_sectionname': user.currentsection.sectionname,
+                        'current_sectionid': user.currentsection.sectionid,
+                        'sectionname_list':sectionnames,
+                        'sectionid_list': sectionids,
                         'last_name': user.last_name
                     }
                 }
@@ -237,7 +248,11 @@ class UserAPI(MethodView):
                     # print(user)
                 db.session.commit()
                 user = User.query.filter_by(id=resp).first()
-                # print(user)
+                sectionids = []
+                sectionnames = []
+                for section in user.sections:
+                    sectionids.append(section.sectionid)
+                    sectionnames.append(section.sectionname)
                 responseObject = {
                     'status': 'Update success',
                     'data': {
@@ -246,8 +261,10 @@ class UserAPI(MethodView):
                         'admin': user.admin,
                         'registered_on': user.registered_on,
                         'first_name': user.first_name,
-                        'section_name': user.section_name,
-                        'sectionid': user.sectionid,
+                        'current_sectionname': user.currentsection.sectionname,
+                        'current_sectionid': user.currentsection.sectionid,
+                        'sectionname_list':sectionnames,
+                        'sectionid_list': sectionids,
                         'last_name': user.last_name
                     },
                     'nonupdatedproperty': nonupdatedpro

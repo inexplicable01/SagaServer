@@ -31,7 +31,7 @@ class SagaOperationsView(Resource):
             return resp, num
             # return resp, num # user would be a type of response if its not the actual class user
         user = authcheckresult
-        sectionid = user.sections[0].sectionid
+        sectionid = user.currentsection.sectionid
         try:
             resp = make_response()
             if command == "newContainer":

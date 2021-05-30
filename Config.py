@@ -30,6 +30,8 @@ changeremoved = 'File Header Removed'
 SECTIONNAMEHOLDER = 'SECTIONNAMEHOLDER'
 SECTIONDIDHOLDER = 'SECTIONDIDHOLDER'
 
+worldmapid = 'fc925b23-30b8-4d77-9310-289b85ef8eb0'
+
 class BaseConfig:
     """Base configuration."""
     SECRET_KEY = os.getenv('SECRET_KEY', 'my_precious')

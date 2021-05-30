@@ -10,6 +10,7 @@ import uuid
 import hashlib
 import json
 import re
+import traceback
 from flask_mail import Message,Mail
 from SagaCore.MailSender import MailSender
 
@@ -97,6 +98,163 @@ class SagaOp():
                     'message': 'User  is not allowed to change the container.',
                     'commitsuccess': False,
                 }
+        try:
+            savenewcont =self.AdjustRelatedContainers(self, diff,curcont, newcont, sectionid)
+            # upstream and downstream container are checked to see if removal of input or outputs need to be notified
+            latestrevfn, revnum = self.latestRev(safe_join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId, branch))
+        except Exception as e:
+            with open('commitError.txt', 'a+') as errorfile:
+                # errorfile.write(datetime.now().isoformat() + ': Container: ' + request.form.get('containerID') +'\n')
+                errorfile.write(datetime.now().isoformat() + str(e) + '\n')
+                errorfile.write(datetime.now().isoformat() + 'ErrorType' + str(e) + '\n')
+                errorfile.write(datetime.now().isoformat() + 'Traceback' + traceback.format_exc() + '\n')
+                errorfile.write('\n')
+            return {
+                'status': 'Error occured either in Adjusting Related containers or finding the latest Rev',
+                'message': str(e),
+                'commitsuccess': False,
+                'ErrorType': str(e),
+                'traceback': traceback.format_exc()
+            }
+
+
+
+        attnfiles = [file for file in files.keys()]
+        committime = datetime.timestamp(datetime.utcnow())
+        updatedfiles={}
+
+        try:
+            for fileheader, filetrack in commitframe.filestrack.items():
+                if fileheader in attnfiles:
+                    filetrack.md5 = updateinfo[fileheader]['md5']
+                    filetrack.file_name = updateinfo[fileheader]['file_name']
+                    filetrack.lastEdited = updateinfo[fileheader]['lastEdited']
+                    filetrack.committedby = user.email
+                    filetrack.style = updateinfo[fileheader]['style']
+                    filetrack.file_id = updateinfo[fileheader]['md5']
+                    filetrack.commitUTCdatetime = committime
+                    content = files[fileheader].read()
+                    with open(os.path.join(self.rootpath, FILEFOLDER, filetrack.md5), 'wb') as file:
+                        file.write(content)
+
+                    if filetrack.connection:
+                        if filetrack.connection.connectionType.name == typeOutput:
+                            for downcontainerid in newcont.FileHeaders[fileheader]['Container']:
+                                downstreamcont = Container.LoadContainerFromYaml(
+                                    safe_join(self.rootpath, CONTAINERFOLDER, sectionid, downcontainerid,
+                                              'containerstate.yaml'))
+                                self.mailsender.prepareMailDownstream(recipemail=downstreamcont.allowedUser,
+                                                       fileheader=fileheader,
+                                                       filetrack=filetrack, user=user, upcont=curcont,
+                                                       commitmsg=commitmsg,
+                                                       committime=committime,
+                                                       newrevnum=revnum + 1)
+                    attnfiles.remove(fileheader)
+                    updatedfiles[fileheader]=filetrack
+
+            for newfiles in attnfiles:
+                print('Add a FileTrack to frameRef.filestrack for ' + newfiles)
+            commitframe.FrameInstanceId = uuid.uuid4().__str__()
+            commitframe.commitMessage = commitmsg
+            commitframe.commitUTCdatetime = committime
+            commitframe.FrameName = Rev + str(revnum + 1)
+            newrevfn = Rev + str(revnum + 1) + ".yaml"
+            newframefullpath = os.path.join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId, branch, newrevfn)
+
+        except Exception as e:
+            with open('commitError.txt', 'a+') as errorfile:
+                # errorfile.write(datetime.now().isoformat() + ': Container: ' + request.form.get('containerID') +'\n')
+                errorfile.write(datetime.now().isoformat() + str(e) + '\n')
+                errorfile.write(datetime.now().isoformat() + 'ErrorType' + str(e) + '\n')
+                errorfile.write(datetime.now().isoformat() + 'Traceback' + traceback.format_exc() + '\n')
+                errorfile.write('\n')
+            return {
+                'status': 'Error occured while dealing with new frame and new files.',
+                'message': str(e),
+                'commitsuccess': False,
+                'ErrorType': str(e),
+                'traceback': traceback.format_exc()
+            }
+        try:
+            curcont.save('Server',
+                         safe_join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId,
+                                   'containerstate_' +  +'.yaml'))
+            if savenewcont:
+                newcont.save('Server',
+                             safe_join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId, 'containerstate.yaml'))
+            commitframe.writeoutFrameYaml(newframefullpath)
+        except Exception as e:
+            if os.exists(safe_join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId, 'containerstate.yaml')):
+                os.remove()
+            with open('commitError.txt', 'a+') as errorfile:
+                # errorfile.write(datetime.now().isoformat() + ': Container: ' + request.form.get('containerID') +'\n')
+                errorfile.write(datetime.now().isoformat() + str(e) + '\n')
+                errorfile.write(datetime.now().isoformat() + 'ErrorType' + str(e) + '\n')
+                errorfile.write(datetime.now().isoformat() + 'Traceback' + traceback.format_exc() + '\n')
+                errorfile.write('\n')
+            return {
+                'status': 'Error occured while saving new Frames Yaml.   Commit is canceled, and all operations are reversed.',
+                'message': str(e),
+                'commitsuccess': False,
+                'ErrorType': str(e),
+                'traceback': traceback.format_exc()
+            }
+
+        try:
+            self.mailsender.prepareMailthisContainer(thiscontainer =newcont,
+                                       updatedfiles=updatedfiles,
+                                        user=user,
+                                       commitmsg=commitmsg,
+                                       committime=committime,
+                                       newrevnum=revnum + 1)
+            self.mailsender.sendMail()
+        except Exception as e:
+            with open('commitError.txt', 'a+') as errorfile:
+                # errorfile.write(datetime.now().isoformat() + ': Container: ' + request.form.get('containerID') +'\n')
+                errorfile.write(datetime.now().isoformat() + str(e) + '\n')
+                errorfile.write(datetime.now().isoformat() + 'ErrorType' + str(e) + '\n')
+                errorfile.write(datetime.now().isoformat() + 'Traceback' + traceback.format_exc() + '\n')
+                errorfile.write('\n')
+            return {
+                'status': 'Commit was successful but there was an error in sending out the emails.',
+                'message': str(e),
+                'commitsuccess': True,
+                'ErrorType': str(e),
+                'newrevfn':newrevfn,
+            }
+
+        return {
+            'newrevfn':newrevfn,
+            'commitsuccess' : True
+        }
+
+    ##Expected to return result, ServerMessage, allowedUser
+    def AddUserToContainer(self,user, containerId, new_email, sectionid):
+        contpath = os.path.join(
+            os.path.join(self.rootpath, CONTAINERFOLDER, sectionid, containerId, 'containerstate.yaml'))
+        if os.path.exists(contpath):
+            cont = Container.LoadContainerFromYaml(contpath)
+            if user.email in cont.allowedUser:
+                added, executionmessage = cont.addAllowedUser(new_email)
+                if not added:
+                    return False, executionmessage, []
+                addeduser = User.query.filter(User.email == new_email).first()
+                # user = User.query.filter_by(id=decoderesponse).first()
+                if addeduser:
+                    if addeduser.currentsection.sectionid==sectionid:
+                        self.mailsender.containerAddSagaUser(new_email,cont, user, datetime.now().timestamp())
+                        return True, 'User '+addeduser.email+ ' is added', cont.allowedUser
+                    else:
+                        return False, 'Cannot Add User.  The user you are trying to add belongs to a different section.', []
+                else:
+                    self.mailsender.containerAddNonSagaUser(new_email,cont)
+                    return True, 'Non Saga user is sent an email invtied to join this container', cont.allowedUser
+            else:  ## User not an allowedUser
+                return False, 'User is not allowed to Add', []
+        else:
+            return False, 'Could not find container' + containerId, []
+
+    def AdjustRelatedContainers(self, diff,curcont, newcont, sectionid):
         savenewcont = False
         for fileheader in diff['FileHeaders'].keys():
             if 'MissingInDict1'== diff['FileHeaders'][fileheader]:
@@ -125,7 +283,7 @@ class SagaOp():
                         upstreamcont.FileHeaders[fileheader]['Container'].remove(curcont.containerId)
                     upstreamcont.save('Server', safe_join(self.rootpath, CONTAINERFOLDER, sectionid, upstreamcontainerid, 'containerstate.yaml'))
                 elif curcont.FileHeaders[fileheader]['type'] == typeRequired:
-                    print('Removed new Entry to this container')
+                    print('Removed Entry to this container')
                 elif curcont.FileHeaders[fileheader]['type'] == typeOutput:
                     print(
                         'Removed an Output.  downcontainerid needs an output update.  An Output update means remove cont')
@@ -145,90 +303,5 @@ class SagaOp():
                             'ErrorType': 'Tried to remove output fileheader without clearing dependency.',
                                          'commitsuccess':False
                         }
-        latestrevfn, revnum = self.latestRev(safe_join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId, branch))
 
-        attnfiles = [file for file in files.keys()]
-        committime = datetime.timestamp(datetime.utcnow())
-        updatedfiles={}
-        for fileheader, filetrack in commitframe.filestrack.items():
-            if fileheader in attnfiles:
-                filetrack.md5 = updateinfo[fileheader]['md5']
-                filetrack.file_name = updateinfo[fileheader]['file_name']
-                filetrack.lastEdited = updateinfo[fileheader]['lastEdited']
-                filetrack.committedby = user.email
-                filetrack.style = updateinfo[fileheader]['style']
-                filetrack.file_id = uuid.uuid4().__str__()
-                filetrack.commitUTCdatetime = committime
-
-                content = files[fileheader].read()
-                with open(os.path.join(self.rootpath, FILEFOLDER, filetrack.file_id), 'wb') as file:
-                    file.write(content)
-
-                if filetrack.connection:
-                    if filetrack.connection.connectionType.name == typeOutput:
-                        for downcontainerid in newcont.FileHeaders[fileheader]['Container']:
-                            downstreamcont = Container.LoadContainerFromYaml(
-                                safe_join(self.rootpath, CONTAINERFOLDER, sectionid, downcontainerid,
-                                          'containerstate.yaml'))
-                            self.mailsender.prepareMailDownstream(recipemail=downstreamcont.allowedUser,
-                                                   fileheader=fileheader,
-                                                   filetrack=filetrack, user=user, upcont=curcont,
-                                                   commitmsg=commitmsg,
-                                                   committime=committime,
-                                                   newrevnum=revnum + 1)
-                attnfiles.remove(fileheader)
-                updatedfiles[fileheader]=filetrack
-
-        for newfiles in attnfiles:
-            print('Add a FileTrack to frameRef.filestrack for ' + newfiles)
-        commitframe.FrameInstanceId = uuid.uuid4().__str__()
-        commitframe.commitMessage = commitmsg
-        commitframe.commitUTCdatetime = committime
-        commitframe.FrameName = Rev + str(revnum + 1)
-        newrevfn = Rev + str(revnum + 1) + ".yaml"
-        newframefullpath = os.path.join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId, branch, newrevfn)
-
-        commitframe.writeoutFrameYaml(newframefullpath)
-
-        self.mailsender.prepareMailthisContainer(thiscontainer =newcont,
-                                   updatedfiles=updatedfiles,
-                                    user=user,
-                                   commitmsg=commitmsg,
-                                   committime=committime,
-                                   newrevnum=revnum + 1)
-        self.mailsender.sendMail()
-
-        if savenewcont:
-            newcont.save('Server',
-                         safe_join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId, 'containerstate.yaml'))
-
-        return {
-            'newrevfn':newrevfn,
-            'commitsuccess' : True
-        }
-
-    ##Expected to return result, ServerMessage, allowedUser
-    def AddUserToContainer(self,user, containerId, new_email, sectionid):
-        contpath = os.path.join(
-            os.path.join(self.rootpath, CONTAINERFOLDER, sectionid, containerId, 'containerstate.yaml'))
-        if os.path.exists(contpath):
-            cont = Container.LoadContainerFromYaml(contpath)
-            if user.email in cont.allowedUser:
-                added, executionmessage = cont.addAllowedUser(new_email)
-                if not added:
-                    return False, executionmessage, []
-                addeduser = User.query.filter(User.email == new_email).first()
-                # user = User.query.filter_by(id=decoderesponse).first()
-                if addeduser:
-                    if addeduser.sections[0].sectionid==sectionid:
-                        self.mailsender.containerAddSagaUser(new_email,cont, user, datetime.now().timestamp())
-                        return True, 'User '+addeduser.email+ ' is added', cont.allowedUser
-                    else:
-                        return False, 'Cannot Add User.  The user you are trying to add belongs to a different section.', []
-                else:
-                    self.mailsender.containerAddNonSagaUser(new_email,cont)
-                    return True, 'Non Saga user is sent an email invtied to join this container', cont.allowedUser
-            else:  ## User not an allowedUser
-                return False, 'User is not allowed to Add', []
-        else:
-            return False, 'Could not find container' + containerId, []
+        return savenewcont

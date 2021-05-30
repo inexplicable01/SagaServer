@@ -125,7 +125,7 @@ class MaintenanceView(Resource):
                 return resp, num
                 # return resp, num # user would be a type of response if its not the actual class user
             user = authcheckresult
-            sectionid = user.sections[0].sectionid
+            # sectionid = user.currentsection.sectionid
             resp = make_response()
             resp.headers["status"] = 'Syncing'
             adminrole = Role.query.filter(Role.name == 'Admin').first()
@@ -193,6 +193,10 @@ class MaintenanceView(Resource):
 
                 resp.data = json.dumps({'compare':comparesummary, 'missingfiles':missingfiles})
                 return resp
+        elif command == 'SyncSection':
+            return 'j'
+
+
 
 
         # return {"Message":"Succesfully Saved Zip"}

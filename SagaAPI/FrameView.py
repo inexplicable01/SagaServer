@@ -45,7 +45,7 @@ class FrameView(Resource):
             return resp
             # return resp, num # user would be a type of response if its not the actual class user
         user = authcheckresult
-        sectionid = user.sections[0].sectionid
+        sectionid = user.currentsection.sectionid
 
 
         if 'rev' in request.form.keys():

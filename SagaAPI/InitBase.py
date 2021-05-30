@@ -8,11 +8,26 @@ privateworldid = 'c752575b-7cc2-47e7-ae3a-97fe1ea5aeeb'
 privateworldname='PrivateMap'
 
 mechdemoid='102a7375-b8a7-4bb6-9368-e292a2389acc'
-mechdemoname= 'MECHDEMO'
+mechdemoname= 'MechExample'
 
 sagafolderid = '359b0947-0e8b-4d96-a4c7-3b1ade4b170f'
 sagafoldername = 'SAGAFolder'
 
+electricalid = '0867eb8f-c9e5-4dbb-a58f-da82b5685c8b'
+ElectricalDemoname = 'ElectricalDemo'
+
+CADDemoid = '5a4cdb98-ca23-4d36-93e0-74c49fa7d1fc'
+CADDemoname = 'CADDemo'
+#
+ManufacturingDemoid = '7f172a4c-a378-4b30-8e4b-242ab7853381'
+ManufacturingDemoname = 'ManufacturingDemo'
+
+MovieDemoid = '8ebbfab3-565e-4ce6-bb62-488033cb437e'
+MovieDemoname = 'MovieDemo'
+ArchitectDemoid = '028b524a-1459-4b3a-a1c0-c3694e259318'
+ArchitectDemoname = 'ArchitectDemo'
+AccountingDemoid = 'a19df2b1-4f53-4265-8e9c-16d9a8b441c5'
+AccountingDemoname = 'AccountingDemo'
 def InitBase(db):
     # if not FileRecord.query.filter(FileRecord.file_id== 'asdf').first():
     #     f = FileRecord(
@@ -20,6 +35,14 @@ def InitBase(db):
     #     )
     #     db.session.add(f)
     #     db.session.commit()
+
+    if not Section.query.filter(Section.sectionid == worldmapid).first():
+        section = Section(
+            sectionid=worldmapid,
+            sectionname=worldmapgroupname,
+        )
+        db.session.add(section)
+        db.session.commit()
 
     if not Section.query.filter(Section.sectionid == worldmapid).first():
         section = Section(
@@ -142,10 +165,38 @@ def InitBase(db):
                     password='passwordW',
                     sectionid=sagafolderid,
                     sectionname=sagafoldername,
-                    role='Agent',first_name='Wai',last_name='Luk'
+                    role='Admin',first_name='Wai',last_name='Luk'
                     )
+        # electricalid = '0867eb8f-c9e5-4dbb-a58f-da82b5685c8b'
+        # CADDemoid = '5a4cdb98-ca23-4d36-93e0-74c49fa7d1fc'
+        # ManufacturingDemoid = '7f172a4c-a378-4b30-8e4b-242ab7853381'
+        # MovieDemoid = '8ebbfab3-565e-4ce6-bb62-488033cb437e'
+        # ArchitectDemoid = '028b524a-1459-4b3a-a1c0-c3694e259318'
+        # AccountingDemoid = 'a19df2b1-4f53-4265-8e9c-16d9a8b441c5'
+
+        worldsect = Section.query.filter(Section.sectionid == worldmapid).first()
+        privatesect = Section.query.filter(Section.sectionid == privateworldid).first()
+        # if not Section.query.filter(Section.sectionid == sagafolderid).first()
+        mechdemo= Section.query.filter(Section.sectionid == mechdemoid).first()
+        electrical= Section.query.filter(Section.sectionid == electricalid).first()
+        CADDemo= Section.query.filter(Section.sectionid == CADDemoid).first()
+        ManufacturingDemo= Section.query.filter(Section.sectionid == ManufacturingDemoid).first()
+        MovieDemo= Section.query.filter(Section.sectionid == MovieDemoid).first()
+        ArchitectDemo= Section.query.filter(Section.sectionid == ArchitectDemoid).first()
+        AccountingDemo = Section.query.filter(Section.sectionid == AccountingDemoid).first()
+        user.sections.append(privatesect)
+        user.sections.append(worldsect)
+        user.sections.append(mechdemo)
+        user.sections.append(electrical)
+        user.sections.append(CADDemo)
+        user.sections.append(ManufacturingDemo)
+        user.sections.append(MovieDemo)
+        user.sections.append(ArchitectDemo)
+        user.sections.append(AccountingDemo)
         db.session.add(user)
         db.session.commit()
+
+
     if not User.query.filter(User.email == 'jimmyleong113@gmail.com').first():
         user = User(email='jimmyleong113@gmail.com',
                     password='passwordJ',
