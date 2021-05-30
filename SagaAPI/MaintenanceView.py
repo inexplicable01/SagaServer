@@ -187,7 +187,7 @@ class MaintenanceView(Resource):
                                 comparesummary[containerid+'_'+str(revnum)] = diff
 
                             for fileheader, filetrack in localframe.filestrack.items():
-                                if not os.path.exists(os.path.join('Files', filetrack.file_id)):
+                                if not os.path.exists(join(self.rootpath,'Files', filetrack.file_id)):
                                     missingfiles.append(filetrack.file_id)
 
 

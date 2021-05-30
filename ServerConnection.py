@@ -11,7 +11,7 @@ from SagaCore.Section import Section
 from SagaCore.Frame import Frame
 from os.path import join
 PYTHONANYWHERE = "http://fatpanda1985.pythonanywhere.com/"
-PYTHONANYWHERE = BASE
+# PYTHONANYWHERE = BASE
 data = {"email": waichak['email'],
         "password": waichak['password']}
 

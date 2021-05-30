@@ -120,8 +120,12 @@ class LoginAPI(MethodView):
     def post(self):
         # get the post data
         post_data = request.get_json()
-        email = request.form['email']
-        password= request.form['password']
+        if 'email' in post_data.keys():
+            email = post_data.get('email')
+            password = post_data.get('password')
+        else:
+            email = request.form['email']
+            password= request.form['password']
         try:
             # fetch the user data
             user = User.query.filter_by(
@@ -222,7 +226,12 @@ class UserAPI(MethodView):
     def post(self):
         auth_header = request.headers.get('Authorization')
         post_data = request.get_json()
-        # print(post_data)
+        # if 'email' in post_data.keys():
+        #     email = post_data.get('email')
+        #     password = post_data.get('password')
+        # else:
+        #     email = request.form['email']
+        #     password = request.form['password']
         if auth_header:
             try:
                 auth_token = auth_header.split(" ")[1]
