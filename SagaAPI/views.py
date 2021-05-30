@@ -120,7 +120,7 @@ class LoginAPI(MethodView):
     def post(self):
         # get the post data
         post_data = request.get_json()
-        if 'email' in post_data.keys():
+        if post_data:
             email = post_data.get('email')
             password = post_data.get('password')
         else:
