@@ -8,7 +8,7 @@ from SagaDB.UserModel import User,BlacklistToken, UserSections
 from SagaCore.Section import Section
 from flask import current_app
 import os
-from Config import basedir,worldmapid
+from Config import basedir,worldmapid,version_num
 
 auth_blueprint = Blueprint('auth', __name__)
 CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
@@ -96,7 +96,8 @@ class RegisterAPI(MethodView):
                     'sectionname_list': sectionnames,
                     'sectionid_list': sectionids,
                     'last_name': user.last_name,
-                    'exptimestamp':exptimestamp
+                    'exptimestamp':exptimestamp,
+                    'version_num': version_num
                 }
                 # print('exp' + exptimestamp)
                 return make_response(jsonify(responseObject)), 201
@@ -150,7 +151,8 @@ class LoginAPI(MethodView):
                         'sectionname_list':sectionnames,
                         'sectionid_list': sectionids,
                         'last_name': user.last_name,
-                        'exptimestamp':exptimestamp
+                        'exptimestamp':exptimestamp,
+                        'version_num': version_num
                     }
                     # print('exp' + exptimestamp)
                     return make_response(jsonify(responseObject)), 200
@@ -207,7 +209,8 @@ class UserAPI(MethodView):
                         'current_sectionid': user.currentsection.sectionid,
                         'sectionname_list':sectionnames,
                         'sectionid_list': sectionids,
-                        'last_name': user.last_name
+                        'last_name': user.last_name,
+                        'version_num': version_num
                     }
                 }
                 return make_response(jsonify(responseObject)), 200
@@ -274,7 +277,8 @@ class UserAPI(MethodView):
                         'current_sectionid': user.currentsection.sectionid,
                         'sectionname_list':sectionnames,
                         'sectionid_list': sectionids,
-                        'last_name': user.last_name
+                        'last_name': user.last_name,
+                        'version_num': version_num
                     },
                     'nonupdatedproperty': nonupdatedpro
                 }

@@ -2,6 +2,8 @@
 # BASE = "http://fatpanda1985.pythonanywhere.com/"
 BASE = "http://127.0.0.1:5000/"
 
+version_num = 0.1
+
 # http://fatpanda1985.pythonanywhere.com/static/executable/Saga.exe
 # https://www.sagaversioncontrol.com/
 
