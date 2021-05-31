@@ -237,11 +237,14 @@ class Container:
                          time.ctime(pastframe.commitUTCdatetime) + '\t\n'
         return historyStr
 
-    def save(self, environ='Server', outyamlfn = ''):
-        if environ=='FrontEnd':
-            outyaml = open(os.path.join(self.containerworkingfolder, self.containerName), 'w')
-        elif environ=='Server':
-            outyaml = open(os.path.join(self.containerworkingfolder, 'containerstate.yaml'), 'w')
+    def save(self, environ='Server', outyamlfn = None):
+        if outyamlfn:
+            outyaml = open(outyamlfn, 'w')
+        else:
+            if environ=='FrontEnd':
+                outyaml = open(os.path.join(self.containerworkingfolder, self.containerName), 'w')
+            elif environ=='Server':
+                outyaml = open(os.path.join(self.containerworkingfolder, 'containerstate.yaml'), 'w')
 
         yaml.dump(self.dictify(), outyaml)
         outyaml.close()

@@ -162,8 +162,11 @@ class MaintenanceView(Resource):
                         if os.path.exists(join(self.rootpath, CONTAINERFOLDER, sectionid, containerid,'containerstate.yaml')):
                             servercont = Container.LoadContainerFromYaml(join(self.rootpath, CONTAINERFOLDER, sectionid, containerid,'containerstate.yaml'))
                         else:
-                            os.mkdir(join(self.rootpath, CONTAINERFOLDER, sectionid, containerid))
-                            os.mkdir(join(self.rootpath, CONTAINERFOLDER, sectionid, containerid,'Main'))
+                            try:
+                                os.mkdir(join(self.rootpath, CONTAINERFOLDER, sectionid, containerid))
+                                os.mkdir(join(self.rootpath, CONTAINERFOLDER, sectionid, containerid,'Main'))
+                            except Exception as e:
+                                print('Directory already exists')
                             localcont.save(environ='Server')
                         identical, diff = recursivecompare(servercont.dictify(), containerdict['contdict'])
                         if not identical:

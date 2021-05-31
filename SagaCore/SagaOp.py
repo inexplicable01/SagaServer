@@ -35,7 +35,8 @@ class SagaOp():
         return latestrev, revnum
 
     def newContainer(self,containerdict,framedict,sectionid,files,user):
-        newcont = Container.LoadContainerFromDict(containerdict=containerdict)
+        newcont = Container.LoadContainerFromDict(containerdict=containerdict, environ='Server',
+                                                               sectionid=sectionid)
         newcont.workingFrame = Frame.LoadFrameFromDict(framedict)
         newcont.revnum = 1
         committime = datetime.timestamp(datetime.utcnow())
@@ -99,7 +100,7 @@ class SagaOp():
                     'commitsuccess': False,
                 }
         try:
-            savenewcont =self.AdjustRelatedContainers(self, diff,curcont, newcont, sectionid)
+            savenewcont =self.AdjustRelatedContainers( diff,curcont, newcont, sectionid)
             # upstream and downstream container are checked to see if removal of input or outputs need to be notified
             latestrevfn, revnum = self.latestRev(safe_join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId, branch))
         except Exception as e:
@@ -177,14 +178,14 @@ class SagaOp():
             }
         try:
             curcont.save('Server',
-                         safe_join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId,
-                                   'containerstate_' +  +'.yaml'))
+                         outyamlfn = safe_join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId,
+                                   'containerstate_' + str(datetime.now().timestamp()) +'.yaml'))
             if savenewcont:
                 newcont.save('Server',
                              safe_join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId, 'containerstate.yaml'))
             commitframe.writeoutFrameYaml(newframefullpath)
         except Exception as e:
-            if os.exists(safe_join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId, 'containerstate.yaml')):
+            if os.path.exists(safe_join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId, 'containerstate.yaml')):
                 os.remove()
             with open('commitError.txt', 'a+') as errorfile:
                 # errorfile.write(datetime.now().isoformat() + ': Container: ' + request.form.get('containerID') +'\n')
