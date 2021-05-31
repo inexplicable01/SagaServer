@@ -363,7 +363,6 @@ auth_blueprint.add_url_rule(
     methods=['GET', 'POST']
 )
 
-
 auth_blueprint.add_url_rule(
     '/auth/logout',
     view_func=logout_view,
