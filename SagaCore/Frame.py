@@ -81,6 +81,9 @@ class Frame:
         self.filestrack = {}
         for ftrack in filestracklist:
             FileHeader = ftrack['FileHeader']
+            ctnrootpathlist=[]
+            if 'ctnrootpathlist' in ftrack.keys():
+                ctnrootpathlist=ftrack['ctnrootpathlist']
             conn=None
             if 'connection' in ftrack.keys() and ftrack['connection']:
                 conn = FileConnection(ftrack['connection']['refContainerId'],
@@ -96,6 +99,7 @@ class Frame:
                                                      commitUTCdatetime=ftrack['commitUTCdatetime'],
                                                      lastEdited=ftrack['lastEdited'],
                                                      connection=conn,
+                                                     ctnrootpathlist=ctnrootpathlist,
                                                      persist=True)
 
     def add_fileTrack(self, filepath,FileHeader):
@@ -233,6 +237,16 @@ class Frame:
         # Loops through the filestrack in curframe and request files listed in the frame
         if response.headers['status']=='Failed':
             print('File Retrieve failed.  ' + self.filestrack[fileheader].file_name + '  ' + self.filestrack[fileheader].file_id)
+            response = requests.get(BASE + 'FILES',
+                                    data={'file_id': self.filestrack[fileheader].md5,
+                                          'file_name': self.filestrack[fileheader].file_name})
+            if environ == 'Server':
+                fn = os.path.join(workingdir, self.filestrack[fileheader].file_id)
+            else:
+                fn = os.path.join(workingdir, response.headers['file_name'])
+            with open(fn, 'wb') as f:
+                for data in response.iter_content(1024):
+                    f.write(data)
             return
         if environ=='Server':
             fn = os.path.join(workingdir, self.filestrack[fileheader].file_id)

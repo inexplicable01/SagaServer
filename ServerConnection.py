@@ -42,7 +42,7 @@ def syncFromServer(authtoken):
         for containerid, containerdict in sectioninfo['sectioncondtiondict'].items():
             os.mkdir(os.path.join('Container', sectionid,containerid))
             cont = Container.LoadContainerFromDict(containerdict['contdict'], environ='Server',sectionid=sectionid)
-            cont.save(environ='Server')
+            cont.save(environ='Server', outyamlfn=os.path.join('Container', sectionid,containerid, 'containerstate.yaml'))
             print(sectionid,sectioninfo['sectiondict']['sectionname'],containerid)
             print(containerdict['contdict'])
             os.mkdir(os.path.join('Container', sectionid,containerid, 'Main'))
@@ -52,16 +52,17 @@ def syncFromServer(authtoken):
                 framefn = os.path.join('Container', sectionid, containerid, 'Main', 'Rev'+str(revnum)+'.yaml')
                 frame.writeoutFrameYaml(framefn)
                 for fileheader, filetrack in frame.filestrack.items():
-                    if os.path.exists(os.path.join('Files',filetrack.file_id)):
-                        frame.downloadInputFile(fileheader, 'FileTest')
-                    else:
-                        frame.downloadInputFile(fileheader, 'Files')
+                    if filetrack.file_id:
+                        if os.path.exists(os.path.join('Files',filetrack.file_id)):
+                            frame.downloadInputFile(fileheader, 'FileTest')
+                        else:
+                            frame.downloadInputFile(fileheader, 'Files')
 
 
 
 
 
-# syncFromServer(authtoken)
+syncFromServer(authtoken)
 
 def pushToServer(authtoken):
     dictinfo = {}
@@ -134,4 +135,4 @@ def pushToServer(authtoken):
     #                           data={'dictinfo':json.dumps(dictinfo)})
 
 
-pushToServer(authtoken)
+# pushToServer(authtoken)

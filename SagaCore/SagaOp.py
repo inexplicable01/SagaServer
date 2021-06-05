@@ -134,6 +134,7 @@ class SagaOp():
                     filetrack.style = updateinfo[fileheader]['style']
                     filetrack.file_id = updateinfo[fileheader]['md5']
                     filetrack.commitUTCdatetime = committime
+                    filetrack.ctnrootpath = commitframe.filestrack[fileheader].ctnrootpath
                     content = files[fileheader].read()
                     with open(os.path.join(self.rootpath, FILEFOLDER, filetrack.md5), 'wb') as file:
                         file.write(content)
