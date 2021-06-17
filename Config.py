@@ -1,6 +1,6 @@
 # project/server/Config.py
-# BASE = "http://fatpanda1985.pythonanywhere.com/"
-BASE = "http://127.0.0.1:5000/"
+BASE = "http://fatpanda1985.pythonanywhere.com/"
+# BASE = "http://127.0.0.1:5000/"
 
 version_num = 0.1
 

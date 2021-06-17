@@ -123,6 +123,9 @@ def InitBase(db):
         #
         # agentrole = Role.query.filter(Role.name == 'Agent').first()
         # user.roles.append(agentrole)
+        for ind, sectionid in enumerate(basesectionids):
+            sect = Section.query.filter(Section.sectionid == sectionid).first()
+            user.sections.append(sect)
         db.session.add(user)
         db.session.commit()
 
@@ -157,6 +160,9 @@ def InitBase(db):
                     sectionname=sagafoldername,
                     role='Agent',first_name='Jimmy',last_name='Leong'
                     )
+        for ind, sectionid in enumerate(basesectionids):
+            sect = Section.query.filter(Section.sectionid == sectionid).first()
+            user.sections.append(sect)
         db.session.add(user)
         db.session.commit()
 
