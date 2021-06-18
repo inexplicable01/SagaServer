@@ -18,6 +18,20 @@ Rev='Rev'
 CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
 FILEFOLDER = current_app.config['FILEFOLDER']
 
+def writeError(e, errmessage):
+    with open('commitError.txt', 'a+') as errorfile:
+        # errorfile.write(datetime.now().isoformat() + ': Container: ' + request.form.get('containerID') +'\n')
+        errorfile.write(datetime.now().isoformat() + str(e) + '\n')
+        errorfile.write(datetime.now().isoformat() + 'ErrorType' + str(e) + '\n')
+        errorfile.write(datetime.now().isoformat() + 'Traceback' + traceback.format_exc() + '\n')
+        errorfile.write('\n')
+    return {
+        'status': errmessage,
+        'message': str(e),
+        'commitsuccess': False,
+        'ErrorType': str(e),
+        'traceback': traceback.format_exc()}
+
 class SagaOp():
     def __init__(self,rootpath):
         self.rootpath = rootpath
@@ -104,19 +118,8 @@ class SagaOp():
             # upstream and downstream container are checked to see if removal of input or outputs need to be notified
             latestrevfn, revnum = self.latestRev(safe_join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId, branch))
         except Exception as e:
-            with open('commitError.txt', 'a+') as errorfile:
-                # errorfile.write(datetime.now().isoformat() + ': Container: ' + request.form.get('containerID') +'\n')
-                errorfile.write(datetime.now().isoformat() + str(e) + '\n')
-                errorfile.write(datetime.now().isoformat() + 'ErrorType' + str(e) + '\n')
-                errorfile.write(datetime.now().isoformat() + 'Traceback' + traceback.format_exc() + '\n')
-                errorfile.write('\n')
-            return {
-                'status': 'Error occured either in Adjusting Related containers or finding the latest Rev',
-                'message': str(e),
-                'commitsuccess': False,
-                'ErrorType': str(e),
-                'traceback': traceback.format_exc()
-            }
+            errsum = writeError(e, 'Error occured either in Adjusting Related containers or finding the latest Rev')
+            return errsum
 
 
 
@@ -164,19 +167,9 @@ class SagaOp():
             newframefullpath = os.path.join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId, branch, newrevfn)
 
         except Exception as e:
-            with open('commitError.txt', 'a+') as errorfile:
-                # errorfile.write(datetime.now().isoformat() + ': Container: ' + request.form.get('containerID') +'\n')
-                errorfile.write(datetime.now().isoformat() + str(e) + '\n')
-                errorfile.write(datetime.now().isoformat() + 'ErrorType' + str(e) + '\n')
-                errorfile.write(datetime.now().isoformat() + 'Traceback' + traceback.format_exc() + '\n')
-                errorfile.write('\n')
-            return {
-                'status': 'Error occured while dealing with new frame and new files.',
-                'message': str(e),
-                'commitsuccess': False,
-                'ErrorType': str(e),
-                'traceback': traceback.format_exc()
-            }
+            errsum = writeError(e, 'Error occured while dealing with new frame and new files.')
+            return errsum
+
         try:
             curcont.save('Server',
                          outyamlfn = safe_join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId,
@@ -187,20 +180,9 @@ class SagaOp():
             commitframe.writeoutFrameYaml(newframefullpath)
         except Exception as e:
             if os.path.exists(safe_join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId, 'containerstate.yaml')):
-                os.remove()
-            with open('commitError.txt', 'a+') as errorfile:
-                # errorfile.write(datetime.now().isoformat() + ': Container: ' + request.form.get('containerID') +'\n')
-                errorfile.write(datetime.now().isoformat() + str(e) + '\n')
-                errorfile.write(datetime.now().isoformat() + 'ErrorType' + str(e) + '\n')
-                errorfile.write(datetime.now().isoformat() + 'Traceback' + traceback.format_exc() + '\n')
-                errorfile.write('\n')
-            return {
-                'status': 'Error occured while saving new Frames Yaml.   Commit is canceled, and all operations are reversed.',
-                'message': str(e),
-                'commitsuccess': False,
-                'ErrorType': str(e),
-                'traceback': traceback.format_exc()
-            }
+                os.remove(safe_join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId, 'containerstate.yaml'))
+            errsum = writeError(e,  'Error occured while saving new Frames Yaml.   Commit is canceled, and all operations are reversed.')
+            return errsum
 
         try:
             self.mailsender.prepareMailthisContainer(thiscontainer =newcont,
@@ -211,19 +193,10 @@ class SagaOp():
                                        newrevnum=revnum + 1)
             self.mailsender.sendMail()
         except Exception as e:
-            with open('commitError.txt', 'a+') as errorfile:
-                # errorfile.write(datetime.now().isoformat() + ': Container: ' + request.form.get('containerID') +'\n')
-                errorfile.write(datetime.now().isoformat() + str(e) + '\n')
-                errorfile.write(datetime.now().isoformat() + 'ErrorType' + str(e) + '\n')
-                errorfile.write(datetime.now().isoformat() + 'Traceback' + traceback.format_exc() + '\n')
-                errorfile.write('\n')
-            return {
-                'status': 'Commit was successful but there was an error in sending out the emails.',
-                'message': str(e),
-                'commitsuccess': True,
-                'ErrorType': str(e),
-                'newrevfn':newrevfn,
-            }
+            errsum = writeError(e,
+                                'Commit was successful but there was an error in sending out the emails.')
+            errsum['newrevfn']=newrevfn
+            return errsum
 
         return {
             'newrevfn':newrevfn,
