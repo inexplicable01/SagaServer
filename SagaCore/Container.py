@@ -151,7 +151,7 @@ class Container:
                 if not self.workingFrame.filestrack[fileheader].md5 == filetrack['md5']:
                     warnings('MD5 changed')
                 self.workingFrame.filestrack[fileheader].committedby = filetrack['committedby']
-                self.workingFrame.filestrack[fileheader].file_id = filetrack['file_id']
+                # self.workingFrame.filestrack[fileheader].file_id = filetrack['file_id']
 
             frameyamlfn = os.path.join(self.containerworkingfolder, self.currentbranch,self.workingFrame.FrameName + '.yaml')
             self.workingFrame.writeoutFrameYaml(frameyamlfn)

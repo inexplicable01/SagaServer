@@ -95,7 +95,7 @@ class Frame:
                                                      localfilepath=localfilepath,
                                                      md5=ftrack['md5'],
                                                      style=ftrack['style'],
-                                                     file_id=ftrack['file_id'],
+                                                     # file_id=ftrack['file_id'],
                                                      commitUTCdatetime=ftrack['commitUTCdatetime'],
                                                      lastEdited=ftrack['lastEdited'],
                                                      connection=conn,
@@ -128,7 +128,7 @@ class Frame:
                                     style=style,
                                     committedby=reffiletrack.committedby,
                                     md5=reffiletrack.md5,
-                                    file_id=reffiletrack.file_id,
+                                    # file_id=reffiletrack.file_id,
                                     commitUTCdatetime=reffiletrack.commitUTCdatetime,
                                     connection=conn,
                                     localfilepath='',
@@ -232,16 +232,16 @@ class Frame:
 
     def downloadInputFile(self, fileheader, workingdir, environ='Server'):
         response = requests.get(BASE + 'FILES',
-                                data={'file_id': self.filestrack[fileheader].file_id,
+                                data={'md5': self.filestrack[fileheader].md5,
                                       'file_name': self.filestrack[fileheader].file_name})
         # Loops through the filestrack in curframe and request files listed in the frame
         if response.headers['status']=='Failed':
-            print('File Retrieve failed.  ' + self.filestrack[fileheader].file_name + '  ' + self.filestrack[fileheader].file_id)
+            print('File Retrieve failed.  ' + self.filestrack[fileheader].file_name + '  ' + self.filestrack[fileheader].md5)
             response = requests.get(BASE + 'FILES',
-                                    data={'file_id': self.filestrack[fileheader].md5,
+                                    data={'md5': self.filestrack[fileheader].md5,
                                           'file_name': self.filestrack[fileheader].file_name})
             if environ == 'Server':
-                fn = os.path.join(workingdir, self.filestrack[fileheader].file_id)
+                fn = os.path.join(workingdir, self.filestrack[fileheader].md5)
             else:
                 fn = os.path.join(workingdir, response.headers['file_name'])
             with open(fn, 'wb') as f:
@@ -249,7 +249,7 @@ class Frame:
                     f.write(data)
             return
         if environ=='Server':
-            fn = os.path.join(workingdir, self.filestrack[fileheader].file_id)
+            fn = os.path.join(workingdir, self.filestrack[fileheader].md5)
         else:
             fn = os.path.join(workingdir, response.headers['file_name'])
         with open(fn, 'wb') as f:

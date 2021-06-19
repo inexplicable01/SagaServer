@@ -77,14 +77,13 @@ class SagaOp():
             for fileheader in files.keys():
                 print('fileheader' + fileheader)
                 content = files[fileheader].read()
-                newcont.workingFrame.filestrack[fileheader].file_id = uuid.uuid4().__str__()
-                newcont.workingFrame.filestrack[fileheader].md5 = hashlib.md5(content).hexdigest()
+                # newcont.workingFrame.filestrack[fileheader].file_id = uuid.uuid4().__str__()
+                md5 = hashlib.md5(content).hexdigest()
+                newcont.workingFrame.filestrack[fileheader].md5 = md5
                 newcont.workingFrame.filestrack[fileheader].committedby = user.email
                 newcont.workingFrame.filestrack[fileheader].style = 'Required'
                 newcont.workingFrame.filestrack[fileheader].commitUTCdatetime = committime
-                with open(os.path.join(self.rootpath, FILEFOLDER,
-                                       newcont.workingFrame.filestrack[fileheader].file_id),
-                          'wb') as file:
+                with open(os.path.join(self.rootpath, FILEFOLDER,md5),'wb') as file:
                     file.write(content)
 
 
@@ -135,7 +134,7 @@ class SagaOp():
                     filetrack.lastEdited = updateinfo[fileheader]['lastEdited']
                     filetrack.committedby = user.email
                     filetrack.style = updateinfo[fileheader]['style']
-                    filetrack.file_id = updateinfo[fileheader]['md5']
+                    # filetrack.file_id = updateinfo[fileheader]['md5']
                     filetrack.commitUTCdatetime = committime
                     filetrack.ctnrootpath = commitframe.filestrack[fileheader].ctnrootpath
                     content = files[fileheader].read()

@@ -15,17 +15,17 @@ class FileView(Resource):
         self.rootpath = rootpath
 
     def get(self):
-        file_id = request.form['file_id']
+        md5 = request.form['md5']
         file_name=request.form['file_name']
-        if os.path.exists(safe_join(self.rootpath,FILEFOLDER,file_id)):
-            result = send_from_directory(safe_join(self.rootpath,FILEFOLDER),file_id)
+        if os.path.exists(safe_join(self.rootpath,FILEFOLDER,md5)):
+            result = send_from_directory(safe_join(self.rootpath,FILEFOLDER),md5)
             result.headers['file_name'] = file_name
             result.headers['status'] = 'Success'
             return result
         else:
             resp = make_response()
             resp.headers['status'] = 'Failed'
-            resp.data = json.dumps({ "response": "Invalid file ID  "+file_id})
+            resp.data = json.dumps({ "response": "Invalid file ID  "+md5})
 
             return resp
 
@@ -44,9 +44,9 @@ class FileView(Resource):
             resp.headers["status"] = 'User not an Admin!!'
             return resp
         else:
-            file_id = request.form['file_id']
-            content = request.files[file_id].read()
-            with open(os.path.join(self.rootpath, FILEFOLDER, file_id), 'wb') as file:
+            md5 = request.form['md5']
+            content = request.files[md5].read()
+            with open(os.path.join(self.rootpath, FILEFOLDER, md5), 'wb') as file:
                 file.write(content)
             resp.headers["status"] = 'Adding File success'
             return resp
