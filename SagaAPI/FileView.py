@@ -25,7 +25,7 @@ class FileView(Resource):
         else:
             resp = make_response()
             resp.headers['status'] = 'Failed'
-            resp.data = json.dumps({ "response": "Invalid file ID  "+md5})
+            resp.data = json.dumps({ "response": "Invalid md5  "+md5})
 
             return resp
 

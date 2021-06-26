@@ -42,7 +42,7 @@ class ContainerView(Resource):
         user = authcheckresult
         sectionid = user.currentsection.sectionid
         branch ='Main'
-
+        resp = make_response()
         if command=="containerID":
             containerID = request.form['containerID']
             if os.path.exists(safe_join(self.rootpath, CONTAINERFOLDER,sectionid, containerID)):
@@ -55,7 +55,6 @@ class ContainerView(Resource):
             else:
                 return {"response": "Invalid Container ID"}
         elif command=="List":
-            resp = make_response()
             containerinfolist = {}
             for containerid in os.listdir(safe_join(self.rootpath, CONTAINERFOLDER, sectionid)):
                 if not os.path.exists(safe_join(self.rootpath, CONTAINERFOLDER,sectionid,containerid,'containerstate.yaml')):
@@ -74,7 +73,6 @@ class ContainerView(Resource):
             return resp
 
         elif command=="tester":
-            resp = make_response()
             resp.data=json.dumps({'dicit':'pop','plo':3})
             return resp
         elif command=="fullbranch":
@@ -85,10 +83,28 @@ class ContainerView(Resource):
             resp = make_response()
             resp.data=json.dumps(os.listdir(filepath))
             return resp
+        elif command=='newestrevnum':
+            ## Provides latest Rev number
+            containerID = request.form['containerID']
+            branch = 'Main'#request.form['branch']
+            # result = send_from_directory(safe_join(self.rootpath, CONTAINERFOLDER, containerID, branch), 'Rev1.yaml')
+            for section in user.sections:
+                filepath = safe_join(self.rootpath, CONTAINERFOLDER, section.sectionid, containerID, 'containerstate.yaml')
+                if os.path.exists(filepath):
+                    cont = Container.LoadContainerFromYaml(filepath)
+                    print(cont.revnum)
+                    resp.data=json.dumps({'framedict':cont.workingFrame.dictify(),
+                                          'newestrevnum':cont.revnum})
+                    return resp
+
+            resp.data=json.dumps({'framedict':'Container not found',
+                                          'newestrevnum':'Container not found'})
+            return resp
         else:
             resp = make_response()
             resp.headers["response"] = "Incorrect Command"
             return resp
+
 
 
 
