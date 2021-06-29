@@ -1,15 +1,15 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api
-
-from Config import ConfigClass, basedir
 import os
+
+from Config import ConfigClass, appdatadir, webserverdir
 
 db = SQLAlchemy()
 
 def create_SagaApp(test_config=None):
-    app = Flask(__name__, template_folder=os.path.join(basedir ,'templates'),
-                static_folder=os.path.join(basedir ,'static'),
+    app = Flask(__name__, template_folder=os.path.join(webserverdir ,'templates'),
+                static_folder=os.path.join(webserverdir ,'static'),
                 )
     app.config.from_object(ConfigClass)
 
@@ -43,22 +43,22 @@ def create_SagaApp(test_config=None):
         app.register_blueprint(auth_web_blueprint)
         # app.add_url_rule('/',endpoint=)
         api = Api(app)
-        rootpath = basedir
+        # appdatadir = basedir
 
-        api.add_resource(MailTestView, "/MAILTEST/", methods=['GET', 'POST'],resource_class_kwargs={'rootpath': rootpath})
+        api.add_resource(MailTestView, "/MAILTEST/", methods=['GET', 'POST'],resource_class_kwargs={'appdatadir': appdatadir})
         api.add_resource(ContainerView, "/CONTAINERS/<command>", methods=['GET', 'POST', 'DELETE'],
-                         resource_class_kwargs={'rootpath': rootpath})
-        api.add_resource(SagaOperationsView, "/SAGAOP/<command>", methods=['POST'], resource_class_kwargs={'rootpath': rootpath})
-        api.add_resource(FrameView, "/FRAMES", resource_class_kwargs={'rootpath': rootpath})
-        api.add_resource(FileView, "/FILES", resource_class_kwargs={'rootpath': rootpath})
-        api.add_resource(SectionView, "/SECTION/<command>", resource_class_kwargs={'rootpath': rootpath})
-        # api.add_resource(Reset, "/RESET", resource_class_kwargs={'rootpath': rootpath})
-        api.add_resource(UserView, "/USER/<command>", resource_class_kwargs={'rootpath': rootpath})
-        api.add_resource(MaintenanceView, "/MAINTENANCE/<command>", resource_class_kwargs={'rootpath': rootpath})
+                         resource_class_kwargs={'appdatadir': appdatadir})
+        api.add_resource(SagaOperationsView, "/SAGAOP/<command>", methods=['POST'], resource_class_kwargs={'appdatadir': appdatadir})
+        api.add_resource(FrameView, "/FRAMES", resource_class_kwargs={'appdatadir': appdatadir})
+        api.add_resource(FileView, "/FILES", resource_class_kwargs={'appdatadir': appdatadir})
+        api.add_resource(SectionView, "/SECTION/<command>", resource_class_kwargs={'appdatadir': appdatadir})
+        # api.add_resource(Reset, "/RESET", resource_class_kwargs={'appdatadir': appdatadir})
+        api.add_resource(UserView, "/USER/<command>", resource_class_kwargs={'appdatadir': appdatadir})
+        api.add_resource(MaintenanceView, "/MAINTENANCE/<command>", resource_class_kwargs={'appdatadir': appdatadir})
         api.add_resource(PermissionsView, "/PERMISSIONS/<command>", methods=['GET', 'POST'],
-                         resource_class_kwargs={'rootpath': rootpath})
+                         resource_class_kwargs={'appdatadir': appdatadir})
         api.add_resource(GeneralView, "/GENERAL/<command>", methods=['GET', 'POST'],
-                         resource_class_kwargs={'rootpath': rootpath})
+                         resource_class_kwargs={'appdatadir': appdatadir, 'webserverdir':webserverdir})
 
         return app
 

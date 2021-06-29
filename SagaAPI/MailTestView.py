@@ -7,9 +7,8 @@ from flask import current_app
 class MailTestView(Resource):
 
 
-
-    def __init__(self, rootpath):
-        self.rootpath = rootpath
+    def __init__(self, appdatadir):
+        self.appdatadir = appdatadir
         self.mail = Mail(current_app)
 
     def get(self):

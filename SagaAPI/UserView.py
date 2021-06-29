@@ -3,7 +3,7 @@ from flask_restful import Resource
 from flask import render_template,request,make_response,safe_join,current_app,jsonify
 from SagaDB.UserModel import User
 from SagaAPI.SagaAPI_Util import authcheck
-from Config import basedir
+from Config import appdatadir
 from SagaCore.Container import Container
 import json
 import os
@@ -15,8 +15,8 @@ FILEFOLDER = current_app.config['FILEFOLDER']
 
 class UserView(Resource):
 
-    def __init__(self, rootpath):
-        self.rootpath = rootpath
+    def __init__(self, appdatadir):
+        self.appdatadir = appdatadir
 
     def get(self, command=None):
         authcheckresult = authcheck(request.headers.get('Authorization'))
@@ -35,8 +35,8 @@ class UserView(Resource):
                 'usersectionname': user.sections[0].sectionname,
                 'usercontainers':{}
             }
-            for containerid in os.listdir(safe_join(basedir, CONTAINERFOLDER, sectionid)):
-                containerfn = safe_join(basedir, CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml')
+            for containerid in os.listdir(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid)):
+                containerfn = safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml')
                 if os.path.exists(containerfn):
                     curcont = Container.LoadContainerFromYaml(containerfn)
                     usercontainerinfo['usercontainers'][containerid] = curcont.containerName
@@ -45,7 +45,7 @@ class UserView(Resource):
         elif "getusersections" == command:
             sectioninfo={}
             for section in user.sections:
-                sectionyamlfn = os.path.join(basedir, 'Container', section.sectionid, 'sectionstate.yaml')
+                sectionyamlfn = os.path.join(appdatadir, 'Container', section.sectionid, 'sectionstate.yaml')
                 with open(sectionyamlfn, 'r') as yml:
                     sectionyaml = yaml.load(yml, Loader=yaml.FullLoader)
                 # print(sectionyaml)
@@ -76,8 +76,8 @@ class UserView(Resource):
             #     'usersectionname': user.sections[0].sectionname,
             #     'usercontainers':{}
             # }
-            # for containerid in os.listdir(safe_join(basedir, CONTAINERFOLDER, sectionid)):
-            #     containerfn = safe_join(basedir, CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml')
+            # for containerid in os.listdir(safe_join(appdatadir, CONTAINERFOLDER, sectionid)):
+            #     containerfn = safe_join(appdatadir, CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml')
             #     if os.path.exists(containerfn):
             #         curcont = Container.LoadContainerFromYaml(containerfn)
             #         usercontainerinfo['usercontainers'][containerid] = curcont.containerName

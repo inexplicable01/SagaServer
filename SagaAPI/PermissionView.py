@@ -22,9 +22,9 @@ FILEFOLDER = current_app.config['FILEFOLDER']
 
 class PermissionsView(Resource):
 
-    def __init__(self, rootpath):
-        self.rootpath = rootpath
-        self.sagaop = SagaOp(rootpath)
+    def __init__(self, appdatadir):
+        self.appdatadir = appdatadir
+        self.sagaop = SagaOp(appdatadir)
 
     def get(self, command=None):
 
@@ -34,7 +34,7 @@ class PermissionsView(Resource):
             print(post_data['containerId'])
             containerId = post_data['containerId']
             sectionid = post_data['sectionid']
-            contpath = os.path.join(os.path.join(self.rootpath, CONTAINERFOLDER,sectionid, containerId, 'containerstate.yaml'))
+            contpath = os.path.join(os.path.join(self.appdatadir, CONTAINERFOLDER,sectionid, containerId, 'containerstate.yaml'))
             userlist=[]
             sectionUser = User.query.filter(User.sections.any(sectionid=sectionid)).all()
             for user in sectionUser:

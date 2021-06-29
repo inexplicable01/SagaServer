@@ -6,7 +6,7 @@ from flask import (
 from SagaAPI import db
 from SagaDB.UserModel import User
 import os
-from Config import basedir
+from Config import appdatadir, webserverdir
 import yaml
 from flask import current_app
 from SagaCore.Section import Section
@@ -20,8 +20,8 @@ auth_web_blueprint = Blueprint('auth_web', __name__, url_prefix='/auth_web')
 @auth_web_blueprint.route('/register', methods=('GET', 'POST'))
 def register():
     sectioninfo= {}
-    for section in os.listdir(os.path.join(basedir,'Container')):
-        sectionyamlfn = os.path.join(basedir,'Container',section,'sectionstate.yaml')
+    for section in os.listdir(os.path.join(appdatadir,'Container')):
+        sectionyamlfn = os.path.join(appdatadir,'Container',section,'sectionstate.yaml')
         with open(sectionyamlfn,'r') as yml:
             sectionyaml = yaml.load(yml, Loader=yaml.FullLoader)
         print(sectionyaml)
@@ -50,7 +50,7 @@ def register():
                 sectionid = newsection.sectionid
                 section_name = newsection.sectionname
             else:
-                sectionyaml = os.path.join(basedir,CONTAINERFOLDER,sectionid,'sectionstate.yaml')
+                sectionyaml = os.path.join(appdatadir,CONTAINERFOLDER,sectionid,'sectionstate.yaml')
                 cursection = Section.LoadSectionyaml(sectionyaml)
                 section_name =cursection.sectionname
 

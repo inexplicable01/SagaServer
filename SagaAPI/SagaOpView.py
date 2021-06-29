@@ -19,9 +19,9 @@ FILEFOLDER = current_app.config['FILEFOLDER']
 
 class SagaOperationsView(Resource):
 
-    def __init__(self, rootpath):
-        self.rootpath = rootpath
-        self.sagaop = SagaOp(rootpath)
+    def __init__(self, appdatadir):
+        self.appdatadir = appdatadir
+        self.sagaop = SagaOp(appdatadir)
 
     def post(self, command=None):
         authcheckresult = authcheck(request.headers.get('Authorization'))
@@ -49,7 +49,7 @@ class SagaOperationsView(Resource):
                 branch = request.form['branch']
                 updateinfo = json.loads(request.form['updateinfo'])
                 commitmsg = request.form['commitmsg']
-                curcont = Container.LoadContainerFromYaml(safe_join(self.rootpath, CONTAINERFOLDER,  sectionid, containerID, 'containerstate.yaml'))
+                curcont = Container.LoadContainerFromYaml(safe_join(self.appdatadir, CONTAINERFOLDER,  sectionid, containerID, 'containerstate.yaml'))
                 # containerdict = json.loads(request.form['containerdictjson'])
                 # newcont = Container.LoadContainerFromDict(containerdict)
                 if user.email not in curcont.allowedUser:
@@ -67,7 +67,7 @@ class SagaOperationsView(Resource):
 
                 if commitreport['commitsuccess']:
                     commitresponse = send_from_directory(
-                        safe_join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId, branch),
+                        safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, curcont.containerId, branch),
                         commitreport['newrevfn'])
                     commitresponse.headers['file_name'] = commitreport['newrevfn']
                     commitresponse.headers['branch'] = 'Main'
@@ -84,7 +84,7 @@ class SagaOperationsView(Resource):
             elif command == "deleteContainer":
                     containerId = request.form['containerId']
                     delCont = Container.LoadContainerFromYaml(
-                        os.path.join(self.rootpath, CONTAINERFOLDER, sectionid, containerId, 'containerstate.yaml'))
+                        os.path.join(self.appdatadir, CONTAINERFOLDER, sectionid, containerId, 'containerstate.yaml'))
 
                     if user.email not in delCont.allowedUser:
                         responseObject = {
@@ -93,33 +93,33 @@ class SagaOperationsView(Resource):
                         }
                         return make_response(jsonify(responseObject)), 401
 
-                    if os.path.exists(safe_join(self.rootpath, CONTAINERFOLDER, sectionid,containerId)):
+                    if os.path.exists(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid,containerId)):
                         for fileheader, filecon in delCont.FileHeaders.items():
                             if filecon['type'] == typeOutput:
                                 for containerid in filecon['Container']:
                                     downstreamCont = Container.LoadContainerFromYaml(
-                                        os.path.join(self.rootpath, CONTAINERFOLDER, sectionid, containerid,
+                                        os.path.join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid,
                                                      'containerstate.yaml'))
                                     downstreamCont.FileHeaders.pop(fileheader, None)
                                     downstreamCont.save(environ='Server',
-                                                        outyamlfn=os.path.join(self.rootpath, CONTAINERFOLDER, sectionid,
+                                                        outyamlfn=os.path.join(self.appdatadir, CONTAINERFOLDER, sectionid,
                                                                                containerid, 'containerstate.yaml'))
                             elif filecon['type'] == typeInput:
                                 containerid = filecon['Container']
                                 upstreamcont = Container.LoadContainerFromYaml(
-                                    os.path.join(self.rootpath, CONTAINERFOLDER, sectionid, containerid,
+                                    os.path.join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid,
                                                  'containerstate.yaml'))
                                 if delCont.containerId in upstreamcont.FileHeaders[fileheader]['Container']:
                                     upstreamcont.FileHeaders[fileheader]['Container'].remove(delCont.containerId)
 
                                 upstreamcont.save(environ='Server',
-                                                  outyamlfn=os.path.join(self.rootpath, CONTAINERFOLDER, sectionid,
+                                                  outyamlfn=os.path.join(self.appdatadir, CONTAINERFOLDER, sectionid,
                                                                          containerid,
                                                                          'containerstate.yaml'))
 
                         resp.headers["response"] = "I'm gonna delete this"
                         resp.data = 'Deleted'
-                        shutil.rmtree(safe_join(self.rootpath, CONTAINERFOLDER, sectionid, containerId))
+                        shutil.rmtree(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, containerId))
                         return resp
                     else:
                         resp.headers["response"] = "Container " + containerId + " doesn't exist"

@@ -1,3 +1,4 @@
+import yaml
 # project/server/Config.py
 BASE = "http://fatpanda1985.pythonanywhere.com/"
 # BASE = "http://127.0.0.1:5000/"
@@ -21,7 +22,7 @@ waichak = {'first_name':'Waichak',
 
 
 import os
-basedir = os.path.abspath(os.path.dirname(__file__))
+
 # postgres_local_base = 'postgresql://postgres:@localhost/'
 database_name = 'flask_jwt_auth'
 
@@ -40,6 +41,25 @@ SECTIONNAMEHOLDER = 'SECTIONNAMEHOLDER'
 SECTIONDIDHOLDER = 'SECTIONDIDHOLDER'
 
 worldmapid = 'fc925b23-30b8-4d77-9310-289b85ef8eb0'
+
+if os.path.exists('localConfig.txt'):
+    with open('localConfig.txt','r') as file:
+        localconfig = yaml.load(file, Loader=yaml.FullLoader)
+else:
+    raise('Missing localConfig.txt. Abort!')
+
+if 'APPFolder' in localconfig.keys():
+    appdatadir = localconfig['APPFolder']
+else:
+    appdatadir = os.path.abspath(os.path.dirname(__file__))
+
+if 'webserverdir' in localconfig.keys():
+    if localconfig['webserverdir']=='here':
+        webserverdir = os.path.abspath(os.path.dirname(__file__))
+    else:
+        webserverdir = localconfig['webserverdir']
+else:
+    webserverdir = os.path.abspath(os.path.dirname(__file__))
 
 class BaseConfig:
     """Base configuration."""
@@ -80,6 +100,7 @@ class ConfigClass(object):
     MAIL_DEFAULT_SENDER = 'sagaworkflow@gmail.com'
 
     EXECUTABLE= "/home/FatPanda1985/mysite/static/executable"
+
 
 #
 # class DevelopmentConfig(BaseConfig):

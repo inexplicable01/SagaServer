@@ -6,8 +6,8 @@ Rev = 'Rev'
 
 class HelloView(Resource):
 
-    def __init__(self, rootpath):
-        self.rootpath = rootpath
+    def __init__(self, appdatadir):
+        self.appdatadir = appdatadir
 
     def get(self):
         message = 'Welcome to Saga Version Control  download Saga here'

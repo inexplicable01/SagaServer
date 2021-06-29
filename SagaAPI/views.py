@@ -8,7 +8,7 @@ from SagaDB.UserModel import User,BlacklistToken, UserSections
 from SagaCore.Section import Section
 from flask import current_app
 import os
-from Config import basedir,worldmapid,version_num
+from Config import appdatadir,worldmapid,version_num
 
 auth_blueprint = Blueprint('auth', __name__)
 CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
@@ -62,7 +62,7 @@ class RegisterAPI(MethodView):
         #     return make_response(jsonify(responseObject)), 401
         ## this is not consistent with the website registration, additional work is needed for better seperation of concern
         sectionid = worldmapid
-        sectionyaml = os.path.join(basedir, CONTAINERFOLDER, sectionid, 'sectionstate.yaml')
+        sectionyaml = os.path.join(appdatadir, CONTAINERFOLDER, sectionid, 'sectionstate.yaml')
         cursection = Section.LoadSectionyaml(sectionyaml)
         section_name = cursection.sectionname
         # check if user already exists

@@ -1,5 +1,5 @@
 import os
-from Config import basedir, typeInput,typeOutput
+from Config import appdatadir, typeInput,typeOutput
 from SagaCore.Frame import Frame
 from SagaCore.Container import Container
 
@@ -7,11 +7,11 @@ def checkworldmapconnections():
     flowtrackerUp2Down={}
     flowtrackerDown2Up = {}
     mismatch=[]
-    for containerid in os.listdir(os.path.join(basedir, 'Container')):
+    for containerid in os.listdir(os.path.join(appdatadir, 'Container')):
         print('============================================')
         print('Checking ' + containerid)
         print('============================================')
-        curcont = Container.LoadContainerFromYaml(os.path.join(basedir, 'Container', containerid, 'containerstate.yaml'))
+        curcont = Container.LoadContainerFromYaml(os.path.join(appdatadir, 'Container', containerid, 'containerstate.yaml'))
         for fileheader, value in curcont.FileHeaders.items():
             print(fileheader)
             if value['type']==typeInput:
@@ -31,12 +31,12 @@ def checkworldmapconnections():
 
 
 def checkallframes():
-    for containerid in os.listdir(os.path.join(basedir, 'Container')):
+    for containerid in os.listdir(os.path.join(appdatadir, 'Container')):
         print('============================================')
         print('Checking ' + containerid)
         print('============================================')
-        for framefn in os.listdir(os.path.join(basedir,'Container',containerid, 'Main')):
-            frame = Frame.loadFramefromYaml(os.path.join(basedir,'Container',containerid, 'Main', framefn))
+        for framefn in os.listdir(os.path.join(appdatadir,'Container',containerid, 'Main')):
+            frame = Frame.loadFramefromYaml(os.path.join(appdatadir,'Container',containerid, 'Main', framefn))
             # print('============================================')
             print('============================================')
             print(frame.FrameName)
@@ -53,7 +53,7 @@ def checkallframes():
                         print(fileheader + "  type  " + filetrack.style + " " + filetrack.connection.__repr__())
                     elif typeInput==filetrack.connection.connectionType.name:
                         print(fileheader + "  type  " + filetrack.style+ " " + filetrack.connection.__repr__())
-            frame.writeoutFrameYaml(os.path.join(basedir,'Container',containerid, 'Main', framefn))
+            frame.writeoutFrameYaml(os.path.join(appdatadir,'Container',containerid, 'Main', framefn))
 
 
 

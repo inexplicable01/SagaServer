@@ -33,8 +33,8 @@ def writeError(e, errmessage):
         'traceback': traceback.format_exc()}
 
 class SagaOp():
-    def __init__(self,rootpath):
-        self.rootpath = rootpath
+    def __init__(self,appdatadir):
+        self.appdatadir = appdatadir
         # self.mail = Mail(current_app)
         self.mailsender = MailSender()
 
@@ -54,24 +54,24 @@ class SagaOp():
         newcont.workingFrame = Frame.LoadFrameFromDict(framedict)
         newcont.revnum = 1
         committime = datetime.timestamp(datetime.utcnow())
-        if os.path.exists(safe_join(self.rootpath, CONTAINERFOLDER, sectionid, newcont.containerId)):
+        if os.path.exists(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, newcont.containerId)):
             return {"message":"Container Already exists",
                     "data":None}
         else:
-            os.mkdir(safe_join(self.rootpath, CONTAINERFOLDER, sectionid, newcont.containerId))
-            os.mkdir(safe_join(self.rootpath, CONTAINERFOLDER, sectionid, newcont.containerId, 'Main'))
+            os.mkdir(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, newcont.containerId))
+            os.mkdir(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, newcont.containerId, 'Main'))
             for fileheader, filecon in newcont.FileHeaders.items():
                 if filecon['type'] == typeInput:
                     containerid = filecon['Container']
                     upstreamCont = Container.LoadContainerFromYaml(
-                        os.path.join(self.rootpath, CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml'))
+                        os.path.join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml'))
                     if type(upstreamCont.FileHeaders[fileheader]['Container']) is list:
                         upstreamCont.FileHeaders[fileheader]['Container'].append(newcont.containerId)
                     else:
                         upstreamCont.FileHeaders[fileheader]['Container'] = [
                             upstreamCont.FileHeaders[fileheader]['Container'], newcont.containerId]
                     upstreamCont.save(environ='Server',
-                                      outyamlfn=os.path.join(self.rootpath, CONTAINERFOLDER, sectionid, containerid,
+                                      outyamlfn=os.path.join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid,
                                                              'containerstate.yaml'))
 
             for fileheader in files.keys():
@@ -83,18 +83,18 @@ class SagaOp():
                 newcont.workingFrame.filestrack[fileheader].committedby = user.email
                 newcont.workingFrame.filestrack[fileheader].style = 'Required'
                 newcont.workingFrame.filestrack[fileheader].commitUTCdatetime = committime
-                with open(os.path.join(self.rootpath, FILEFOLDER,md5),'wb') as file:
+                with open(os.path.join(self.appdatadir, FILEFOLDER,md5),'wb') as file:
                     file.write(content)
 
 
             newcont.allowedUser.append(user.email)
             newcont.save(environ='Server',
-                         outyamlfn=safe_join(self.rootpath, CONTAINERFOLDER, sectionid, newcont.containerId,
+                         outyamlfn=safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, newcont.containerId,
                                              'containerstate.yaml'))
             newcont.workingFrame.commitUTCdatetime = committime
             newcont.workingFrame.FrameInstanceId = uuid.uuid4().__str__()
             newcont.workingFrame.writeoutFrameYaml( \
-                safe_join(self.rootpath, CONTAINERFOLDER, sectionid, newcont.containerId, 'Main', 'Rev1.yaml'))
+                safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, newcont.containerId, 'Main', 'Rev1.yaml'))
 
 
             return {"message":"Container Made",
@@ -115,7 +115,7 @@ class SagaOp():
         try:
             savenewcont =self.AdjustRelatedContainers( diff,curcont, newcont, sectionid)
             # upstream and downstream container are checked to see if removal of input or outputs need to be notified
-            latestrevfn, revnum = self.latestRev(safe_join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId, branch))
+            latestrevfn, revnum = self.latestRev(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, curcont.containerId, branch))
         except Exception as e:
             errsum = writeError(e, 'Error occured either in Adjusting Related containers or finding the latest Rev')
             return errsum
@@ -138,14 +138,14 @@ class SagaOp():
                     filetrack.commitUTCdatetime = committime
                     filetrack.ctnrootpath = commitframe.filestrack[fileheader].ctnrootpath
                     content = files[fileheader].read()
-                    with open(os.path.join(self.rootpath, FILEFOLDER, filetrack.md5), 'wb') as file:
+                    with open(os.path.join(self.appdatadir, FILEFOLDER, filetrack.md5), 'wb') as file:
                         file.write(content)
 
                     if filetrack.connection:
                         if filetrack.connection.connectionType.name == typeOutput:
                             for downcontainerid in newcont.FileHeaders[fileheader]['Container']:
                                 downstreamcont = Container.LoadContainerFromYaml(
-                                    safe_join(self.rootpath, CONTAINERFOLDER, sectionid, downcontainerid,
+                                    safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, downcontainerid,
                                               'containerstate.yaml'))
                                 self.mailsender.prepareMailDownstream(recipemail=downstreamcont.allowedUser,
                                                        fileheader=fileheader,
@@ -163,7 +163,7 @@ class SagaOp():
             commitframe.commitUTCdatetime = committime
             commitframe.FrameName = Rev + str(revnum + 1)
             newrevfn = Rev + str(revnum + 1) + ".yaml"
-            newframefullpath = os.path.join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId, branch, newrevfn)
+            newframefullpath = os.path.join(self.appdatadir, CONTAINERFOLDER, sectionid, curcont.containerId, branch, newrevfn)
 
         except Exception as e:
             errsum = writeError(e, 'Error occured while dealing with new frame and new files.')
@@ -171,15 +171,15 @@ class SagaOp():
 
         try:
             curcont.save('Server',
-                         outyamlfn = safe_join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId,
+                         outyamlfn = safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, curcont.containerId,
                                    'containerstate_' + str(datetime.now().timestamp()) +'.yaml'))
             if savenewcont:
                 newcont.save('Server',
-                             safe_join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId, 'containerstate.yaml'))
+                             safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, curcont.containerId, 'containerstate.yaml'))
             commitframe.writeoutFrameYaml(newframefullpath)
         except Exception as e:
-            if os.path.exists(safe_join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId, 'containerstate.yaml')):
-                os.remove(safe_join(self.rootpath, CONTAINERFOLDER, sectionid, curcont.containerId, 'containerstate.yaml'))
+            if os.path.exists(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, curcont.containerId, 'containerstate.yaml')):
+                os.remove(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, curcont.containerId, 'containerstate.yaml'))
             errsum = writeError(e,  'Error occured while saving new Frames Yaml.   Commit is canceled, and all operations are reversed.')
             return errsum
 
@@ -205,7 +205,7 @@ class SagaOp():
     ##Expected to return result, ServerMessage, allowedUser
     def AddUserToContainer(self,user, containerId, new_email, sectionid):
         contpath = os.path.join(
-            os.path.join(self.rootpath, CONTAINERFOLDER, sectionid, containerId, 'containerstate.yaml'))
+            os.path.join(self.appdatadir, CONTAINERFOLDER, sectionid, containerId, 'containerstate.yaml'))
         if os.path.exists(contpath):
             cont = Container.LoadContainerFromYaml(contpath)
             if user.email in cont.allowedUser:
@@ -237,9 +237,9 @@ class SagaOp():
                     print('Added new Input.  containerID needs an output update.  An Output update means add cont')
                     upstreamcontainerid = newcont.FileHeaders[fileheader]['Container']
                     upstreamcont = Container.LoadContainerFromYaml(
-                        safe_join(self.rootpath, CONTAINERFOLDER,sectionid, upstreamcontainerid, 'containerstate.yaml'))
+                        safe_join(self.appdatadir, CONTAINERFOLDER,sectionid, upstreamcontainerid, 'containerstate.yaml'))
                     upstreamcont.FileHeaders[fileheader]['Container'].append(curcont.containerId)
-                    upstreamcont.save('Server', safe_join(self.rootpath, CONTAINERFOLDER,sectionid, upstreamcontainerid, 'containerstate.yaml'))
+                    upstreamcont.save('Server', safe_join(self.appdatadir, CONTAINERFOLDER,sectionid, upstreamcontainerid, 'containerstate.yaml'))
                 elif newcont.FileHeaders[fileheader]['type'] == typeRequired:
                     print('Added new Entry to this container')
                 elif newcont.FileHeaders[fileheader]['type'] == typeOutput:
@@ -252,10 +252,10 @@ class SagaOp():
                     print('Removed in  Input.  upstreamcontainerid needs an output update.  An Output update means remove cont')
                     upstreamcontainerid = curcont.FileHeaders[fileheader]['Container']
                     upstreamcont = Container.LoadContainerFromYaml(
-                        safe_join(self.rootpath, CONTAINERFOLDER, sectionid,upstreamcontainerid, 'containerstate.yaml'))
+                        safe_join(self.appdatadir, CONTAINERFOLDER, sectionid,upstreamcontainerid, 'containerstate.yaml'))
                     if curcont.containerId in upstreamcont.FileHeaders[fileheader]['Container']:
                         upstreamcont.FileHeaders[fileheader]['Container'].remove(curcont.containerId)
-                    upstreamcont.save('Server', safe_join(self.rootpath, CONTAINERFOLDER, sectionid, upstreamcontainerid, 'containerstate.yaml'))
+                    upstreamcont.save('Server', safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, upstreamcontainerid, 'containerstate.yaml'))
                 elif curcont.FileHeaders[fileheader]['type'] == typeRequired:
                     print('Removed Entry to this container')
                 elif curcont.FileHeaders[fileheader]['type'] == typeOutput:
@@ -266,7 +266,7 @@ class SagaOp():
                     downcontstr=''
                     for downcontainerid in downcontaineridlist:# check if downstreamcontainer already has
                         downstreamcont = Container.LoadContainerFromYaml(
-                            safe_join(self.rootpath, CONTAINERFOLDER, sectionid, downcontainerid, 'containerstate.yaml'))
+                            safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, downcontainerid, 'containerstate.yaml'))
                         if fileheader in downstreamcont.FileHeaders.keys():
                             fileheaderremovedready = False
                             downcontstr=downcontstr+downstreamcont.containerName+' '

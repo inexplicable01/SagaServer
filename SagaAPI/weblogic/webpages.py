@@ -1,6 +1,6 @@
 from flask import Blueprint, current_app, g, render_template, safe_join
 import os
-from Config import basedir
+from Config import appdatadir
 from glob import glob
 from SagaCore.Container import Container
 # from SagaApp.db import get_db
@@ -25,17 +25,17 @@ def details():
     containerinfolist = {}
     if g.user is not None:
         sectionid = g.user.currentsectionid
-        for containerid in os.listdir(safe_join(basedir, CONTAINERFOLDER, sectionid)):
-            containerfn = safe_join(basedir, CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml')
+        for containerid in os.listdir(safe_join(appdatadir, CONTAINERFOLDER, sectionid)):
+            containerfn = safe_join(appdatadir, CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml')
             if os.path.exists(containerfn):
                 curcont = Container.LoadContainerFromYaml(containerfn)
                 containerinfolist[containerid] = {'ContainerDescription': curcont.containerName,
                                                   'branches': []}
-                for branch in os.listdir(safe_join(basedir, CONTAINERFOLDER, sectionid, containerid)):
-                    if os.path.isdir(safe_join(basedir, CONTAINERFOLDER, sectionid, containerid, branch)):
+                for branch in os.listdir(safe_join(appdatadir, CONTAINERFOLDER, sectionid, containerid)):
+                    if os.path.isdir(safe_join(appdatadir, CONTAINERFOLDER, sectionid, containerid, branch)):
                         containerinfolist[containerid]['branches'].append({'name': branch,
                                                                            'revcount': len(glob(
-                                                                               safe_join(basedir, CONTAINERFOLDER, sectionid,
+                                                                               safe_join(appdatadir, CONTAINERFOLDER, sectionid,
                                                                                          containerid, branch, '*')))})
 
     return render_template('details.html', containerinfolist=containerinfolist.keys())

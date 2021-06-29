@@ -23,20 +23,20 @@ FILEFOLDER = current_app.config['FILEFOLDER']
 
 class MaintenanceView(Resource):
 
-    def __init__(self, rootpath):
-        self.rootpath = rootpath
+    def __init__(self, appdatadir):
+        self.appdatadir = appdatadir
 
     def get(self, command=None):
 
         if command=='BuildFileRecords':
             filerecords={}
-            for sectionid in os.listdir(join(self.rootpath, CONTAINERFOLDER)):
-                for containerid in os.listdir(join(self.rootpath, CONTAINERFOLDER,sectionid)):
-                    yamlfn = join(self.rootpath, CONTAINERFOLDER,sectionid, containerid, 'containerstate.yaml')
+            for sectionid in os.listdir(join(self.appdatadir, CONTAINERFOLDER)):
+                for containerid in os.listdir(join(self.appdatadir, CONTAINERFOLDER,sectionid)):
+                    yamlfn = join(self.appdatadir, CONTAINERFOLDER,sectionid, containerid, 'containerstate.yaml')
                     if os.path.exists(yamlfn):
                         cont = Container.LoadContainerFromYaml(yamlfn)
                         print(cont.containerId)
-                        yamllist = glob.glob(join(self.rootpath, CONTAINERFOLDER,sectionid, containerid,'Main', 'Rev*.yaml'))
+                        yamllist = glob.glob(join(self.appdatadir, CONTAINERFOLDER,sectionid, containerid,'Main', 'Rev*.yaml'))
                         for yamlframefn in yamllist:
                             pastframe = Frame.loadFramefromYaml(yamlframefn, None)
                             revnum = re.findall('Rev(\d+).yaml', os.path.basename(yamlframefn))
@@ -48,7 +48,7 @@ class MaintenanceView(Resource):
                                 else:
                                     filerecords[filetrack.file_id] = {'file_id':filetrack.file_id, 'filename':filetrack.file_name,'revnum':revnum,
                                                                       'containerid':cont.containerId,'containername':cont.containerName}
-            for file_id in os.listdir(join(self.rootpath, FILEFOLDER)):
+            for file_id in os.listdir(join(self.appdatadir, FILEFOLDER)):
                 # print(files)
                 if file_id not in filerecords.keys():
                     continue
@@ -76,15 +76,15 @@ class MaintenanceView(Resource):
             # userlist = {}
             # for user in users:
             #     userlist[user.id] = {'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email}
-            for sectionid in os.listdir(join(self.rootpath, CONTAINERFOLDER)):
-                sectfn = join(self.rootpath, CONTAINERFOLDER, sectionid, 'sectionstate.yaml')
+            for sectionid in os.listdir(join(self.appdatadir, CONTAINERFOLDER)):
+                sectfn = join(self.appdatadir, CONTAINERFOLDER, sectionid, 'sectionstate.yaml')
                 if os.path.exists(sectfn):
                     sect = Section.LoadSectionyaml(sectfn)
 
                     dictinfo[sectionid] = {'sectiondict':sect.dictify(), 'sectioncondtiondict': {}}
 
-                    for containerid in os.listdir(join(self.rootpath, CONTAINERFOLDER, sectionid)):
-                        yamlfn = join(self.rootpath, CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml')
+                    for containerid in os.listdir(join(self.appdatadir, CONTAINERFOLDER, sectionid)):
+                        yamlfn = join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml')
                         if os.path.exists(yamlfn):
                             cont = Container.LoadContainerFromYaml(yamlfn)
                             dictinfo[sectionid]['sectioncondtiondict'][containerid] = {
@@ -93,7 +93,7 @@ class MaintenanceView(Resource):
                             }
                             # print(cont.containerId)
                             yamllist = glob.glob(
-                                join(self.rootpath, CONTAINERFOLDER, sectionid, containerid, 'Main', 'Rev*.yaml'))
+                                join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid, 'Main', 'Rev*.yaml'))
                             for yamlframefn in yamllist:
                                 pastframe = Frame.loadFramefromYaml(yamlframefn, None)
                                 revnum = re.findall('Rev(\d+).yaml', os.path.basename(yamlframefn))
@@ -145,26 +145,26 @@ class MaintenanceView(Resource):
                     localsect = Section.LoadSectionFromDict(sectioninfo['sectiondict'])
                     ### Check if section exists
                     ### Check if not create it
-                    if os.path.exists(join(self.rootpath, CONTAINERFOLDER,sectionid, 'sectionstate.yaml')):
-                        serversect = Section.LoadSectionyaml(join(self.rootpath, CONTAINERFOLDER,sectionid, 'sectionstate.yaml'))
+                    if os.path.exists(join(self.appdatadir, CONTAINERFOLDER,sectionid, 'sectionstate.yaml')):
+                        serversect = Section.LoadSectionyaml(join(self.appdatadir, CONTAINERFOLDER,sectionid, 'sectionstate.yaml'))
                         identical, diff = recursivecompare(serversect.dictify(), sectioninfo['sectiondict'])
                         if not identical:
                             comparesummary[sectionid] = diff
                     else:
-                        os.mkdir(join(self.rootpath, CONTAINERFOLDER, sectionid))
-                        localsect.save(outyamlfn=join(self.rootpath, CONTAINERFOLDER, sectionid, 'sectionstate.yaml'))
+                        os.mkdir(join(self.appdatadir, CONTAINERFOLDER, sectionid))
+                        localsect.save(outyamlfn=join(self.appdatadir, CONTAINERFOLDER, sectionid, 'sectionstate.yaml'))
 
-                    # sect.save(outyamlfn=join(self.rootpath, CONTAINERFOLDER, sectionid, 'sectionstate.yaml'))
+                    # sect.save(outyamlfn=join(self.appdatadir, CONTAINERFOLDER, sectionid, 'sectionstate.yaml'))
                     for containerid, containerdict in sectioninfo['sectioncondtiondict'].items():
-                        # os.mkdir(join(self.rootpath, CONTAINERFOLDER, sectionid, containerid))
+                        # os.mkdir(join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid))
                         localcont = Container.LoadContainerFromDict(containerdict['contdict'], environ='Server',
                                                                sectionid=sectionid)
-                        if os.path.exists(join(self.rootpath, CONTAINERFOLDER, sectionid, containerid,'containerstate.yaml')):
-                            servercont = Container.LoadContainerFromYaml(join(self.rootpath, CONTAINERFOLDER, sectionid, containerid,'containerstate.yaml'))
+                        if os.path.exists(join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid,'containerstate.yaml')):
+                            servercont = Container.LoadContainerFromYaml(join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid,'containerstate.yaml'))
                         else:
                             try:
-                                os.mkdir(join(self.rootpath, CONTAINERFOLDER, sectionid, containerid))
-                                os.mkdir(join(self.rootpath, CONTAINERFOLDER, sectionid, containerid,'Main'))
+                                os.mkdir(join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid))
+                                os.mkdir(join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid,'Main'))
                             except Exception as e:
                                 print('Directory already exists')
                             localcont.save(environ='Server')
@@ -174,23 +174,23 @@ class MaintenanceView(Resource):
                         # cont.save(environ='Server')
                         print(sectionid, sectioninfo['sectiondict']['sectionname'], containerid)
                         print(containerdict['contdict'])
-                        # os.mkdir(join(self.rootpath, CONTAINERFOLDER, sectionid, containerid, 'Main'))
+                        # os.mkdir(join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid, 'Main'))
                         for revnum, framdict in sectioninfo['sectioncondtiondict'][containerid]['framelist'].items():
                             print(revnum)
                             localframe = Frame.LoadFrameFromDict(framdict)
-                            framefn =join(self.rootpath, CONTAINERFOLDER, sectionid, containerid, 'Main',
+                            framefn =join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid, 'Main',
                                                                                'Rev' + str(revnum) + '.yaml')
                             if os.path.exists(framefn):
                                 serverframe=Frame.loadFramefromYaml(framefn)
                             else:
-                                # os.mkdir(join(self.rootpath, CONTAINERFOLDER, sectionid, containerid))
+                                # os.mkdir(join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid))
                                 localframe.writeoutFrameYaml(framefn)
                             identical, diff = recursivecompare(serverframe.dictify(), framdict)
                             if not identical:
                                 comparesummary[containerid+'_'+str(revnum)] = diff
 
                             for fileheader, filetrack in localframe.filestrack.items():
-                                if not os.path.exists(join(self.rootpath,'Files', filetrack.file_id)):
+                                if not os.path.exists(join(self.appdatadir,'Files', filetrack.file_id)):
                                     missingfiles.append(filetrack.file_id)
 
 

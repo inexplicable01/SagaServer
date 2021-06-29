@@ -11,14 +11,14 @@ FILEFOLDER = current_app.config['FILEFOLDER']
 
 class FileView(Resource):
 
-    def __init__(self, rootpath):
-        self.rootpath = rootpath
+    def __init__(self, appdatadir):
+        self.appdatadir = appdatadir
 
     def get(self):
         md5 = request.form['md5']
         file_name=request.form['file_name']
-        if os.path.exists(safe_join(self.rootpath,FILEFOLDER,md5)):
-            result = send_from_directory(safe_join(self.rootpath,FILEFOLDER),md5)
+        if os.path.exists(safe_join(self.appdatadir,FILEFOLDER,md5)):
+            result = send_from_directory(safe_join(self.appdatadir,FILEFOLDER),md5)
             result.headers['file_name'] = file_name
             result.headers['status'] = 'Success'
             return result
@@ -46,7 +46,7 @@ class FileView(Resource):
         else:
             md5 = request.form['md5']
             content = request.files[md5].read()
-            with open(os.path.join(self.rootpath, FILEFOLDER, md5), 'wb') as file:
+            with open(os.path.join(self.appdatadir, FILEFOLDER, md5), 'wb') as file:
                 file.write(content)
             resp.headers["status"] = 'Adding File success'
             return resp
@@ -54,7 +54,7 @@ class FileView(Resource):
     #     try:
     #         for fileheader in request.files.keys():
     #             content = request.files[fileheader].read()
-    #             with open(os.path.join(self.rootpath, FILEFOLDER, fileheader),
+    #             with open(os.path.join(self.appdatadir, FILEFOLDER, fileheader),
     #                       'wb') as file:
     #                 file.write(content)
     #         return {"response":"Success"}

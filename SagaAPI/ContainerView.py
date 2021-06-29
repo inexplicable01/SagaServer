@@ -26,8 +26,8 @@ class ContainerView(Resource):
                 latestrev = fn
         return latestrev, revnum
 
-    def __init__(self, rootpath):
-        self.rootpath = rootpath
+    def __init__(self, appdatadir):
+        self.appdatadir = appdatadir
 
     def get(self, command=None):
         authcheckresult = authcheck(request.headers.get('Authorization'))
@@ -45,9 +45,9 @@ class ContainerView(Resource):
         resp = make_response()
         if command=="containerID":
             containerID = request.form['containerID']
-            if os.path.exists(safe_join(self.rootpath, CONTAINERFOLDER,sectionid, containerID)):
-                latestrevfn, revnum = self.latestRev(safe_join(self.rootpath, CONTAINERFOLDER,sectionid, containerID, branch))
-                result = send_from_directory(safe_join(self.rootpath, CONTAINERFOLDER,sectionid, containerID), 'containerstate.yaml' )
+            if os.path.exists(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid, containerID)):
+                latestrevfn, revnum = self.latestRev(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid, containerID, branch))
+                result = send_from_directory(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid, containerID), 'containerstate.yaml' )
                 result.headers['file_name'] = 'containerstate.yaml'
                 result.headers['branch'] = branch
                 result.headers['revnum'] = str(revnum)
@@ -56,16 +56,16 @@ class ContainerView(Resource):
                 return {"response": "Invalid Container ID"}
         elif command=="List":
             containerinfolist = {}
-            for containerid in os.listdir(safe_join(self.rootpath, CONTAINERFOLDER, sectionid)):
-                if not os.path.exists(safe_join(self.rootpath, CONTAINERFOLDER,sectionid,containerid,'containerstate.yaml')):
+            for containerid in os.listdir(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid)):
+                if not os.path.exists(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid,containerid,'containerstate.yaml')):
                     continue
-                curcont = Container.LoadContainerFromYaml(safe_join(self.rootpath, CONTAINERFOLDER,sectionid,containerid,'containerstate.yaml'))
+                curcont = Container.LoadContainerFromYaml(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid,containerid,'containerstate.yaml'))
                 containerinfolist[containerid] = {'ContainerDescription': curcont.containerName,
                                          'branches':[]}
-                for branch in os.listdir(safe_join(self.rootpath, CONTAINERFOLDER,sectionid,containerid)):
-                    if os.path.isdir(safe_join(self.rootpath, CONTAINERFOLDER,sectionid,containerid,branch)):
+                for branch in os.listdir(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid,containerid)):
+                    if os.path.isdir(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid,containerid,branch)):
                         containerinfolist[containerid]['branches'].append({'name': branch,
-                                                                    'revcount':len(glob(safe_join(self.rootpath, CONTAINERFOLDER,sectionid,containerid,branch,'*')))})
+                                                                    'revcount':len(glob(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid,containerid,branch,'*')))})
 
             resp.headers["response"] = "returnlist"
             resp.headers["containerinfolist"] = json.dumps(containerinfolist)
@@ -78,8 +78,8 @@ class ContainerView(Resource):
         elif command=="fullbranch":
             containerID = request.form['containerID']
             branch = request.form['branch']
-            # result = send_from_directory(safe_join(self.rootpath, CONTAINERFOLDER, containerID, branch), 'Rev1.yaml')
-            filepath = safe_join(self.rootpath, CONTAINERFOLDER, sectionid, containerID, branch)
+            # result = send_from_directory(safe_join(self.appdatadir, CONTAINERFOLDER, containerID, branch), 'Rev1.yaml')
+            filepath = safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, containerID, branch)
             resp = make_response()
             resp.data=json.dumps(os.listdir(filepath))
             return resp
@@ -87,9 +87,9 @@ class ContainerView(Resource):
             ## Provides latest Rev number
             containerID = request.form['containerID']
             branch = 'Main'#request.form['branch']
-            # result = send_from_directory(safe_join(self.rootpath, CONTAINERFOLDER, containerID, branch), 'Rev1.yaml')
+            # result = send_from_directory(safe_join(self.appdatadir, CONTAINERFOLDER, containerID, branch), 'Rev1.yaml')
             for section in user.sections:
-                filepath = safe_join(self.rootpath, CONTAINERFOLDER, section.sectionid, containerID, 'containerstate.yaml')
+                filepath = safe_join(self.appdatadir, CONTAINERFOLDER, section.sectionid, containerID, 'containerstate.yaml')
                 if os.path.exists(filepath):
                     cont = Container.LoadContainerFromYaml(filepath)
                     print(cont.revnum)

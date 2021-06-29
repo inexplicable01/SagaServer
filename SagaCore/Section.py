@@ -1,6 +1,6 @@
 import yaml
 import os
-from Config import basedir
+from Config import appdatadir
 import uuid
 from flask import current_app
 #
@@ -35,7 +35,7 @@ class Section:
     @classmethod
     def CreateNewSection(cls, sectionname, description):
         newsectionid = uuid.uuid4().__str__()
-        os.mkdir(os.path.join(basedir, CONTAINERFOLDER, newsectionid))
+        os.mkdir(os.path.join(appdatadir, CONTAINERFOLDER, newsectionid))
         newsection = cls(sectionid= newsectionid,
                          sectionname=sectionname,
                          description=description)
@@ -46,7 +46,7 @@ class Section:
         if environ == 'FrontEnd':
             raise('Not ready for this yet')
         elif environ == 'Server':
-            outyaml = open(os.path.join(basedir, CONTAINERFOLDER,self.sectionid,'sectionstate.yaml'), 'w')
+            outyaml = open(os.path.join(appdatadir, CONTAINERFOLDER,self.sectionid,'sectionstate.yaml'), 'w')
 
         yaml.dump(self.dictify(), outyaml)
         outyaml.close()
