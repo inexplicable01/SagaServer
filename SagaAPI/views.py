@@ -12,6 +12,8 @@ from Config import basedir,worldmapid,version_num
 
 auth_blueprint = Blueprint('auth', __name__)
 CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
+
+
 class RegisterAPI(MethodView):
     """
     User Registration Resource
@@ -104,7 +106,7 @@ class RegisterAPI(MethodView):
             except Exception as e:
                 responseObject = {
                     'status': 'fail',
-                    'message': str(e) + ' Please try again.'
+                    'message': str(e) + '.  User Registration Failed'
                 }
                 return make_response(jsonify(responseObject)), 401
         else:

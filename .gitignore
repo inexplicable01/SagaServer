@@ -26,3 +26,12 @@ Container*
 File*
 token.txt
 static/executable/Saga.exe
+dist*
+build*
+PythonAnywherePackage*
+privateServerPackage*
+local_configuration.ini
+localConfig.txt
+ServerDeploy.py
+sagaMainApi.spec
+ServerDeploy.py

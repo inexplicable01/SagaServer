@@ -18,12 +18,12 @@
 
 
 
-    {% if g.user %}
-        <a href="static/executable/Saga.exe">Download Saga</a>
-    {% else %}
+
+    <a href="static/executable/Saga.exe">Download Saga</a>
+
 
     <p>We don't want to be one of those people that asks for your data, but
     Saga will need a user profile to function properly!</p>
 <p>Please <a href="{{ url_for('auth_web.register') }}">Register</a> or <a href="{{ url_for('auth_web.login') }}">Login</a></p>
-    {% endif %}
+
 {% endblock %}

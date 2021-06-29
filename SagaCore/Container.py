@@ -8,7 +8,7 @@ import time
 import requests
 import json
 from Config import typeInput, typeOutput, typeRequired
-from SagaCore.SagaUtil import FrameNumInBranch
+from SagaCore.SagaUtil import getFramebyRevnum
 import uuid
 import io
 
@@ -22,7 +22,7 @@ blankcontainer = {'containerName':"" ,'containerId':"",'FileHeaders': {} ,'allow
 
 class Container:
     def __init__(self, containerworkingfolder,containerName,containerId,
-                 FileHeaders,allowedUser,currentbranch,revnum,refframe,
+                 FileHeaders,allowedUser,currentbranch,revnum,refframefilepath,
                  workingFrame: Frame):
         self.containerworkingfolder = containerworkingfolder
         self.containerName = containerName
@@ -32,11 +32,11 @@ class Container:
         self.currentbranch = currentbranch
         # self.filestomonitor =filestomonitor
         self.revnum =revnum
-        self.refframe =refframe
+        self.refframefilepath =refframefilepath
         self.workingFrame= workingFrame
 
     @classmethod
-    def LoadContainerFromDict(cls, containerdict, currentbranch='Main',revnum='1', environ='FrontEnd', sectionid=''):
+    def LoadContainerFromDict(cls, containerdict, currentbranch='Main',revnum='', environ='FrontEnd', sectionid=''):
         # containeryaml = containerdict
 
         if environ=='FrontEnd':
@@ -50,9 +50,9 @@ class Container:
         ## Loading containers on Client side is fundamentally different than loading them on the server side.
 
         FileHeaders = containerdict['FileHeaders']
-        refframe, revnum = FrameNumInBranch(os.path.join(containerworkingfolder, currentbranch), revnum)
+        refframefilepath, revnum = getFramebyRevnum(os.path.join(containerworkingfolder, currentbranch), revnum)
         try:
-            workingFrame = Frame.loadFramefromYaml(refframe, None, containerworkingfolder)
+            workingFrame = Frame.loadFramefromYaml(refframefilepath, None, containerworkingfolder)
         except Exception as e:
             workingFrame = Frame.InitiateFrame(parentcontainerid=containerdict['containerId'],
                                                parentcontainername=containerdict['containerName'],
@@ -63,7 +63,7 @@ class Container:
                            FileHeaders=FileHeaders,
                            allowedUser=containerdict['allowedUser'],
                            currentbranch=currentbranch, revnum=revnum,
-                           refframe=refframe, workingFrame=workingFrame)
+                           refframefilepath=refframefilepath, workingFrame=workingFrame)
         return container
 
     @classmethod
@@ -75,11 +75,11 @@ class Container:
                            FileHeaders={},
                            allowedUser=[],
                            currentbranch="Main",revnum='1',
-                           refframe='dont have one yet', workingFrame = Frame.InitiateFrame(parentcontainerid=containerid, parentcontainername=containerName, localdir=localdir))
+                           refframefilepath='dont have one yet', workingFrame = Frame.InitiateFrame(parentcontainerid=containerid, parentcontainername=containerName, localdir=localdir))
         return newcontainer
 
     @classmethod
-    def LoadContainerFromYaml(cls, containerfn, currentbranch='Main',revnum='1'):
+    def LoadContainerFromYaml(cls, containerfn, currentbranch='Main',revnum=''):
         containerworkingfolder = os.path.dirname(containerfn)
         with open(containerfn) as file:
             containeryaml = yaml.load(file, Loader=yaml.FullLoader)
@@ -90,10 +90,10 @@ class Container:
                     fileinfo['Container']=[fileinfo['Container']]
             FileHeaders[fileheader] = fileinfo
         try:
-            refframe, revnum = FrameNumInBranch(os.path.join(containerworkingfolder, currentbranch), revnum)
-            workingFrame = Frame.loadFramefromYaml(refframe, None, containerworkingfolder)
+            refframefilepath, revnum = getFramebyRevnum(os.path.join(containerworkingfolder, currentbranch), revnum)
+            workingFrame = Frame.loadFramefromYaml(refframefilepath, None, containerworkingfolder)
         except Exception as e:
-            refframe = 'Dont have one yet'
+            refframefilepath = 'Dont have one yet'
             revnum='1'
             workingFrame = Frame.InitiateFrame()
         container = cls(containerworkingfolder=containerworkingfolder,
@@ -102,7 +102,7 @@ class Container:
                            FileHeaders=FileHeaders,
                            allowedUser=containeryaml['allowedUser'],
                            currentbranch=currentbranch, revnum=revnum,
-                           refframe=refframe, workingFrame=workingFrame)
+                           refframefilepath=refframefilepath, workingFrame=workingFrame)
         return container
 
     def CommitNewContainer(self, commitmessage,authtoken,BASE, client=None):
@@ -163,7 +163,7 @@ class Container:
     def commit(self, cframe: Frame, commitmsg, BASE):
         committed = False
         # # frameYamlfileb = framefs.get(file_id=ObjectId(curframe.FrameInstanceId))
-        with open(self.refframe) as file:
+        with open(self.refframefilepath) as file:
             frameRefYaml = yaml.load(file, Loader=yaml.FullLoader)
         frameRef = Frame.loadFramefromYaml(frameRefYaml, None, self.containerworkingfolder)
         filesToUpload = {}
@@ -198,7 +198,7 @@ class Container:
             newframe = Frame.loadFramefromYaml(frameyaml, None,self.containerworkingfolder)
             # Write out new frame information
             # The frame file is saved to the frame FS
-            self.refframe = frameyamlfn
+            self.refframefilepath = frameyamlfn
             return newframe, response.headers['commitsuccess']
         else:
             return cframe, response.headers['commitsuccess']

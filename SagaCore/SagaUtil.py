@@ -17,13 +17,15 @@ def latestFrameInBranch(path):
         return latestrev, revnum
 
 
-def FrameNumInBranch(path, revnum):
+def getFramebyRevnum(path, revnum):
     # add comment
 
     if revnum:
         if os.path.exists(os.path.join(path, 'Rev' + str(revnum) + ".yaml")):
+            # if revnum is a numeric string and that yaml exists, return filepath
             return os.path.join(path, 'Rev' + str(revnum) + ".yaml"), revnum
         else:
+            # Code should come here most of the time /
             latestrev, revnum = latestFrameInBranch(path)
             if revnum==0:
                 warnings.warn("Cannot find reasonable Rev/Frame in " + path, Warning)
@@ -31,7 +33,7 @@ def FrameNumInBranch(path, revnum):
             else:
                 return os.path.join(path, 'Rev' + str(revnum) + ".yaml"), revnum
     else:
-        # if none
+        # only gets here if is None,
         if os.path.exists(path):
             latestrev, revnum = latestFrameInBranch(path)
             return os.path.join(path, 'Rev' + str(revnum) + ".yaml"), revnum
