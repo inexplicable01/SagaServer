@@ -1,4 +1,5 @@
 import yaml
+import sys
 # project/server/Config.py
 BASE = "http://fatpanda1985.pythonanywhere.com/"
 # BASE = "http://127.0.0.1:5000/"
@@ -61,6 +62,17 @@ if 'webserverdir' in localconfig.keys():
 else:
     webserverdir = os.path.abspath(os.path.dirname(__file__))
 
+if 'port' in localconfig.keys():
+    port = str(localconfig['port'])
+else:
+    port = str(9500)
+
+if 'dbinitializeryamlfile' in localconfig.keys():
+    dbinitializeryamlfile = localconfig['dbinitializeryamlfile']
+else:
+    dbinitializeryamlfile = 'sagadb.yaml'
+
+
 class BaseConfig:
     """Base configuration."""
     SECRET_KEY = os.getenv('SECRET_KEY', 'my_precious')
@@ -74,11 +86,17 @@ class ConfigClass(object):
     # Flask settings
     SECRET_KEY = '5791628bb0b13ce0c676dfde280ba245'
 
+    if sys.platform =='win32':
+        sqlitepath = 'sqlite:///'+appdatadir
+    elif sys.platform in ['linux','linux2']:
+        sqlitepath = 'sqlite://' + appdatadir
+    else:
+        raise('have not prepared to run on this system. Currently only supporting windows and linux')
     # Flask-SQLAlchemy settings
     # SQLALCHEMY_DATABASE_URI = 'mysql://FatPanda1985:Lowlevelpw01!@FatPanda1985.mysql.pythonanywhere-services.com/base.db'  # File-based SQL database
-    SQLALCHEMY_DATABASE_URI ='sqlite:///basic_app_test.sqlite'
+    SQLALCHEMY_DATABASE_URI =sqlitepath+'/basic_app_test.sqlite'
     SQLALCHEMY_BINDS = {
-        'filerecords': 'sqlite:///filerecords.sqlite',
+        'filerecords': sqlitepath +'/filerecords.sqlite',
     }
     SQLALCHEMY_TRACK_MODIFICATIONS = True  # Avoids SQLAlchemy warning
     CONTAINERFOLDER = 'Container'

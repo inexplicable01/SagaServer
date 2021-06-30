@@ -4,7 +4,7 @@ import tempfile
 import pytest
 import shutil
 
-from SagaAPI import create_SagaApp
+from SagaAPI import createSagaApp
 import os
 
 # # read in SQL for populating test data
@@ -19,7 +19,7 @@ def app():
     db_fd, db_path = tempfile.mkstemp()
     # create the app with common test config
     # sagaapp.config['TESTING'] = True
-    sagaapp = create_SagaApp({'TESTING': True,
+    sagaapp = createSagaApp({'TESTING': True,
                               'SQLALCHEMY_DATABASE_URI': 'sqlite:///basic_app_contest.sqlite',
                               'TESTSDIR':'tests/stuff',
                               'CONTAINERFOLDER' : 'Containertest',

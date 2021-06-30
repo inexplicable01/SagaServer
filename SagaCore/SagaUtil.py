@@ -1,6 +1,8 @@
 import os
 import re
 import warnings
+# from SagaDB.UserModel import User, Role
+
 
 def latestFrameInBranch(path):
     # add comment
@@ -40,4 +42,60 @@ def getFramebyRevnum(path, revnum):
         else:
             return os.path.join(path, 'Rev0.yaml'), 0
 
+import yaml
+
+class DatabaseSagaYaml():
+
+    def __init__(self, yamlname):
+        self.yamlname = yamlname
+        self.rolenames = {}
+        self.users = {}
+        self.sectionids = {}
+        try:
+            with open(yamlname, 'r') as yfn:
+                dbdict = yaml.load(yfn, Loader=yaml.FullLoader)
+            self.rolenames= dbdict['rolenames']
+            self.users = dbdict['users']
+            self.sectionids = dbdict['sectionids']
+        except Exception as e:
+            warnings.warn('unable to load dbyaml file')
+
+        # for ind,sectionid in enumerate(basesectionids):
+        #     self.sectionids[sectionid] = basesectiondescrip[ind]
+
+    @classmethod
+    def initiate(cls, yamlname):
+        dbyaml = cls(yamlname)
+        return dbyaml
+
+    def updatefromdb(self, User, Role, UserRoles, UserSections, Section):
+        for u in User.query.all():
+            self.users[u.id] = {'email':u.email,
+                                'password':u.password,
+                                'first_name':u.first_name,
+                                'last_name':u.last_name,
+                                'currentsection_id':u.currentsection_id,
+                                'sections':[],
+                                'roles':[]}
+        for role in Role.query.all():
+            self.rolenames[role.id]={'name':role.name}
+        for sect in Section.query.all():
+            self.sectionids[sect.id]={'sectionname':sect.sectionname, 'sectionid':sect.sectionid}
+        for userrole in UserRoles.query.all():
+            self.users[userrole.user_id]['roles'].append(self.rolenames[userrole.role_id]['name'])
+        for usersection in UserSections.query.all():
+            self.users[usersection.user_id]['sections'].append(self.sectionids[usersection.section_id]['sectionid'])
+
+    def dictify(self):
+        dictout = {}
+        for key, value in vars(self).items():
+            if key=='yamlname':
+                continue
+            dictout[key] = value
+        return dictout
+
+    def writeoutyamlfile(self):
+        outyaml = open(os.path.join(self.yamlname), 'w')
+        yaml.dump(self.dictify(), outyaml)
+        outyaml.close()
 

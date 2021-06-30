@@ -35,257 +35,254 @@ basesectiondescrip=[worldmapgroupname,privateworldname,mechdemoname,sagafolderna
 CADDemoname,ManufacturingDemoname,MovieDemoname,ArchitectDemoname,AccountingDemoname]
 
 
-def InitBase(db):
-    # if not FileRecord.query.filter(FileRecord.file_id== 'asdf').first():
-    #     f = FileRecord(
-    #         file_id='asdf', filename='roiwejhrbe',revnum=3,containerid='asdfasdf',containername='asdfa'
-    #     )
-    #     db.session.add(f)
-    #     db.session.commit()
-    for ind, sectionid in enumerate(basesectionids):
-        if not Section.query.filter(Section.sectionid == sectionid).first():
+def InitBase(db, sagauserdb):
+    for sectionnum, sectiondetails in sagauserdb.sectionids.items():
+        if not Section.query.filter(Section.sectionid == sectiondetails['sectionid']).first():
             section = Section(
-                sectionid=sectionid,
-                sectionname=basesectiondescrip[ind],
+                sectionid=sectiondetails['sectionid'],
+                sectionname=sectiondetails['sectionname'],
             )
             db.session.add(section)
             db.session.commit()
 
+    for rolenum, roledetails in sagauserdb.rolenames.items():
+            if not Role.query.filter(Role.name == roledetails['name']).first():
+                roles = Role(name = roledetails['name'])
+                db.session.add(roles)
+                db.session.commit()
+    # if not Role.query.filter(Role.name == 'Admin').first():
+    #     roles = Role(name = 'Admin')
+    #     db.session.add(roles)
+    #     db.session.commit()
 
-    if not Role.query.filter(Role.name == 'Agent').first():
-        roles = Role(name = 'Agent')
-        db.session.add(roles)
-        db.session.commit()
-    if not Role.query.filter(Role.name == 'Admin').first():
-        roles = Role(name = 'Admin')
-        db.session.add(roles)
-        db.session.commit()
+    for usernum, userdetails in sagauserdb.users.items():
+        if not User.query.filter(User.email == userdetails['email']).first():
+            user = User(email=userdetails['email'],
+                        password=userdetails['password'],
+                        sectionid=userdetails['sectionid'],
+                        sectionname=userdetails['sectionname'],
+                        role=userdetails['role']
+                        )
+            # user.sections.append(Section(id=worldmapid,sectionname=worldmapgroupname))
+            for ind, sectionid in enumerate(userdetails['sections']):
+                sect = Section.query.filter(Section.sectionid == sectionid).first()
+                user.sections.append(sect)
+            db.session.add(user)
+    db.session.commit()
 
-    if not User.query.filter(User.email == 'member@example.com').first():
-        user = User(email='member@example.com',
-                    # email_confirmed_at=datetime.datetime.utcnow(),
-                    password='Password1',
-                    sectionid=worldmapid,
-                    sectionname=worldmapgroupname,
-                    role='Agent'
-                    )
-        # user.sections.append(Section(id=worldmapid,sectionname=worldmapgroupname))
-        db.session.add(user)
-        db.session.commit()
+    # if not User.query.filter(User.email == 'admin@example.com').first():
+    #     user = User(
+    #         email='admin@example.com',
+    #         # email_confirmed_at=datetime.datetime.utcnow(),
+    #         password='Password1',
+    #         role='Admin',
+    #         sectionid=worldmapid,
+    #         sectionname=worldmapgroupname
+    #     )
+    #     # user.sections.append(Section(sectionid=worldmapid,sectionname=worldmapgroupname))
+    #     # user.roles.append(Role(name='Admin'))
+    #     db.session.add(user)
+    #     db.session.commit()
 
-    if not User.query.filter(User.email == 'admin@example.com').first():
-        user = User(
-            email='admin@example.com',
-            # email_confirmed_at=datetime.datetime.utcnow(),
-            password='Password1',
-            role='Admin',
-            sectionid=worldmapid,
-            sectionname=worldmapgroupname
-        )
-        # user.sections.append(Section(sectionid=worldmapid,sectionname=worldmapgroupname))
-        # user.roles.append(Role(name='Admin'))
-        db.session.add(user)
-        db.session.commit()
+    # if not User.query.filter(User.email == 'agent@example.com').first():
+    #     user = User(email='agent@example.com',
+    #                 password='Password1',
+    #                 sectionid=worldmapid,
+    #                 sectionname=worldmapgroupname,
+    #                 role='Agent'
+    #                 )
+    #
+    #     db.session.add(user)
+    #     db.session.commit()
 
-    if not User.query.filter(User.email == 'agent@example.com').first():
-        user = User(email='agent@example.com',
-                    password='Password1',
-                    sectionid=worldmapid,
-                    sectionname=worldmapgroupname,
-                    role='Agent'
-                    )
+    # if not User.query.filter(User.email == 'agent2@example.com').first():
+    #     user = User(email='agent2@example.com',
+    #                 password='Password1',
+    #                 sectionid=worldmapid,
+    #                 sectionname=worldmapgroupname,
+    #                 role='Agent'
+    #                 )
+    #     # user.sections.append(Section(sectionid=worldmapid, sectionname=worldmapgroupname))
+    #     #
+    #     # agentrole = Role.query.filter(Role.name == 'Agent').first()
+    #     # user.roles.append(agentrole)
+    #     db.session.add(user)
+    #     db.session.commit()
 
-        db.session.add(user)
-        db.session.commit()
+    # if not User.query.filter(User.email == 'usercemail@gmail.com').first():
+    #     user = User(email='usercemail@gmail.com',
+    #                 password='passwordC',
+    #                 sectionid=worldmapid,
+    #                 sectionname=worldmapgroupname,
+    #                 role='Agent'
+    #                 )
+    #     # user.sections.append(Section(sectionid=worldmapid, sectionname=worldmapgroupname))
+    #     #
+    #     # agentrole = Role.query.filter(Role.name == 'Agent').first()
+    #     # user.roles.append(agentrole)
+    #     for ind, sectionid in enumerate(basesectionids):
+    #         sect = Section.query.filter(Section.sectionid == sectionid).first()
+    #         user.sections.append(sect)
+    #     db.session.add(user)
+    #     db.session.commit()
 
-    if not User.query.filter(User.email == 'agent2@example.com').first():
-        user = User(email='agent2@example.com',
-                    password='Password1',
-                    sectionid=worldmapid,
-                    sectionname=worldmapgroupname,
-                    role='Agent'
-                    )
-        # user.sections.append(Section(sectionid=worldmapid, sectionname=worldmapgroupname))
-        #
-        # agentrole = Role.query.filter(Role.name == 'Agent').first()
-        # user.roles.append(agentrole)
-        db.session.add(user)
-        db.session.commit()
+    # if not User.query.filter(User.email == 'jcasteret.usperson@c-s-inc.us').first():
+    #     user = User(email='jcasteret.usperson@c-s-inc.us',
+    #                 password='passwordJ',
+    #                 sectionid=sagafolderid,
+    #                 sectionname=sagafoldername,
+    #                 role='Agent',first_name='Jerome',last_name='C'
+    #                 )
+    #     db.session.add(user)
+    #     db.session.commit()
 
-    if not User.query.filter(User.email == 'usercemail@gmail.com').first():
-        user = User(email='usercemail@gmail.com',
-                    password='passwordC',
-                    sectionid=worldmapid,
-                    sectionname=worldmapgroupname,
-                    role='Agent'
-                    )
-        # user.sections.append(Section(sectionid=worldmapid, sectionname=worldmapgroupname))
-        #
-        # agentrole = Role.query.filter(Role.name == 'Agent').first()
-        # user.roles.append(agentrole)
-        for ind, sectionid in enumerate(basesectionids):
-            sect = Section.query.filter(Section.sectionid == sectionid).first()
-            user.sections.append(sect)
-        db.session.add(user)
-        db.session.commit()
-
-    if not User.query.filter(User.email == 'jcasteret.usperson@c-s-inc.us').first():
-        user = User(email='jcasteret.usperson@c-s-inc.us',
-                    password='passwordJ',
-                    sectionid=sagafolderid,
-                    sectionname=sagafoldername,
-                    role='Agent',first_name='Jerome',last_name='C'
-                    )
-        db.session.add(user)
-        db.session.commit()
-
-    if not User.query.filter(User.email == 'waichak.luk@gmail.com').first():
-        user = User(email='waichak.luk@gmail.com',
-                    password='passwordW',
-                    sectionid=sagafolderid,
-                    sectionname=sagafoldername,
-                    role='Admin',first_name='Wai',last_name='Luk'
-                    )
-        for ind, sectionid in enumerate(basesectionids):
-            sect = Section.query.filter(Section.sectionid == sectionid).first()
-            user.sections.append(sect)
-        db.session.add(user)
-        db.session.commit()
+    # if not User.query.filter(User.email == 'waichak.luk@gmail.com').first():
+    #     user = User(email='waichak.luk@gmail.com',
+    #                 password='passwordW',
+    #                 sectionid=sagafolderid,
+    #                 sectionname=sagafoldername,
+    #                 role='Admin',first_name='Wai',last_name='Luk'
+    #                 )
+    #     for ind, sectionid in enumerate(basesectionids):
+    #         sect = Section.query.filter(Section.sectionid == sectionid).first()
+    #         user.sections.append(sect)
+    #     db.session.add(user)
+    #     db.session.commit()
 
 
-    if not User.query.filter(User.email == 'jimmyleong113@gmail.com').first():
-        user = User(email='jimmyleong113@gmail.com',
-                    password='passwordJ',
-                    sectionid=sagafolderid,
-                    sectionname=sagafoldername,
-                    role='Agent',first_name='Jimmy',last_name='Leong'
-                    )
-        for ind, sectionid in enumerate(basesectionids):
-            sect = Section.query.filter(Section.sectionid == sectionid).first()
-            user.sections.append(sect)
-        db.session.add(user)
-        db.session.commit()
+    # if not User.query.filter(User.email == 'jimmyleong113@gmail.com').first():
+    #     user = User(email='jimmyleong113@gmail.com',
+    #                 password='passwordJ',
+    #                 sectionid=sagafolderid,
+    #                 sectionname=sagafoldername,
+    #                 role='Agent',first_name='Jimmy',last_name='Leong'
+    #                 )
+    #     for ind, sectionid in enumerate(basesectionids):
+    #         sect = Section.query.filter(Section.sectionid == sectionid).first()
+    #         user.sections.append(sect)
+    #     db.session.add(user)
+    #     db.session.commit()
 
-    if not User.query.filter(User.email == 'userdemail@gmail.com').first():
-        user = User(email='userdemail@gmail.com',
-                    password='passwordD',
-                    sectionid=worldmapid,
-                    sectionname=worldmapgroupname,
-                    role='Agent'
-                    )
-        # user.sections.append(Section(sectionid=worldmapid, sectionname=worldmapgroupname))
-        #
-        # agentrole = Role.query.filter(Role.name == 'Agent').first()
-        # user.roles.append(agentrole)
-        db.session.add(user)
-        db.session.commit()
+    # if not User.query.filter(User.email == 'userdemail@gmail.com').first():
+    #     user = User(email='userdemail@gmail.com',
+    #                 password='passwordD',
+    #                 sectionid=worldmapid,
+    #                 sectionname=worldmapgroupname,
+    #                 role='Agent'
+    #                 )
+    #     # user.sections.append(Section(sectionid=worldmapid, sectionname=worldmapgroupname))
+    #     #
+    #     # agentrole = Role.query.filter(Role.name == 'Agent').first()
+    #     # user.roles.append(agentrole)
+    #     db.session.add(user)
+    #     db.session.commit()
 
-    if not User.query.filter(User.email == 'usereemail@gmail.com').first():
-        user = User(email='usereemail@gmail.com',
-                    password='passwordE',
-                    sectionid=worldmapid,
-                    sectionname=worldmapgroupname,
-                    role='Agent'
-                    )
-        # user.sections.append(Section(sectionid=worldmapid, sectionname=worldmapgroupname))
-        #
-        # agentrole = Role.query.filter(Role.name == 'Agent').first()
-        # user.roles.append(agentrole)
-        db.session.add(user)
-        db.session.commit()
+    # if not User.query.filter(User.email == 'usereemail@gmail.com').first():
+    #     user = User(email='usereemail@gmail.com',
+    #                 password='passwordE',
+    #                 sectionid=worldmapid,
+    #                 sectionname=worldmapgroupname,
+    #                 role='Agent'
+    #                 )
+    #     # user.sections.append(Section(sectionid=worldmapid, sectionname=worldmapgroupname))
+    #     #
+    #     # agentrole = Role.query.filter(Role.name == 'Agent').first()
+    #     # user.roles.append(agentrole)
+    #     db.session.add(user)
+    #     db.session.commit()
 
-    if not User.query.filter(User.email == 'userbemail@gmail.com').first():
-        user = User(email='userbemail@gmail.com',
-                    password='passwordB',
-                    sectionid=worldmapid,
-                    sectionname=worldmapgroupname,
-                    role='Agent'
-                    )
-        # user.sections.append(Section(sectionid=worldmapid, sectionname=worldmapgroupname))
-        #
-        # agentrole = Role.query.filter(Role.name == 'Agent').first()
-        # user.roles.append(agentrole)
-        db.session.add(user)
-        db.session.commit()
+    # if not User.query.filter(User.email == 'userbemail@gmail.com').first():
+    #     user = User(email='userbemail@gmail.com',
+    #                 password='passwordB',
+    #                 sectionid=worldmapid,
+    #                 sectionname=worldmapgroupname,
+    #                 role='Agent'
+    #                 )
+    #     # user.sections.append(Section(sectionid=worldmapid, sectionname=worldmapgroupname))
+    #     #
+    #     # agentrole = Role.query.filter(Role.name == 'Agent').first()
+    #     # user.roles.append(agentrole)
+    #     db.session.add(user)
+    #     db.session.commit()
 
-    if not User.query.filter(User.email == 'useraemail@gmail.com').first():
-        user = User(email='useraemail@gmail.com',
-                    password='passwordA',
-                    sectionid=worldmapid,
-                    sectionname=worldmapgroupname,
-                    role='Agent'
-                    )
-        # user.sections.append(Section(sectionid=worldmapid, sectionname=worldmapgroupname))
-        #
-        # agentrole = Role.query.filter(Role.name == 'Agent').first()
-        # user.roles.append(agentrole)
-        db.session.add(user)
-        db.session.commit()
+    # if not User.query.filter(User.email == 'useraemail@gmail.com').first():
+    #     user = User(email='useraemail@gmail.com',
+    #                 password='passwordA',
+    #                 sectionid=worldmapid,
+    #                 sectionname=worldmapgroupname,
+    #                 role='Agent'
+    #                 )
+    #     # user.sections.append(Section(sectionid=worldmapid, sectionname=worldmapgroupname))
+    #     #
+    #     # agentrole = Role.query.filter(Role.name == 'Agent').first()
+    #     # user.roles.append(agentrole)
+    #     db.session.add(user)
+    #     db.session.commit()
 
-    if not User.query.filter(User.email == 'private@gmail.com').first():
-        user = User(email='private@gmail.com',
-                    password='private',
-                    sectionid=privateworldid,
-                    sectionname=privateworldname,
-                    role='Agent')
-        # user.sections.append(Section(, ))
-        #
-        # agentrole = Role.query.filter(Role.name == 'Agent').first()
-        # user.roles.append(agentrole)
-        db.session.add(user)
-        db.session.commit()
+    # if not User.query.filter(User.email == 'private@gmail.com').first():
+    #     user = User(email='private@gmail.com',
+    #                 password='private',
+    #                 sectionid=privateworldid,
+    #                 sectionname=privateworldname,
+    #                 role='Agent')
+    #     # user.sections.append(Section(, ))
+    #     #
+    #     # agentrole = Role.query.filter(Role.name == 'Agent').first()
+    #     # user.roles.append(agentrole)
+    #     db.session.add(user)
+    #     db.session.commit()
 
-    if not User.query.filter(User.email == 'user1@mechdemo.com').first():
-        user = User(email='user1@mechdemo.com',
-                    password='user1password',
-                    sectionid=mechdemoid,
-                    sectionname=mechdemoname,
-                    first_name='Bob',
-                    last_name='Smith',
-                    role='Agent')
-        db.session.add(user)
-        db.session.commit()
-
-    if not User.query.filter(User.email == 'user2@mechdemo.com').first():
-        user = User(email='user2@mechdemo.com',
-                    password='user2password',
-                    sectionid=mechdemoid,
-                    sectionname=mechdemoname,
-                    first_name='Jane',
-                    last_name='Doe',
-                    role='Agent')
-        db.session.add(user)
-        db.session.commit()
-
-    if not User.query.filter(User.email == 'o.petrenko@gmail.com').first():
-        user = User(email='o.petrenko@gmail.com',
-                    password='password',
-                    sectionid=mechdemoid,
-                    sectionname=mechdemoname,
-                    first_name='Oleg',
-                    last_name='Petrenko',
-                    role='Agent')
-        db.session.add(user)
-        db.session.commit()
-
-    if not User.query.filter(User.email == 'bob@bob.com').first():
-        user = User(email='bob@bob.com',
-                    password='password',
-                    sectionid=mechdemoid,
-                    sectionname=mechdemoname,
-                    first_name='Bob',
-                    last_name='Structure',
-                    role='Agent')
-        db.session.add(user)
-        db.session.commit()
-
-    if not User.query.filter(User.email == 'jane@jane.com').first():
-        user = User(email='jane@jane.com',
-                    password='password',
-                    sectionid=mechdemoid,
-                    sectionname=mechdemoname,
-                    first_name='Aero',
-                    last_name='Jane',
-                    role='Agent')
-        db.session.add(user)
-        db.session.commit()
+    # if not User.query.filter(User.email == 'user1@mechdemo.com').first():
+    #     user = User(email='user1@mechdemo.com',
+    #                 password='user1password',
+    #                 sectionid=mechdemoid,
+    #                 sectionname=mechdemoname,
+    #                 first_name='Bob',
+    #                 last_name='Smith',
+    #                 role='Agent')
+    #     db.session.add(user)
+    #     db.session.commit()
+    #
+    # if not User.query.filter(User.email == 'user2@mechdemo.com').first():
+    #     user = User(email='user2@mechdemo.com',
+    #                 password='user2password',
+    #                 sectionid=mechdemoid,
+    #                 sectionname=mechdemoname,
+    #                 first_name='Jane',
+    #                 last_name='Doe',
+    #                 role='Agent')
+    #     db.session.add(user)
+    #     db.session.commit()
+    #
+    # if not User.query.filter(User.email == 'o.petrenko@gmail.com').first():
+    #     user = User(email='o.petrenko@gmail.com',
+    #                 password='password',
+    #                 sectionid=mechdemoid,
+    #                 sectionname=mechdemoname,
+    #                 first_name='Oleg',
+    #                 last_name='Petrenko',
+    #                 role='Agent')
+    #     db.session.add(user)
+    #     db.session.commit()
+    #
+    # if not User.query.filter(User.email == 'bob@bob.com').first():
+    #     user = User(email='bob@bob.com',
+    #                 password='password',
+    #                 sectionid=mechdemoid,
+    #                 sectionname=mechdemoname,
+    #                 first_name='Bob',
+    #                 last_name='Structure',
+    #                 role='Agent')
+    #     db.session.add(user)
+    #     db.session.commit()
+    #
+    # if not User.query.filter(User.email == 'jane@jane.com').first():
+    #     user = User(email='jane@jane.com',
+    #                 password='password',
+    #                 sectionid=mechdemoid,
+    #                 sectionname=mechdemoname,
+    #                 first_name='Aero',
+    #                 last_name='Jane',
+    #                 role='Agent')
+    #     db.session.add(user)
+    #     db.session.commit()

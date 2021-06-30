@@ -2,12 +2,13 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api
 import os
+from SagaCore.SagaUtil import DatabaseSagaYaml
 
-from Config import ConfigClass, appdatadir, webserverdir
+from Config import ConfigClass, appdatadir, webserverdir , dbinitializeryamlfile
 
 db = SQLAlchemy()
 
-def create_SagaApp(test_config=None):
+def createSagaApp(test_config=None):
     app = Flask(__name__, template_folder=os.path.join(webserverdir ,'templates'),
                 static_folder=os.path.join(webserverdir ,'static'),
                 )
@@ -37,7 +38,8 @@ def create_SagaApp(test_config=None):
         # from SagaAPI.FileView import FileView
         db.create_all()
         from SagaAPI.InitBase import InitBase
-        InitBase(db)
+        sagauserdb = DatabaseSagaYaml.initiate(dbinitializeryamlfile)
+        InitBase(db=db, sagauserdb = sagauserdb)
         app.register_blueprint(auth_blueprint)
         app.register_blueprint(webpages_blueprint)
         app.register_blueprint(auth_web_blueprint)
@@ -58,18 +60,6 @@ def create_SagaApp(test_config=None):
         api.add_resource(PermissionsView, "/PERMISSIONS/<command>", methods=['GET', 'POST'],
                          resource_class_kwargs={'appdatadir': appdatadir})
         api.add_resource(GeneralView, "/GENERAL/<command>", methods=['GET', 'POST'],
-                         resource_class_kwargs={'appdatadir': appdatadir, 'webserverdir':webserverdir})
+                         resource_class_kwargs={'appdatadir': appdatadir, 'webserverdir':webserverdir, 'sagauserdb':sagauserdb})
 
         return app
-
-
-# bcrypt = Bcrypt(app)
-
-# from UserModel import User,Role
-#     # # Create 'member@example.com' user with no roles
-# # Create 'admin@example.com' user with 'Admin' and 'Agent' roles
-# if not Role.query.filter(Role.name == 'Admin').first():
-#     db.session.add(Role(name='Admin'))
-#     db.session.add(Role(name='Agent'))
-#     db.session.commit()
-# db.create_all()
