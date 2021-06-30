@@ -59,16 +59,10 @@ def InitBase(db, sagauserdb):
         if not User.query.filter(User.email == userdetails['email']).first():
             user = User(email=userdetails['email'],
                         password=userdetails['password'],
-                        # sectionid=userdetails['sectionid'],
-                        # sectionname=userdetails['sectionname'],
                         sectionids=userdetails['sections'],
                         currentsection_id =userdetails['currentsection_id'],
                         roles=userdetails['roles']
                         )
-            # user.sections.append(Section(id=worldmapid,sectionname=worldmapgroupname))
-            # for ind, sectionid in enumerate(userdetails['sections']):
-            #     sect = Section.query.filter(Section.sectionid == sectionid).first()
-            #     user.sections.append(sect)
             db.session.add(user)
     db.session.commit()
 

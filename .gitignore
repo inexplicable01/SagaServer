@@ -32,9 +32,9 @@ PythonAnywherePackage*
 privateServerPackage*
 local_configuration.ini
 localConfig.txt
-ServerDeploy.py
+SagaServerDeploy.py
 sagaMainApi.spec
-ServerDeploy.py
+SagaServerDeploy.py
 Files/special2.txt
 Files/special1.txt
 Files/R1.txt
