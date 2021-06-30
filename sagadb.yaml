@@ -1,0 +1,236 @@
+rolenames:
+  1:
+    name: Agent
+  2:
+    name: Admin
+sectionids:
+  1:
+    sectionid: fc925b23-30b8-4d77-9310-289b85ef8eb0
+    sectionname: WorldMap
+  2:
+    sectionid: c752575b-7cc2-47e7-ae3a-97fe1ea5aeeb
+    sectionname: PrivateMap
+  3:
+    sectionid: 102a7375-b8a7-4bb6-9368-e292a2389acc
+    sectionname: MechExample
+  4:
+    sectionid: 359b0947-0e8b-4d96-a4c7-3b1ade4b170f
+    sectionname: SAGAFolder
+  5:
+    sectionid: 0867eb8f-c9e5-4dbb-a58f-da82b5685c8b
+    sectionname: ElectricalDemo
+  6:
+    sectionid: 5a4cdb98-ca23-4d36-93e0-74c49fa7d1fc
+    sectionname: CADDemo
+  7:
+    sectionid: 7f172a4c-a378-4b30-8e4b-242ab7853381
+    sectionname: ManufacturingDemo
+  8:
+    sectionid: 8ebbfab3-565e-4ce6-bb62-488033cb437e
+    sectionname: MovieDemo
+  9:
+    sectionid: 028b524a-1459-4b3a-a1c0-c3694e259318
+    sectionname: ArchitectDemo
+  10:
+    sectionid: a19df2b1-4f53-4265-8e9c-16d9a8b441c5
+    sectionname: AccountingDemo
+users:
+  1:
+    currentsection_id: fc925b23-30b8-4d77-9310-289b85ef8eb0
+    email: member@example.com
+    first_name: default
+    last_name: Lee
+    password: Password1
+    roles:
+    - Agent
+    sections:
+    - fc925b23-30b8-4d77-9310-289b85ef8eb0
+  2:
+    currentsection_id: fc925b23-30b8-4d77-9310-289b85ef8eb0
+    email: admin@example.com
+    first_name: default
+    last_name: Lee
+    password: Password1
+    roles:
+    - Admin
+    sections:
+    - fc925b23-30b8-4d77-9310-289b85ef8eb0
+  3:
+    currentsection_id: fc925b23-30b8-4d77-9310-289b85ef8eb0
+    email: agent@example.com
+    first_name: default
+    last_name: Lee
+    password: Password1
+    roles:
+    - Agent
+    sections:
+    - fc925b23-30b8-4d77-9310-289b85ef8eb0
+  4:
+    currentsection_id: fc925b23-30b8-4d77-9310-289b85ef8eb0
+    email: agent2@example.com
+    first_name: default
+    last_name: Lee
+    password: Password1
+    roles:
+    - Agent
+    sections:
+    - fc925b23-30b8-4d77-9310-289b85ef8eb0
+  5:
+    currentsection_id: fc925b23-30b8-4d77-9310-289b85ef8eb0
+    email: usercemail@gmail.com
+    first_name: default
+    last_name: Lee
+    password: passwordC
+    roles:
+    - Agent
+    sections:
+    - fc925b23-30b8-4d77-9310-289b85ef8eb0
+    - c752575b-7cc2-47e7-ae3a-97fe1ea5aeeb
+    - 102a7375-b8a7-4bb6-9368-e292a2389acc
+    - 359b0947-0e8b-4d96-a4c7-3b1ade4b170f
+    - 0867eb8f-c9e5-4dbb-a58f-da82b5685c8b
+    - 5a4cdb98-ca23-4d36-93e0-74c49fa7d1fc
+    - 7f172a4c-a378-4b30-8e4b-242ab7853381
+    - 8ebbfab3-565e-4ce6-bb62-488033cb437e
+    - 028b524a-1459-4b3a-a1c0-c3694e259318
+    - a19df2b1-4f53-4265-8e9c-16d9a8b441c5
+  6:
+    currentsection_id: 359b0947-0e8b-4d96-a4c7-3b1ade4b170f
+    email: jcasteret.usperson@c-s-inc.us
+    first_name: default
+    last_name: Lee
+    password: passwordJ
+    roles:
+    - Agent
+    sections:
+    - 359b0947-0e8b-4d96-a4c7-3b1ade4b170f
+  7:
+    currentsection_id: 102a7375-b8a7-4bb6-9368-e292a2389acc
+    email: waichak.luk@gmail.com
+    first_name: default
+    last_name: Lee
+    password: passwordW
+    roles:
+    - Admin
+    sections:
+    - 359b0947-0e8b-4d96-a4c7-3b1ade4b170f
+    - fc925b23-30b8-4d77-9310-289b85ef8eb0
+    - c752575b-7cc2-47e7-ae3a-97fe1ea5aeeb
+    - 102a7375-b8a7-4bb6-9368-e292a2389acc
+    - 359b0947-0e8b-4d96-a4c7-3b1ade4b170f
+    - 0867eb8f-c9e5-4dbb-a58f-da82b5685c8b
+    - 5a4cdb98-ca23-4d36-93e0-74c49fa7d1fc
+    - 7f172a4c-a378-4b30-8e4b-242ab7853381
+    - 8ebbfab3-565e-4ce6-bb62-488033cb437e
+    - 028b524a-1459-4b3a-a1c0-c3694e259318
+    - a19df2b1-4f53-4265-8e9c-16d9a8b441c5
+  8:
+    currentsection_id: 359b0947-0e8b-4d96-a4c7-3b1ade4b170f
+    email: jimmyleong113@gmail.com
+    first_name: default
+    last_name: Lee
+    password: passwordJ
+    roles:
+    - Agent
+    sections:
+    - 359b0947-0e8b-4d96-a4c7-3b1ade4b170f
+  9:
+    currentsection_id: fc925b23-30b8-4d77-9310-289b85ef8eb0
+    email: userdemail@gmail.com
+    first_name: default
+    last_name: Lee
+    password: passwordD
+    roles:
+    - Agent
+    sections:
+    - fc925b23-30b8-4d77-9310-289b85ef8eb0
+  10:
+    currentsection_id: fc925b23-30b8-4d77-9310-289b85ef8eb0
+    email: usereemail@gmail.com
+    first_name: default
+    last_name: Lee
+    password: passwordE
+    roles:
+    - Agent
+    sections:
+    - fc925b23-30b8-4d77-9310-289b85ef8eb0
+  11:
+    currentsection_id: fc925b23-30b8-4d77-9310-289b85ef8eb0
+    email: userbemail@gmail.com
+    first_name: default
+    last_name: Lee
+    password: passwordB
+    roles:
+    - Agent
+    sections:
+    - fc925b23-30b8-4d77-9310-289b85ef8eb0
+  12:
+    currentsection_id: fc925b23-30b8-4d77-9310-289b85ef8eb0
+    email: useraemail@gmail.com
+    first_name: default
+    last_name: Lee
+    password: passwordA
+    roles:
+    - Agent
+    sections:
+    - fc925b23-30b8-4d77-9310-289b85ef8eb0
+  13:
+    currentsection_id: c752575b-7cc2-47e7-ae3a-97fe1ea5aeeb
+    email: private@gmail.com
+    first_name: default
+    last_name: Lee
+    password: private
+    roles:
+    - Agent
+    sections:
+    - c752575b-7cc2-47e7-ae3a-97fe1ea5aeeb
+  14:
+    currentsection_id: 102a7375-b8a7-4bb6-9368-e292a2389acc
+    email: user1@mechdemo.com
+    first_name: default
+    last_name: Lee
+    password: user1password
+    roles:
+    - Agent
+    sections:
+    - 102a7375-b8a7-4bb6-9368-e292a2389acc
+  15:
+    currentsection_id: 102a7375-b8a7-4bb6-9368-e292a2389acc
+    email: user2@mechdemo.com
+    first_name: default
+    last_name: Lee
+    password: user2password
+    roles:
+    - Agent
+    sections:
+    - 102a7375-b8a7-4bb6-9368-e292a2389acc
+  16:
+    currentsection_id: 102a7375-b8a7-4bb6-9368-e292a2389acc
+    email: o.petrenko@gmail.com
+    first_name: default
+    last_name: Lee
+    password: password
+    roles:
+    - Agent
+    sections:
+    - 102a7375-b8a7-4bb6-9368-e292a2389acc
+  17:
+    currentsection_id: 102a7375-b8a7-4bb6-9368-e292a2389acc
+    email: bob@bob.com
+    first_name: default
+    last_name: Lee
+    password: password
+    roles:
+    - Agent
+    sections:
+    - 102a7375-b8a7-4bb6-9368-e292a2389acc
+  18:
+    currentsection_id: 102a7375-b8a7-4bb6-9368-e292a2389acc
+    email: jane@jane.com
+    first_name: default
+    last_name: Lee
+    password: password
+    roles:
+    - Agent
+    sections:
+    - 102a7375-b8a7-4bb6-9368-e292a2389acc

@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 import jwt
 import datetime
 from flask_user import UserMixin
+import warnings
 # from sqlalchemy.dialects.postgresql import UUID
 import uuid
 
@@ -42,9 +43,8 @@ class User(db.Model,UserMixin):
     roles = db.relationship('Role', secondary='user_roles')
     sections = db.relationship('Section', secondary='user_sections')
 
-    def __init__(self, email, password, sectionname=SECTIONNAMEHOLDER,
-                 sectionid=SECTIONDIDHOLDER, first_name='default',
-                 last_name='Lee',admin=False,role='Agent', currentsection=None):
+    def __init__(self, email, password, sectionids=[worldmapid], first_name='default',
+                 last_name='Lee',admin=False,roles=['Agent'], currentsection_id=worldmapid):
         # worldmapsection = Section.query.filter(Section.sectionid == worldmapid).first()
         self.email = email
         self.password = password
@@ -53,30 +53,21 @@ class User(db.Model,UserMixin):
         self.first_name = first_name
         self.last_name = last_name
 
-        agentrole = Role.query.filter(Role.name == role).first()
-        if agentrole:
-            self.roles.append(agentrole)
-        else:
-            role=Role(name=role)
-            self.roles.append(role)
-            db.session.add(role)
-            db.session.commit()
+        for role in roles:
+            dbrole = Role.query.filter(Role.name == role).first()
+            if dbrole:
+                self.roles.append(dbrole)
+            else:
+                warnings.warn('There is a role name that is not consistent between list and user')
 
-        usersection = Section.query.filter(Section.sectionid == sectionid).first()
-        if usersection:
-            self.currentsection = usersection
-            self.sections.append(usersection)
-            # self.currentsectionid=usersection.sectionid
-        else:
-            section = Section(
-                sectionid=sectionid,
-                sectionname=sectionname,
-            )
-            self.sections.append(section)
-            self.currentsectionid = section.sectionid
-            db.session.add(section)
-            db.session.commit()
-            # d
+        curentsect = Section.query.filter(Section.sectionid == currentsection_id).first()
+        self.currentsection = curentsect
+
+        for ind, sectionid in enumerate(sectionids):
+            sect = Section.query.filter(Section.sectionid == sectionid).first()
+            if sect:
+                self.sections.append(sect)
+                # self.currentsectionid=usersection.sectionid
 
     def printinfo(self):
         return {

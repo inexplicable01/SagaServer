@@ -230,6 +230,20 @@ class Frame:
             changes[removedheaders] = {'reason': changeremoved}
         return changes, alterfiletracks
 
+    def getfile(self, filetrack: FileTrack, filepath):
+        response = requests.get(BASE + 'FILES',
+                                data={'md5': filetrack.md5, 'file_name': filetrack.file_name})
+        # Loops through the filestrack in curframe and request files listed in the frame
+        fn = os.path.join(filepath, filetrack.ctnrootpath, filetrack.file_name)
+        if response.headers['status']=='Success':
+            open(fn, 'wb').write(response.content)
+        else:
+            open(fn,'w').write('Terrible quick bug fix')
+            # There should be a like a nuclear warning here is this imples something went wrong with the server and the frame bookkeeping system
+            # This might be okay meanwhile as this is okay to break during dev but not during production.
+            print('could not find file ' + filetrack.md5 + ' on server')
+        os.utime(fn, (filetrack.lastEdited, filetrack.lastEdited))
+
     def downloadInputFile(self, fileheader, workingdir, environ='Server'):
         response = requests.get(BASE + 'FILES',
                                 data={'md5': self.filestrack[fileheader].md5,

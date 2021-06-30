@@ -10,6 +10,7 @@ from SagaCore.Container import Container
 from SagaCore.Section import Section
 from SagaCore.Frame import Frame
 from os.path import join
+from Config import appdatadir
 PYTHONANYWHERE = "http://fatpanda1985.pythonanywhere.com/"
 # PYTHONANYWHERE = BASE
 data = {"email": waichak['email'],
@@ -31,32 +32,43 @@ def syncFromServer(authtoken):
                              #       "password": adminlogin['password']}
                              # )
     fullcontainerdict = json.loads(response.content)
-    if os.path.exists('Container'):
-        os.rename('Container', 'Container_'+datetime.datetime.now().strftime('%y_%m_%d_%H_%M_%S'))
-        os.mkdir('Container')
+    if os.path.exists(join(appdatadir,'Container')):
+        os.rename(join(appdatadir,'Container'), join(appdatadir,'Container_'+datetime.datetime.now().strftime('%y_%m_%d_%H_%M_%S')))
+    os.mkdir(join(appdatadir,'Container'))
+    if not os.path.exists(join(appdatadir,'Files')):
+        os.mkdir(join(appdatadir, 'Files'))
     for sectionid, sectioninfo in fullcontainerdict.items():
         print(sectionid)
-        os.mkdir(os.path.join('Container', sectionid))
+        os.mkdir(os.path.join(appdatadir,'Container', sectionid))
         sect = Section.LoadSectionFromDict(sectioninfo['sectiondict'])
-        sect.save(outyamlfn=os.path.join('Container', sectionid, 'sectionstate.yaml'))
+        sect.save(outyamlfn=os.path.join(appdatadir,'Container', sectionid, 'sectionstate.yaml'))
         for containerid, containerdict in sectioninfo['sectioncondtiondict'].items():
-            os.mkdir(os.path.join('Container', sectionid,containerid))
+            os.mkdir(os.path.join(appdatadir,'Container', sectionid,containerid))
             cont = Container.LoadContainerFromDict(containerdict['contdict'], environ='Server',sectionid=sectionid)
-            cont.save(environ='Server', outyamlfn=os.path.join('Container', sectionid,containerid, 'containerstate.yaml'))
+            cont.save(environ='Server', outyamlfn=os.path.join(appdatadir,'Container', sectionid,containerid, 'containerstate.yaml'))
             print(sectionid,sectioninfo['sectiondict']['sectionname'],containerid)
             print(containerdict['contdict'])
-            os.mkdir(os.path.join('Container', sectionid,containerid, 'Main'))
+            os.mkdir(os.path.join(appdatadir,'Container', sectionid,containerid, 'Main'))
             for revnum, framdict in sectioninfo['sectioncondtiondict'][containerid]['framelist'].items():
                 print(revnum)
                 frame = Frame.LoadFrameFromDict(framdict)
-                framefn = os.path.join('Container', sectionid, containerid, 'Main', 'Rev'+str(revnum)+'.yaml')
+                framefn = os.path.join(appdatadir,'Container', sectionid, containerid, 'Main', 'Rev'+str(revnum)+'.yaml')
                 frame.writeoutFrameYaml(framefn)
                 for fileheader, filetrack in frame.filestrack.items():
-                    if filetrack.file_id:
-                        if os.path.exists(os.path.join('Files',filetrack.file_id)):
-                            frame.downloadInputFile(fileheader, 'FileTest')
-                        else:
-                            frame.downloadInputFile(fileheader, 'Files')
+                    if filetrack.md5:
+                        if not os.path.exists(os.path.join(appdatadir,'Files',filetrack.md5)):
+                            response = requests.get(BASE + 'FILES',
+                                                    data={'md5': filetrack.md5, 'file_name': filetrack.file_name})
+                            # Loops through the filestrack in curframe and request files listed in the frame
+                            fn = os.path.join(os.path.join(appdatadir,'Files',filetrack.md5))
+                            if response.headers['status'] == 'Success':
+                                open(fn, 'wb').write(response.content)
+                            else:
+                                open(fn, 'w').write('Terrible quick bug fix')
+                                # There should be a like a nuclear warning here is this imples something went wrong with the server and the frame bookkeeping system
+                                # This might be okay meanwhile as this is okay to break during dev but not during production.
+                                print('could not find file ' + filetrack.md5 + ' on server')
+                            os.utime(fn, (filetrack.lastEdited, filetrack.lastEdited))
 
 
 

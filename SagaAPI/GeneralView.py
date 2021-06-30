@@ -3,7 +3,7 @@ import io
 from flask import Flask,flash, request, jsonify, url_for,send_from_directory , send_file, make_response, safe_join
 from flask_restful import Api, Resource
 from flask import current_app
-from SagaDB.UserModel import User, Role
+from SagaDB.UserModel import User, Role, UserRoles, UserSections, Section
 import json
 
 from SagaAPI.SagaAPI_Util import authcheck
@@ -11,9 +11,10 @@ FILEFOLDER = current_app.config['FILEFOLDER']
 
 class GeneralView(Resource):
     # General / UpdatedInstallation
-    def __init__(self, appdatadir, webserverdir):
+    def __init__(self, appdatadir, webserverdir,sagauserdb):
         self.appdatadir = appdatadir
         self.webserverdir=webserverdir
+        self.sagauserdb= sagauserdb
 
     def get(self, command=None):
         authcheckresult = authcheck(request.headers.get('Authorization'))
@@ -35,6 +36,18 @@ class GeneralView(Resource):
                 resp.headers['status'] = 'Failed'
                 resp.data = json.dumps({ "response": safe_join(self.webserverdir,'static/executable/Saga.exe') + " missing"  })
                 return resp
+        elif command=='returnDBinYAML':
+            writeNewYaml = request.form['WriteNewYaml']
+            resp = make_response()
+            resp.headers['status'] = 'Success'
+            # self.sagauserdb.updatefromdb(User=User, Role=Role, UserRoles=UserRoles, UserSections=UserSections, Section=Section)
+            if writeNewYaml=='True':
+                self.sagauserdb.updatefromdb(User=User, Role=Role, UserRoles=UserRoles, UserSections=UserSections,
+                                             Section=Section)
+                self.sagauserdb.writeoutyamlfile()
+            resp.data = json.dumps(self.sagauserdb.dictify())
+            return resp
+
         resp = make_response()
         resp.headers['status'] = 'Failed'
         resp.data = json.dumps({"response": "Invalid command under GENERAL"})

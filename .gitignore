@@ -69,3 +69,8 @@ Files/520eb4e7-e73e-4f4f-8d11-1fe5f61a43fd
 Files/458e6caa-1e97-4386-ad0d-f9cbfc7352aa
 Files/345d51f1-88c2-4854-81b6-29de2982059f
 Files/0132f05d-cbbc-476e-8af8-f95ad7953d31
+SagaServerDeploy.spec
+SagaServerDeploy.ifp
+getfiles.py
+prepareinstaller.py
+config.ini
