@@ -2,6 +2,7 @@ import os
 from flask import request, send_from_directory, safe_join,make_response, jsonify
 from flask_restful import Resource
 from SagaCore.Container import Container
+from SagaCore.Section import Section
 
 from glob import glob
 import json
@@ -53,7 +54,9 @@ class ContainerView(Resource):
                 result.headers['revnum'] = str(revnum)
                 return result
             else:
-                return {"response": "Invalid Container ID"}
+
+                sect = Section.LoadSectionyaml(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, 'sectionstate.yaml'))
+                return {"response": "Invalid Container ID" , "searchedSection":sect.dictify()}
         elif command=="List":
             containerinfolist = {}
             for containerid in os.listdir(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid)):

@@ -50,7 +50,11 @@ else:
     raise('Missing localConfig.txt. Abort!')
 
 if 'APPFolder' in localconfig.keys():
-    appdatadir = localconfig['APPFolder']
+    apppath = os.getenv('appdata')
+    if apppath is not None:  # this is for windows app folder.
+        appdatadir = os.path.join(apppath, localconfig['APPFolder'])
+    else:  # this is for pythonanywhere setting
+        appdatadir = localconfig['APPFolder']
 else:
     appdatadir = os.path.abspath(os.path.dirname(__file__))
 
