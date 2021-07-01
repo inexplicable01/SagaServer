@@ -89,7 +89,7 @@ class ConfigClass(object):
     if sys.platform =='win32':
         sqlitepath = 'sqlite:///'+appdatadir
     elif sys.platform in ['linux','linux2']:
-        sqlitepath = 'sqlite://' + appdatadir
+        sqlitepath = 'sqlite://'
     else:
         raise('have not prepared to run on this system. Currently only supporting windows and linux')
     # Flask-SQLAlchemy settings
