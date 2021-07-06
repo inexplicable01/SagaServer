@@ -52,6 +52,29 @@ class UserView(Resource):
                 sectioninfo[section.sectionid] = sectionyaml
             returndict = {'sectioninfo':sectioninfo, 'currentsection':user.currentsection.sectionname}
             return make_response(jsonify(returndict))
+        elif "checkcontainerpermissions" == command:
+            containerid = request.form['containerid']
+            # check if containerID exists in user's currention section
+            if not os.path.exists(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid)):
+                # search if this container exists in any of the other sections
+                for section in user.sections:
+                    if os.path.exists(safe_join(self.appdatadir, CONTAINERFOLDER, section.sectionid, containerid)):
+                        resp.headers[
+                            'message'] = "User currently in section " + user.currentsection.sectionname + \
+                                        ". User section need to switch to " + section.sectionname + \
+                                         " for container " + containerid
+                        resp.data = json.dumps(
+                            {'sectionid': section.sectionid, 'containerid': containerid, 'goswitch': True})
+                        return resp
+                resp.headers['message'] =  "Container ID " + containerid + "does not exist in any section that the user is allowed to access"
+                resp.data = json.dumps({'sectionid':None, 'containerid':containerid, 'goswitch':False})
+                return resp
+
+            else:
+                # With the containerid supplied, the user current section is supplied, no switching needed
+                resp.data = json.dumps({'sectionid':user.currentsection.sectionid , 'containerid':containerid, 'goswitch':False})
+                resp.headers['message'] = "User section currently in " + user.currentsection.sectionid  + " and  it containers " + containerid
+                return resp
 
     def post(self, command=None):
         authcheckresult = authcheck(request.headers.get('Authorization'))
@@ -69,19 +92,10 @@ class UserView(Resource):
             # print(newsectionid)
             report = user.switchToSection(newsectionid)
             db.session.commit()
-            user = User.query.filter(User.id == user.id).first()
+            user = User.query.filter(User.id == user.id).first()# Is this really necessary?
             resp.data=json.dumps({'report':report,'usersection':user.currentsection.sectionname})
-            # # print(user.sections[0].sectionname)
-            # usercontainerinfo={
-            #     'usersectionname': user.sections[0].sectionname,
-            #     'usercontainers':{}
-            # }
-            # for containerid in os.listdir(safe_join(appdatadir, CONTAINERFOLDER, sectionid)):
-            #     containerfn = safe_join(appdatadir, CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml')
-            #     if os.path.exists(containerfn):
-            #         curcont = Container.LoadContainerFromYaml(containerfn)
-            #         usercontainerinfo['usercontainers'][containerid] = curcont.containerName
-            # # resp.data = json.dumps(usercontainerinfo)
             return resp
+
+
 
 

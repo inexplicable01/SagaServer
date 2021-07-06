@@ -3,8 +3,10 @@ from flask import request, jsonify, send_from_directory , make_response, safe_jo
 from flask_restful import Resource
 import json
 import re
+import glob
 import uuid
 from datetime import datetime
+from SagaAPI import db
 from SagaCore.Frame import Frame
 from SagaDB.UserModel import User
 from SagaAPI.SagaAPI_Util import authcheck
@@ -46,14 +48,29 @@ class FrameView(Resource):
             # return resp, num # user would be a type of response if its not the actual class user
         user = authcheckresult
         sectionid = user.currentsection.sectionid
+        switchreport = None
+        #check if containerID exists in user's currention section
+        if not os.path.exists(safe_join(self.appdatadir,CONTAINERFOLDER, sectionid, containerID)):
+            # search if this container exists in any of the other containers
+            for section in user.sections:
+                if os.path.exists(safe_join(self.appdatadir,CONTAINERFOLDER, section.sectionid, containerID)):
+                    # switchreport = user.switchToSection(section.sectionid)
+                    # db.session.commit()
+
+                    sectionid = section.sectionid,
+                    # user = User.query.filter(User.id == user.id).first()# Is this really necessary?
+                    # resp.data=json.dumps({'report':report,'usersection':user.currentsection.sectionname})
+                    # return resp
+            if not switchreport:
+                return {"response": "Container ID " + containerID +"does not exist in any section"}
 
 
         if 'rev' in request.form.keys():
             rev = request.form['rev']
             if os.path.exists(safe_join(self.appdatadir,CONTAINERFOLDER, sectionid, containerID,branch,rev)):
                 result = send_from_directory(safe_join(self.appdatadir,CONTAINERFOLDER, sectionid, containerID,branch),rev)
-                # result.headers['file_name'] = rev
                 result.headers['branch'] = branch
+                result.headers['switchreport'] = switchreport
                 return result
             else:
                 return {"response": "Invalid Frame Yaml" + rev}
@@ -65,6 +82,7 @@ class FrameView(Resource):
                 result = send_from_directory(safe_join(self.appdatadir,CONTAINERFOLDER,  sectionid, containerID, branch),latestrevfn)
                 result.headers['file_name'] = latestrevfn
                 result.headers['branch'] = branch
+                result.headers['switchreport'] = switchreport
                 return result
         else:
             return {"response": "Invalid Container ID"}

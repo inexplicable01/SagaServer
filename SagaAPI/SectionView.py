@@ -5,6 +5,7 @@ import uuid
 from SagaDB.UserModel import User, db, Section
 import yaml
 from flask import current_app
+from SagaAPI.SagaAPI_Util import authcheck
 
 from Config import SECTIONDIDHOLDER,appdatadir
 
@@ -48,7 +49,7 @@ class SectionView(Resource):
 
 
     def post(self, command=None):
-        authcheckresult = self.authcheck()
+        authcheckresult = self.authcheck(request.headers.get('Authorization'))
 
         if not isinstance(authcheckresult, User):
             (resp, num) = authcheckresult
@@ -97,33 +98,3 @@ class SectionView(Resource):
 
 
 
-    def authcheck(self):
-        auth_header = request.headers.get('Authorization')
-        if auth_header:
-            try:
-                auth_token = auth_header.split(" ")[1]
-            except IndexError:
-                responseObject = {
-                    'status': 'fail',
-                    'message': 'Bearer token malformed.'
-                }
-                return make_response(jsonify(responseObject)), 401
-        else:
-            auth_token = ''
-        if auth_token:
-            resp = User.decode_auth_token(auth_token)
-            if not isinstance(resp, str):
-                user = User.query.filter_by(id=resp).first()
-                if user:
-                    return user
-            responseObject = {
-                'status': 'fail',
-                'message': resp
-            }
-            return make_response(jsonify(responseObject)), 401
-        else:
-            responseObject = {
-                'status': 'fail',
-                'message': 'Provide a valid auth token.'
-            }
-            return make_response(jsonify(responseObject)),401
