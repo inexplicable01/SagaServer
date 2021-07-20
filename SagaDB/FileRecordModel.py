@@ -9,7 +9,7 @@ class FileRecord(db.Model,UserMixin):
     __tablename__ = 'filerecords'
     __bind_key__ = 'filerecords'
 
-    file_id = db.Column(db.String(100), primary_key=True)
+    md5 = db.Column(db.String(100), primary_key=True)
     # active = db.Column('is_active', db.Boolean(), nullable=False, server_default='1')
     #
     # # User authentication information. The collation='NOCASE' is required
@@ -33,8 +33,8 @@ class FileRecord(db.Model,UserMixin):
     # roles = db.relationship('Role', secondary='user_roles')
     # sections = db.relationship('Section', secondary='user_sections')
 
-    def __init__(self, file_id, filename,revnum,containerid,containername):
-        self.file_id = file_id
+    def __init__(self, md5, filename,revnum,containerid,containername):
+        self.md5 = md5
         self.filename = filename
         self.revnum = revnum
         self.containerid = containerid

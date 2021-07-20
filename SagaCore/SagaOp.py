@@ -134,7 +134,7 @@ class SagaOp():
                     filetrack.lastEdited = updateinfo[fileheader]['lastEdited']
                     filetrack.committedby = user.email
                     filetrack.style = updateinfo[fileheader]['style']
-                    # filetrack.file_id = updateinfo[fileheader]['md5']
+                    # filetrack.md5 = updateinfo[fileheader]['md5']
                     filetrack.commitUTCdatetime = committime
                     filetrack.ctnrootpath = commitframe.filestrack[fileheader].ctnrootpath
                     content = files[fileheader].read()

@@ -42,11 +42,11 @@ class MaintenanceView(Resource):
                             revnum = re.findall('Rev(\d+).yaml', os.path.basename(yamlframefn))
                             revnum = int(revnum[0])
                             for fileheader, filetrack in pastframe.filestrack.items():
-                                if filetrack.file_id in filerecords.keys():
-                                    if filetrack.file_name == filerecords[filetrack.file_id]:
-                                        print('FILE ID has two names??? blashempy '+   filetrack.file_name  +'  and '  + filerecords[filetrack.file_id])
+                                if filetrack.md5 in filerecords.keys():
+                                    if filetrack.file_name == filerecords[filetrack.md5]:
+                                        print('FILE ID has two names??? blashempy '+   filetrack.file_name  +'  and '  + filerecords[filetrack.md5])
                                 else:
-                                    filerecords[filetrack.file_id] = {'file_id':filetrack.file_id, 'filename':filetrack.file_name,'revnum':revnum,
+                                    filerecords[filetrack.md5] = {'md5':filetrack.md5, 'filename':filetrack.file_name,'revnum':revnum,
                                                                       'containerid':cont.containerId,'containername':cont.containerName}
             for file_id in os.listdir(join(self.appdatadir, FILEFOLDER)):
                 # print(files)
@@ -100,12 +100,12 @@ class MaintenanceView(Resource):
                                 revnum = int(revnum[0])
                                 dictinfo[sectionid]['sectioncondtiondict'][containerid]['framelist'][revnum] = pastframe.dictify()
                         #         for fileheader, filetrack in pastframe.filestrack.items():
-                        #             if filetrack.file_id in filerecords.keys():
-                        #                 if filetrack.file_name == filerecords[filetrack.file_id]:
+                        #             if filetrack.md5 in filerecords.keys():
+                        #                 if filetrack.file_name == filerecords[filetrack.md5]:
                         #                     print('FILE ID has two names??? blashempy ' + filetrack.file_name + '  and ' +
-                        #                           filerecords[filetrack.file_id])
+                        #                           filerecords[filetrack.md5])
                         #             else:
-                        #                 filerecords[filetrack.file_id] = {'file_id': filetrack.file_id,
+                        #                 filerecords[filetrack.md5] = {'file_id': filetrack.md5,
                         #                                                   'filename': filetrack.file_name, 'revnum': revnum,
                         #                                                   'containerid': cont.containerId,
                         #                                                   'containername': cont.containerName}
@@ -190,8 +190,8 @@ class MaintenanceView(Resource):
                                 comparesummary[containerid+'_'+str(revnum)] = diff
 
                             for fileheader, filetrack in localframe.filestrack.items():
-                                if not os.path.exists(join(self.appdatadir,'Files', filetrack.file_id)):
-                                    missingfiles.append(filetrack.file_id)
+                                if not os.path.exists(join(self.appdatadir,'Files', filetrack.md5)):
+                                    missingfiles.append(filetrack.md5)
 
 
 

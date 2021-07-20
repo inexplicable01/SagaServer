@@ -87,7 +87,7 @@ def syncFromServer(authtoken):
 
 
 
-syncFromServer(authtoken)
+# syncFromServer(authtoken)
 
 def pushToServer(authtoken):
     dictinfo = {}
@@ -160,4 +160,4 @@ def pushToServer(authtoken):
     #                           data={'dictinfo':json.dumps(dictinfo)})
 
 
-# pushToServer(authtoken)
+pushToServer(authtoken)
