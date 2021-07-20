@@ -87,17 +87,17 @@ def syncFromServer(authtoken):
 
 
 
-# syncFromServer(authtoken)
+syncFromServer(authtoken)
 
 def pushToServer(authtoken):
     dictinfo = {}
-    for sectionid in os.listdir(os.path.join( CONTAINERFOLDER)):
-        sectfn = os.path.join( CONTAINERFOLDER, sectionid, 'sectionstate.yaml')
+    for sectionid in os.listdir(os.path.join(appdatadir,CONTAINERFOLDER)):
+        sectfn = os.path.join(appdatadir,CONTAINERFOLDER, sectionid, 'sectionstate.yaml')
         if os.path.exists(sectfn):
             sect = Section.LoadSectionyaml(sectfn)
             dictinfo[sectionid] = {'sectiondict': sect.dictify(), 'sectioncondtiondict': {}}
-            for containerid in os.listdir(os.path.join(CONTAINERFOLDER, sectionid)):
-                yamlfn = os.path.join(CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml')
+            for containerid in os.listdir(os.path.join(appdatadir,CONTAINERFOLDER, sectionid)):
+                yamlfn = os.path.join(appdatadir,CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml')
                 if os.path.exists(yamlfn):
                     cont = Container.LoadContainerFromYaml(yamlfn)
                     dictinfo[sectionid]['sectioncondtiondict'][containerid] = {
@@ -105,7 +105,7 @@ def pushToServer(authtoken):
                         'framelist': {}
                     }
                     yamllist = glob.glob(
-                        os.path.join( CONTAINERFOLDER, sectionid, containerid, 'Main', 'Rev*.yaml'))
+                        os.path.join(appdatadir,CONTAINERFOLDER, sectionid, containerid, 'Main', 'Rev*.yaml'))
                     for yamlframefn in yamllist:
                         pastframe = Frame.loadFramefromYaml(yamlframefn, None)
                         revnum = re.findall('Rev(\d+).yaml', os.path.basename(yamlframefn))
@@ -122,13 +122,13 @@ def pushToServer(authtoken):
     # print(summary)
     for diffheader, diffdict in summary['compare'].items():
         print(diffheader, diffdict)
-    for file_id in summary['missingfiles']:
-        print('sending file '+ file_id)
-        filepath = join('Files',file_id)
-        filesToUpload={file_id:open(filepath,'rb')}
+    for md5 in summary['missingfiles']:
+        print('sending file '+ md5)
+        filepath = join(appdatadir,'Files',md5)
+        filesToUpload={md5:open(filepath,'rb')}
         response = requests.post(PYTHONANYWHERE + 'FILES',
                                  headers={"Authorization": 'Bearer ' + authtoken['auth_token']},
-                                 data={'file_id': file_id},
+                                 data={'md5': md5},
                                  files=filesToUpload)
         print(response.headers["status"])
 
@@ -160,4 +160,4 @@ def pushToServer(authtoken):
     #                           data={'dictinfo':json.dumps(dictinfo)})
 
 
-pushToServer(authtoken)
+# pushToServer(authtoken)

@@ -4,19 +4,15 @@ from datetime import datetime
 from SagaCore.Connection import FileConnection
 
 class FileTrack:
-    def __init__(self, FileHeader, localfilepath, \
-                 file_name, style,connection:FileConnection=None,
-                 lastEdited=None, committedby='waichak', \
-                 md5=None,  commitUTCdatetime=None,
+    def __init__(self, FileHeader, md5, \
+                 file_name, style,connection:FileConnection,
+                 lastEdited, committedby='default@gmail.com',   commitUTCdatetime=None,
                  persist: bool = True, ctnrootpathlist = []
                  ):
         self.FileHeader = FileHeader
         self.file_name = file_name
         # self.localfilepath = localfilepath
-        if md5 is None:
-            fileb = open(os.path.join(localfilepath, file_name) , 'rb')
-            md5=hashlib.md5(fileb.read()).hexdigest()
-        self.lastEdited= os.path.getmtime(os.path.join(self.localfilepath, file_name)) if lastEdited is None else lastEdited
+        self.lastEdited= lastEdited
         self.committedby = committedby
         self.md5 = md5
         self.style = style

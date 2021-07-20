@@ -19,7 +19,7 @@ fileobjtypes = ['inputObjs', 'requiredObjs', 'outputObjs']
 
 class Frame:
     @classmethod
-    def loadFramefromYaml(cls, framefn = None, filestomonitor = None,localfilepath = 'Default'):
+    def loadFramefromYaml(cls, framefn, containerworkingdir = None):
         with open(framefn,'r') as file:
             framedict = yaml.load(file, Loader=yaml.FullLoader)
         try:
@@ -35,18 +35,18 @@ class Frame:
                      outlinks=framedict['outlinks'],
                      AttachedFiles=framedict['AttachedFiles'],
                      commitUTCdatetime=commitUTCdatetime,
-                     localfilepath=localfilepath,
+                     containerworkingdir= containerworkingdir,
                      filestracklist=framedict['filestrack'])
         return cframe
 
 
     @classmethod
-    def InitiateFrame(cls, parentcontainerid, parentcontainername, localdir):
-        newframe = cls(filestracklist=[], FrameName='Rev1', parentcontainerid=parentcontainerid,parentcontainername=parentcontainername, localfilepath=localdir )
+    def InitiateFrame(cls, parentcontainerid, parentcontainername):
+        newframe = cls(filestracklist=[], FrameName='Rev1', parentcontainerid=parentcontainerid,parentcontainername=parentcontainername )
         return newframe
 
     @classmethod
-    def LoadFrameFromDict(cls, framedict, localfilepath='default',filestomonitor = None):
+    def LoadFrameFromDict(cls, framedict,filestomonitor = None):
         try:
             commitUTCdatetime = framedict['commitUTCdatetime']
         except:
@@ -60,12 +60,11 @@ class Frame:
                      outlinks=framedict['outlinks'],
                      AttachedFiles=framedict['AttachedFiles'],
                      commitUTCdatetime=commitUTCdatetime,
-                     localfilepath=localfilepath,
                      filestracklist=framedict['filestrack'])
         return cframe
 
     def __init__(self,parentcontainerid=None,parentcontainername=None, FrameName=None, FrameInstanceId=None,commitMessage=None,
-                 inlinks=None,outlinks=None,AttachedFiles=None,commitUTCdatetime=None,localfilepath=None,filestracklist=None,
+                 inlinks=None,outlinks=None,AttachedFiles=None,commitUTCdatetime=None,filestracklist=None,containerworkingdir=None
                  ):
         self.parentcontainerid = parentcontainerid
         self.parentcontainername=parentcontainername
@@ -76,8 +75,8 @@ class Frame:
         self.inlinks = inlinks
         self.outlinks = outlinks
         self.AttachedFiles = AttachedFiles
+        self.containerworkingdir = containerworkingdir
         self.commitUTCdatetime = commitUTCdatetime
-        self.localfilepath = localfilepath
         self.filestrack = {}
         for ftrack in filestracklist:
             FileHeader = ftrack['FileHeader']
@@ -92,7 +91,6 @@ class Frame:
                                          Rev=ftrack['connection']['Rev'])
             self.filestrack[FileHeader] = FileTrack(FileHeader=ftrack['FileHeader'],
                                                      file_name=ftrack['file_name'],
-                                                     localfilepath=localfilepath,
                                                      md5=ftrack['md5'],
                                                      style=ftrack['style'],
                                                      # file_id=ftrack['file_id'],
@@ -110,7 +108,6 @@ class Frame:
         # print('md5',md5)
         # print(os.path.dirname(filepath))
         self.filestrack[FileHeader]=FileTrack(FileHeader=FileHeader,
-                                                localfilepath = os.path.dirname(filepath),
                                                 file_name=os.path.basename(filepath),
                                                 style = typeRequired,
                                                 md5=md5

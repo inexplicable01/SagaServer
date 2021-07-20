@@ -192,9 +192,6 @@ class MaintenanceView(Resource):
                             for fileheader, filetrack in localframe.filestrack.items():
                                 if not os.path.exists(join(self.appdatadir,'Files', filetrack.md5)):
                                     missingfiles.append(filetrack.md5)
-
-
-
                 resp.data = json.dumps({'compare':comparesummary, 'missingfiles':missingfiles})
                 return resp
         elif command == 'SyncSection':

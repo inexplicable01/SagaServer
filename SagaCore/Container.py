@@ -52,11 +52,10 @@ class Container:
         FileHeaders = containerdict['FileHeaders']
         refframefilepath, revnum = getFramebyRevnum(os.path.join(containerworkingfolder, currentbranch), revnum)
         try:
-            workingFrame = Frame.loadFramefromYaml(refframefilepath, None, containerworkingfolder)
+            workingFrame = Frame.loadFramefromYaml(refframefilepath,containerworkingfolder)
         except Exception as e:
             workingFrame = Frame.InitiateFrame(parentcontainerid=containerdict['containerId'],
-                                               parentcontainername=containerdict['containerName'],
-                                               localdir= containerworkingfolder)
+                                               parentcontainername=containerdict['containerName'])
         container = cls(containerworkingfolder=containerworkingfolder,
                            containerName=containerdict['containerName'],
                            containerId=containerdict['containerId'],
@@ -91,7 +90,7 @@ class Container:
             FileHeaders[fileheader] = fileinfo
         try:
             refframefilepath, revnum = getFramebyRevnum(os.path.join(containerworkingfolder, currentbranch), revnum)
-            workingFrame = Frame.loadFramefromYaml(refframefilepath, None, containerworkingfolder)
+            workingFrame = Frame.loadFramefromYaml(refframefilepath, containerworkingfolder)
         except Exception as e:
             refframefilepath = 'Dont have one yet'
             revnum='1'
@@ -165,7 +164,7 @@ class Container:
         # # frameYamlfileb = framefs.get(file_id=ObjectId(curframe.FrameInstanceId))
         with open(self.refframefilepath) as file:
             frameRefYaml = yaml.load(file, Loader=yaml.FullLoader)
-        frameRef = Frame.loadFramefromYaml(frameRefYaml, None, self.containerworkingfolder)
+        frameRef = Frame.loadFramefromYaml(frameRefYaml, self.containerworkingfolder)
         filesToUpload = {}
         updateinfo = {}
         for FileHeader, filetrackobj in cframe.filestrack.items():
@@ -195,7 +194,7 @@ class Container:
             open(frameyamlfn, 'wb').write(response.content)
             with open(frameyamlfn) as file:
                 frameyaml = yaml.load(file, Loader=yaml.FullLoader)
-            newframe = Frame.loadFramefromYaml(frameyaml, None,self.containerworkingfolder)
+            newframe = Frame.loadFramefromYaml(frameyaml, self.containerworkingfolder)
             # Write out new frame information
             # The frame file is saved to the frame FS
             self.refframefilepath = frameyamlfn
@@ -231,7 +230,7 @@ class Container:
         # glob.glob() +'/'+ Rev + revnum + ".yaml"
         yamllist = glob.glob(self.containerworkingfolder + '/' + self.currentbranch + '*.yaml')
         for yamlfn in yamllist:
-            pastframe = Frame.loadFramefromYaml(yamlfn, None,self.containerworkingfolder)
+            pastframe = Frame.loadFramefromYaml(yamlfn, self.containerworkingfolder)
             # print(pastframe.commitMessage)
             historyStr = historyStr + pastframe.FrameName + '\t' + pastframe.commitMessage + '\t\t\t\t' + \
                          time.ctime(pastframe.commitUTCdatetime) + '\t\n'

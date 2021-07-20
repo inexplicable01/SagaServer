@@ -72,7 +72,6 @@ class ContainerView(Resource):
                                                                     'revcount':len(glob(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid,containerid,branch,'*')))})
 
             resp.headers["response"] = "returnlist"
-            resp.headers["containerinfolist"] = json.dumps(containerinfolist)
             resp.data = json.dumps(containerinfolist)
             return resp
 
