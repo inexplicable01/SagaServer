@@ -64,7 +64,8 @@ class ContainerView(Resource):
                     continue
                 curcont = Container.LoadContainerFromYaml(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid,containerid,'containerstate.yaml'))
                 containerinfolist[containerid] = {'ContainerDescription': curcont.containerName,
-                                         'branches':[]}
+                                         'branches':[],
+                                                  'containerdict':curcont.dictify()}
                 for branch in os.listdir(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid,containerid)):
                     if os.path.isdir(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid,containerid,branch)):
                         containerinfolist[containerid]['branches'].append({'name': branch,

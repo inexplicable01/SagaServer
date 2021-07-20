@@ -78,7 +78,7 @@ class SagaOperationsView(Resource):
                         'status': 'fail',
                         'message': 'Commit Failed'
                     }
-                    return make_response(jsonify(responseObject)), 401
+                    return make_response(jsonify(responseObject))
 
 
             elif command == "deleteContainer":
@@ -126,10 +126,10 @@ class SagaOperationsView(Resource):
                         return resp
         except Exception as e:
             with open('commitError.txt','a+') as errorfile:
-                # errorfile.write(datetime.now().isoformat() + ': Container: ' + request.form.get('containerID') +'\n')
-                errorfile.write(datetime.now().isoformat() + str(e)+'\n')
-                errorfile.write(datetime.now().isoformat() + 'ErrorType' + str(e)+'\n')
-                errorfile.write(datetime.now().isoformat() + 'Tracebacj' + traceback.format_exc() + '\n')
+                # errorfile.write(datetime.utcnow().isoformat() + ': Container: ' + request.form.get('containerID') +'\n')
+                errorfile.write(datetime.utcnow().isoformat() + str(e)+'\n')
+                errorfile.write(datetime.utcnow().isoformat() + 'ErrorType' + str(e)+'\n')
+                errorfile.write(datetime.utcnow().isoformat() + 'Tracebacj' + traceback.format_exc() + '\n')
                 errorfile.write('\n')
             responseObject = {
                 'status': 'fail',

@@ -69,9 +69,9 @@ def register():
             flash(error)
         except Exception as e:
             with open('registerError.txt', 'a+') as errorfile:
-                # errorfile.write(datetime.now().isoformat() + ': Container: ' + request.form.get('containerID') +'\n')
-                errorfile.write(datetime.now().isoformat() + str(e) + '\n')
-                errorfile.write(datetime.now().isoformat() + 'ErrorType' + str(e) + '\n')
+                # errorfile.write(datetime.utcnow().isoformat() + ': Container: ' + request.form.get('containerID') +'\n')
+                errorfile.write(datetime.utcnow().isoformat() + str(e) + '\n')
+                errorfile.write(datetime.utcnow().isoformat() + 'ErrorType' + str(e) + '\n')
                 errorfile.write(traceback.format_exc())
 
                 errorfile.write('\n')

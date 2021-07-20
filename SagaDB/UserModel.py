@@ -48,7 +48,7 @@ class User(db.Model,UserMixin):
         # worldmapsection = Section.query.filter(Section.sectionid == worldmapid).first()
         self.email = email
         self.password = password
-        self.registered_on = datetime.datetime.now()
+        self.registered_on = datetime.datetime.utcnow()
         self.admin = admin
         self.first_name = first_name
         self.last_name = last_name
@@ -162,7 +162,7 @@ class BlacklistToken(db.Model):
 
     def __init__(self, token):
         self.token = token
-        self.blacklisted_on = datetime.datetime.now()
+        self.blacklisted_on = datetime.datetime.utcnow()
 
     def __repr__(self):
         return '<id: token: {}'.format(self.token)

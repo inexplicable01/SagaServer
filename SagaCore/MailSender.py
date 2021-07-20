@@ -53,7 +53,7 @@ class MailSender():
                       recipients=[email])
         emailcontent = title + '\n'
         emailcontent = emailcontent + 'You now have full rights to edit container '+ cont.containerName + '\n'
-        emailcontent = emailcontent + 'User ' + sourceuser.first_name + ' ' + sourceuser.last_name + ' added you on ' + datetime.fromtimestamp(timestamp).isoformat() +  '\n'
+        emailcontent = emailcontent + 'User ' + sourceuser.first_name + ' ' + sourceuser.last_name + ' added you on UTC Time' + datetime.fromtimestamp(timestamp).isoformat() +  '\n'
 
         msg.body = emailcontent
         # msg.html = "<b>emailcontent</b>"

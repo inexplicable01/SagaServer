@@ -1,6 +1,6 @@
 import os
 import io
-from flask import Flask,flash, request, jsonify, url_for,send_from_directory , send_file, make_response, safe_join
+from flask import Flask,flash, request,g, jsonify, url_for,send_from_directory , send_file, make_response, safe_join
 from flask_restful import Api, Resource
 from flask import current_app
 from SagaDB.UserModel import User, Role, UserRoles, UserSections, Section

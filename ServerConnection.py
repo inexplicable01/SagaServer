@@ -6,6 +6,7 @@ import json
 import os
 import datetime
 # Sign in as admin
+import warnings
 from SagaCore.Container import Container
 from SagaCore.Section import Section
 from SagaCore.Frame import Frame
@@ -33,7 +34,7 @@ def syncFromServer(authtoken):
                              # )
     fullcontainerdict = json.loads(response.content)
     if os.path.exists(join(appdatadir,'Container')):
-        os.rename(join(appdatadir,'Container'), join(appdatadir,'Container_'+datetime.datetime.now().strftime('%y_%m_%d_%H_%M_%S')))
+        os.rename(join(appdatadir,'Container'), join(appdatadir,'Container_'+datetime.datetime.utcnow().strftime('%y_%m_%d_%H_%M_%S')))
     os.mkdir(join(appdatadir,'Container'))
     if not os.path.exists(join(appdatadir,'Files')):
         os.mkdir(join(appdatadir, 'Files'))
@@ -56,7 +57,18 @@ def syncFromServer(authtoken):
                 frame.writeoutFrameYaml(framefn)
                 for fileheader, filetrack in frame.filestrack.items():
                     if filetrack.md5:
-                        if not os.path.exists(os.path.join(appdatadir,'Files',filetrack.md5)):
+                        fileok = True
+
+                        try:
+                            with open(os.path.join(appdatadir, 'Files', filetrack.md5), 'r') as fhandle:
+                                for line in fhandle:
+                                    if "Invalid file" in line:
+                                        fileok = False
+                        except Exception as e:
+                            print(fhandle)
+
+
+                        if not os.path.exists(os.path.join(appdatadir,'Files',filetrack.md5)) or not fileok:
                             response = requests.get(BASE + 'FILES',
                                                     data={'md5': filetrack.md5, 'file_name': filetrack.file_name})
                             # Loops through the filestrack in curframe and request files listed in the frame
@@ -64,10 +76,11 @@ def syncFromServer(authtoken):
                             if response.headers['status'] == 'Success':
                                 open(fn, 'wb').write(response.content)
                             else:
-                                open(fn, 'w').write('Terrible quick bug fix')
+                                # open(fn, 'w').write('Terrible quick bug fix')
                                 # There should be a like a nuclear warning here is this imples something went wrong with the server and the frame bookkeeping system
                                 # This might be okay meanwhile as this is okay to break during dev but not during production.
-                                print('could not find file ' + filetrack.md5 + ' on server')
+                                # print('could not find file ' + filetrack.md5 + ' on server')
+                                warnings.warn('cannot find file ' + filetrack.file_name + ' with ' + filetrack.md5)
                             os.utime(fn, (filetrack.lastEdited, filetrack.lastEdited))
 
 

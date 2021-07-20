@@ -20,10 +20,10 @@ FILEFOLDER = current_app.config['FILEFOLDER']
 
 def writeError(e, errmessage):
     with open('commitError.txt', 'a+') as errorfile:
-        # errorfile.write(datetime.now().isoformat() + ': Container: ' + request.form.get('containerID') +'\n')
-        errorfile.write(datetime.now().isoformat() + str(e) + '\n')
-        errorfile.write(datetime.now().isoformat() + 'ErrorType' + str(e) + '\n')
-        errorfile.write(datetime.now().isoformat() + 'Traceback' + traceback.format_exc() + '\n')
+        # errorfile.write(datetime.utcnow().isoformat() + ': Container: ' + request.form.get('containerID') +'\n')
+        errorfile.write(datetime.utcnow().isoformat() + str(e) + '\n')
+        errorfile.write(datetime.utcnow().isoformat() + 'ErrorType' + str(e) + '\n')
+        errorfile.write(datetime.utcnow().isoformat() + 'Traceback' + traceback.format_exc() + '\n')
         errorfile.write('\n')
     return {
         'status': errmessage,
@@ -172,7 +172,7 @@ class SagaOp():
         try:
             curcont.save('Server',
                          outyamlfn = safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, curcont.containerId,
-                                   'containerstate_' + str(datetime.now().timestamp()) +'.yaml'))
+                                   'containerstate_' + str(datetime.utcnow().timestamp()) +'.yaml'))
             if savenewcont:
                 newcont.save('Server',
                              safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, curcont.containerId, 'containerstate.yaml'))
@@ -192,10 +192,11 @@ class SagaOp():
                                        newrevnum=revnum + 1)
             self.mailsender.sendMail()
         except Exception as e:
-            errsum = writeError(e,
+            emailsendingerr_committsuccess = writeError(e,
                                 'Commit was successful but there was an error in sending out the emails.')
-            errsum['newrevfn']=newrevfn
-            return errsum
+            emailsendingerr_committsuccess['newrevfn']=newrevfn
+            emailsendingerr_committsuccess['commitsuccess'] = True
+            return emailsendingerr_committsuccess
 
         return {
             'newrevfn':newrevfn,
@@ -216,7 +217,7 @@ class SagaOp():
                 # user = User.query.filter_by(id=decoderesponse).first()
                 if addeduser:
                     if addeduser.currentsection.sectionid==sectionid:
-                        self.mailsender.containerAddSagaUser(new_email,cont, user, datetime.now().timestamp())
+                        self.mailsender.containerAddSagaUser(new_email,cont, user, datetime.utcnow().timestamp())
                         return True, 'User '+addeduser.email+ ' is added', cont.allowedUser
                     else:
                         return False, 'Cannot Add User.  The user you are trying to add belongs to a different section.', []

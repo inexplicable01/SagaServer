@@ -39,7 +39,7 @@ class FileRecord(db.Model,UserMixin):
         self.revnum = revnum
         self.containerid = containerid
         self.containername = containername
-        # self.registered_on = datetime.datetime.now()
+        # self.registered_on = datetime.datetime.utcnow()
         # self.admin = admin
         # self.first_name = first_name
         # self.last_name = last_name

@@ -25,8 +25,8 @@ try:
     serve(TransLogger(sagaapp, setup_console_handler=False),listen='*:' + port)
 except Exception as e:
     with open(join(appdatadir,'error.txt'),'a+') as errorfile:
-        errorfile.write(datetime.now().isoformat() + str(e) + '\n')
-        errorfile.write(datetime.now().isoformat() + 'ErrorType' + str(e) + '\n')
-        errorfile.write(datetime.now().isoformat() + 'Traceback' + traceback.format_exc() + '\n')
+        errorfile.write(datetime.utcnow().isoformat() + str(e) + '\n')
+        errorfile.write(datetime.utcnow().isoformat() + 'ErrorType' + str(e) + '\n')
+        errorfile.write(datetime.utcnow().isoformat() + 'Traceback' + traceback.format_exc() + '\n')
         errorfile.write('\n')
 # serve()
