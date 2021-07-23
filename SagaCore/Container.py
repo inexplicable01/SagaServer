@@ -282,9 +282,10 @@ class Container:
         fullframelist = {}
         yamllist = glob.glob(os.path.join(self.containerworkingfolder, self.currentbranch, '*.yaml'))
         for yamlfn in yamllist:
+
             pastframe = Frame.loadFramefromYaml(yamlfn, self.containerworkingfolder)
             # print(pastframe.commitMessage)
-            fullframelist[yamlfn] = pastframe.dictify()
+            fullframelist[os.path.basename(yamlfn)] = pastframe.dictify()
             # historyStr = historyStr + pastframe.FrameName + '\t' + pastframe.commitMessage + '\t\t\t\t' + \
             #              time.ctime(pastframe.commitUTCdatetime) + '\t\n'
         return fullframelist
