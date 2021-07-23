@@ -278,6 +278,18 @@ class Container:
     def compare(cont1,cont2):
         return recursivecompare(cont1.dictify(), cont2.dictify())
 
+    def fullFrameHistory(self):
+        fullframelist = {}
+        yamllist = glob.glob(os.path.join(self.containerworkingfolder, self.currentbranch, '*.yaml'))
+        for yamlfn in yamllist:
+            pastframe = Frame.loadFramefromYaml(yamlfn, self.containerworkingfolder)
+            # print(pastframe.commitMessage)
+            fullframelist[yamlfn] = pastframe.dictify()
+            # historyStr = historyStr + pastframe.FrameName + '\t' + pastframe.commitMessage + '\t\t\t\t' + \
+            #              time.ctime(pastframe.commitUTCdatetime) + '\t\n'
+        return fullframelist
+
+
     # @staticmethod
     # def compareFileHeaders(curcont:'Container', newcont:'Container'):
     #     newcont2keys = list(newcont.keys())

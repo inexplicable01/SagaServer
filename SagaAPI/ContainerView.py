@@ -48,11 +48,16 @@ class ContainerView(Resource):
             containerID = request.form['containerID']
             if os.path.exists(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid, containerID)):
                 latestrevfn, revnum = self.latestRev(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid, containerID, branch))
-                result = send_from_directory(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid, containerID), 'containerstate.yaml' )
-                result.headers['file_name'] = 'containerstate.yaml'
-                result.headers['branch'] = branch
-                result.headers['revnum'] = str(revnum)
-                return result
+                # result = send_from_directory(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid, containerID), 'containerstate.yaml' )
+                cont = Container.LoadContainerFromYaml(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid, containerID, 'containerstate.yaml'))
+                resp.headers['file_name'] = 'containerstate.yaml'
+                resp.headers['branch'] = branch
+                resp.headers['revnum'] = str(revnum)
+                resp.data = json.dumps({
+                    'containerdict':  cont.dictify(),
+                    'fullframelist':cont.fullFrameHistory(),
+                })
+                return resp
             else:
 
                 sect = Section.LoadSectionyaml(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, 'sectionstate.yaml'))
