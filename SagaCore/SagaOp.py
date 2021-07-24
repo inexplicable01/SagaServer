@@ -5,7 +5,7 @@ import os
 from flask import safe_join,current_app
 from Config import typeInput, typeOutput, typeRequired
 from flask import request, send_from_directory, safe_join,make_response,jsonify
-from SagaDB.UserModel import User
+from SagaDB.UserModel import User, Section, db
 import uuid
 import hashlib
 import json
@@ -210,17 +210,23 @@ class SagaOp():
         if os.path.exists(contpath):
             cont = Container.LoadContainerFromYaml(contpath)
             if user.email in cont.allowedUser:
-                added, executionmessage = cont.addAllowedUser(new_email)
-                if not added:
-                    return False, executionmessage, []
-                addeduser = User.query.filter(User.email == new_email).first()
+                addeduser = User.query.filter(User.email == new_email).first() ## Does User Exist?
+                cursection = Section.query.filter(Section.sectionid == sectionid).first()
                 # user = User.query.filter_by(id=decoderesponse).first()
                 if addeduser:
-                    if addeduser.currentsection.sectionid==sectionid:
-                        self.mailsender.containerAddSagaUser(new_email,cont, user, datetime.utcnow().timestamp())
-                        return True, 'User '+addeduser.email+ ' is added', cont.allowedUser
+                    if addeduser.isInSection(sectionid):
+                        added, executionmessage = cont.addAllowedUser(new_email)
+                        if not added:
+                            return False, executionmessage, []
                     else:
-                        return False, 'Cannot Add User.  The user you are trying to add belongs to a different section.', []
+                        addeduser.sections.append(cursection)
+                        db.session.commit()
+                        added, executionmessage = cont.addAllowedUser(new_email)
+                    # if addeduser.currentsection.sectionid==sectionid:
+                    #     self.mailsender.containerAddSagaUser(new_email,cont, user, datetime.utcnow().timestamp())
+                        return True, 'User '+addeduser.email+ ' is added', cont.allowedUser
+                    # else:
+                    #     return False, 'Cannot Add User.  The user you are trying to add belongs to a different section.', []
                 else:
                     self.mailsender.containerAddNonSagaUser(new_email,cont)
                     return True, 'Non Saga user is sent an email invtied to join this container', cont.allowedUser

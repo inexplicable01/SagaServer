@@ -122,6 +122,14 @@ class User(db.Model,UserMixin):
         else:
             return {'status':'Sectionid '+ sectionid + ' does not exist. Request Ignored.'}
 
+    def isInSection(self, sectionid):
+        usersection = Section.query.filter(Section.sectionid == sectionid).first()
+        for section in self.sections:
+            if sectionid == section.sectionid:
+                return True
+        return False
+
+
     # Define the Role data-model
 class Role(db.Model):
     __tablename__ = 'roles'

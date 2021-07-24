@@ -87,14 +87,26 @@ class UserView(Resource):
         # sectionid = user.switchToSection()
         resp = make_response()
         if "switchusersection" == command:
-            resp.headers["status"] = "Retrieval Success"
+
             newsectionid = request.form['newsectionid']
             # print(newsectionid)
-            report = user.switchToSection(newsectionid)
+            report = user.switchToSection(newsectionid)##ATTENTION Wrote hack code to add
+            # user to section even if they didn't have it
             db.session.commit()
             user = User.query.filter(User.id == user.id).first()# Is this really necessary?
             resp.data=json.dumps({'report':report,'usersection':user.currentsection.sectionname})
+            resp.headers["status"] = "Switch Success"
             return resp
+        #
+        # elif "addusertosection"==command:
+        #     report = user.addToSection(newsectionid)
+
+
+
+
+
+
+
 
 
 
