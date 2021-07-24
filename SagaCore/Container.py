@@ -291,19 +291,7 @@ class Container:
         return fullframelist
 
 
-    # @staticmethod
-    # def compareFileHeaders(curcont:'Container', newcont:'Container'):
-    #     newcont2keys = list(newcont.keys())
-    #     diff={}
-    #     for fileheader, filevalue in curcont.FileHeaders.items():
-    #         if fileheader not in newcont.FileHeaders.keys:
-    #             diff[fileheader] = 'MissingInDict2'
-    #             continue
-    #         else:
-    #             newcont2keys.remove(key)
-    #         if dict2[key] != value:
-    #             identical = False
-    #             diff[key] = [value, dict2[key]]
+
 
 
 def recursivecompare(dict1, dict2):

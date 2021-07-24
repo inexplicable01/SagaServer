@@ -6,6 +6,7 @@ from SagaDB.UserModel import User, db, Section
 import yaml
 from flask import current_app
 from SagaAPI.SagaAPI_Util import authcheck
+import json
 
 from Config import SECTIONDIDHOLDER,appdatadir
 
@@ -49,7 +50,7 @@ class SectionView(Resource):
 
 
     def post(self, command=None):
-        authcheckresult = self.authcheck(request.headers.get('Authorization'))
+        authcheckresult = authcheck(request.headers.get('Authorization'))
 
         if not isinstance(authcheckresult, User):
             (resp, num) = authcheckresult
@@ -77,6 +78,9 @@ class SectionView(Resource):
                 }
                 sectionyaml = open(os.path.join(self.appdatadir, CONTAINERFOLDER, newsectionid,'sectionstate.yaml'), 'w')
                 yaml.dump(newsection, sectionyaml)
+
+                ##ATTENTION NEED BETTER CHECKS BEFORE COMMIT IE, does section already exist,
+                ## Commit fail etc.
                 sectionyaml.close()
                 section = Section(
                     sectionid=newsectionid,
@@ -86,11 +90,11 @@ class SectionView(Resource):
                 user.currentsection = section
                 user.sections.append(section)
                 db.session.commit()
-                resp.data = newsection
+                resp.data = json.dumps(newsection)
                 resp.headers['status'] = 'New Section ' + section_name+ ' Created with ' + newsectionid
                 return resp
             except Exception as e:
-                resp.headers['status'] = 'New Section ' + section_name+ ' Failed'
+                resp.headers['status'] = 'New Section commit Failed'
                 resp.headers['exception'] = e.__str__()
                 return resp
 
