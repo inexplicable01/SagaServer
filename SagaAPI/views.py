@@ -40,7 +40,11 @@ class RegisterAPI(MethodView):
                 'message': 'missing either email, password, first_name, last_name ' + str(e)
             }
             return make_response(jsonify(responseObject)), 401
-
+        try:
+            sectionid = request.form['sectionid']
+        except Exception as e:
+            sectionid = worldmapid
+            # return make_response(jsonify(responseObject)), 401
         # if 'sectionname' in request.form.keys():
         #     ## User wants to make a new section
         #     section_name = request.form['sectionname']
@@ -61,7 +65,7 @@ class RegisterAPI(MethodView):
         #     }
         #     return make_response(jsonify(responseObject)), 401
         ## this is not consistent with the website registration, additional work is needed for better seperation of concern
-        sectionid = worldmapid
+        # sectionid = worldmapid
         sectionyaml = os.path.join(appdatadir, CONTAINERFOLDER, sectionid, 'sectionstate.yaml')
         cursection = Section.LoadSectionyaml(sectionyaml)
         section_name = cursection.sectionname
@@ -74,8 +78,8 @@ class RegisterAPI(MethodView):
                     password=password,
                     first_name=first_name,
                     last_name=last_name,
-                    sectionname=section_name,
-                    sectionid=sectionid,
+                    sectionids=[cursection.sectionid],
+                    currentsection_id=cursection.sectionid,
                 )
                 # insert the user
                 db.session.add(user)
