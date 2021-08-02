@@ -5,7 +5,7 @@ import yaml
 from SagaCore.FileObjects import FileTrack
 from SagaCore.Connection import FileConnection, ConnectionTypes
 import json
-from Config import typeRequired, changedate,changeremoved,changemd5,changenewfile
+from Config import typeRequired, changedate,changeremoved,changemd5,changenewfile, NEEDSDOCTOR
 # from PyQt5.QtWidgets import *
 # from PyQt5 import uic
 # from PyQt5.QtGui import *
@@ -89,6 +89,8 @@ class Frame:
                     connectionType=ftrack['connection']['connectionType'],
                                          branch=ftrack['connection']['branch'],
                                          Rev=ftrack['connection']['Rev'])
+            if 'lastupdated' not in ftrack.keys():
+                ftrack['lastupdated'] = NEEDSDOCTOR
             self.filestrack[FileHeader] = FileTrack(FileHeader=ftrack['FileHeader'],
                                                      file_name=ftrack['file_name'],
                                                      md5=ftrack['md5'],
@@ -98,6 +100,7 @@ class Frame:
                                                      lastEdited=ftrack['lastEdited'],
                                                      connection=conn,
                                                      ctnrootpathlist=ctnrootpathlist,
+                                                    lastupdated=ftrack['lastupdated'],
                                                      persist=True)
 
     def add_fileTrack(self, filepath,FileHeader):

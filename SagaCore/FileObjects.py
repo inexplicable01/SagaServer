@@ -2,22 +2,29 @@ import hashlib
 import os
 from datetime import datetime
 from SagaCore.Connection import FileConnection
+from Config import NEEDSDOCTOR, typeRequired
 
 class FileTrack:
     def __init__(self, FileHeader, md5, \
                  file_name, style,connection:FileConnection,
                  lastEdited, committedby='default@gmail.com',   commitUTCdatetime=None,
-                 persist: bool = True, ctnrootpathlist = []
+                 persist: bool = True, ctnrootpathlist = [], lastupdated=NEEDSDOCTOR
                  ):
         self.FileHeader = FileHeader
         self.file_name = file_name
         # self.localfilepath = localfilepath
         self.lastEdited= lastEdited
         self.committedby = committedby
+        self.lastupdated = lastupdated
         self.md5 = md5
         self.style = style
         # self.file_id = file_id
         self.commitUTCdatetime = commitUTCdatetime
+        if connection is None:
+            connection = FileConnection(
+                None, typeRequired, branch='Main', Rev = None
+            )
+        self.lastupdated = lastupdated
         self.connection=connection
         self.persist=persist
         if len(ctnrootpathlist)>0:

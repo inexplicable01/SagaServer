@@ -218,6 +218,8 @@ class SagaOp():
                         added, executionmessage = cont.addAllowedUser(new_email)
                         if not added:
                             return False, executionmessage, []
+                        else:
+                            return True, 'User ' + addeduser.email + ' is added', cont.allowedUser
                     else:
                         addeduser.sections.append(cursection)
                         db.session.commit()
