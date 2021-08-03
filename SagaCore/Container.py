@@ -328,35 +328,35 @@ class Container:
                     # if filetrack.connection.connectionType.name==typeOutput:
                     #         print(self.containerId + ' ID with name ' + self.containerName + ' and ' + revnum + ' has ' + fileheader +' has broken Input rev ')
 
-                    if filetrack.connection.connectionType.name==typeInput:
+                    # if filetrack.connection.connectionType.name==typeInput:
+                    #
+                    #     pastrevnum=1
+                    #     found = False
+                    #     while pastrevnum<100:
+                    #         sectionfolder = os.path.dirname(self.containerworkingfolder)
+                    #         frameyaml = os.path.join(sectionfolder,filetrack.connection.refContainerId, 'Main','Rev' + str(pastrevnum)+'.yaml')
+                    #         if os.path.exists(frameyaml):
+                    #             upstreampastframe = Frame.loadFramefromYaml(frameyaml, None)
+                    #             if fileheader in upstreampastframe.filestrack.keys():
+                    #                 if upstreampastframe.filestrack[fileheader].md5 == filetrack.md5:
+                    #                     print(self.containerId + ' ID with name ' + self.containerName + ' and ' + str(
+                    #                         revnum) + ' has ' + fileheader + ' has broken Input but found it at ' + filetrack.connection.refContainerId+ ' at rev ' +upstreampastframe.FrameName )
+                    #                     if filetrack.connection.Rev is None:
+                    #                         filetrack.connection.Rev = upstreampastframe.FrameName
+                    #                     else:
+                    #                         if filetrack.connection.Rev !=upstreampastframe.FrameName:
+                    #                             print(filetrack.connection.Rev, upstreampastframe.FrameName)
+                    #                             filetrack.connection.Rev = upstreampastframe.FrameName
+                    #                     found = True
+                    #                     break
+                    #         else:
+                    #             pass
+                    #         pastrevnum+=1
+                    #     if not found:
+                    #         print(self.containerId + ' ID with name ' + self.containerName + ' and ' + str(
+                    #             revnum) + ' has ' + fileheader + ' has broken Input and cannot match to upstream md5')
 
-                        pastrevnum=1
-                        found = False
-                        while pastrevnum<100:
-                            sectionfolder = os.path.dirname(self.containerworkingfolder)
-                            frameyaml = os.path.join(sectionfolder,filetrack.connection.refContainerId, 'Main','Rev' + str(pastrevnum)+'.yaml')
-                            if os.path.exists(frameyaml):
-                                upstreampastframe = Frame.loadFramefromYaml(frameyaml, None)
-                                if fileheader in upstreampastframe.filestrack.keys():
-                                    if upstreampastframe.filestrack[fileheader].md5 == filetrack.md5:
-                                        print(self.containerId + ' ID with name ' + self.containerName + ' and ' + str(
-                                            revnum) + ' has ' + fileheader + ' has broken Input but found it at ' + filetrack.connection.refContainerId+ ' at rev ' +upstreampastframe.FrameName )
-                                        if filetrack.connection.Rev is None:
-                                            filetrack.connection.Rev = upstreampastframe.FrameName
-                                        else:
-                                            if filetrack.connection.Rev !=upstreampastframe.FrameName:
-                                                print(filetrack.connection.Rev, upstreampastframe.FrameName)
-                                                filetrack.connection.Rev = upstreampastframe.FrameName
-                                        found = True
-                                        break
-                            else:
-                                pass
-                            pastrevnum+=1
-                        if not found:
-                            print(self.containerId + ' ID with name ' + self.containerName + ' and ' + str(
-                                revnum) + ' has ' + fileheader + ' has broken Input and cannot match to upstream md5')
-
-                    pastframe.writeoutFrameYaml(yamlfn = yamlfn)
+                    # pastframe.writeoutFrameYaml(yamlfn = yamlfn)
             revnum+=1
 
 
