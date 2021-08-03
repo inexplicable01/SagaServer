@@ -120,7 +120,7 @@ class SagaOp():
             errsum = writeError(e, 'Error occured either in Adjusting Related containers or finding the latest Rev')
             return errsum
 
-
+        newRev = Rev + str(revnum + 1)
 
         attnfiles = [file for file in files.keys()]
         committime = datetime.timestamp(datetime.utcnow())
@@ -134,6 +134,7 @@ class SagaOp():
                     filetrack.lastEdited = updateinfo[fileheader]['lastEdited']
                     filetrack.committedby = user.email
                     filetrack.style = updateinfo[fileheader]['style']
+                    filetrack.lastupdated = newRev
                     # filetrack.md5 = updateinfo[fileheader]['md5']
                     filetrack.commitUTCdatetime = committime
                     filetrack.ctnrootpath = commitframe.filestrack[fileheader].ctnrootpath
@@ -161,8 +162,8 @@ class SagaOp():
             commitframe.FrameInstanceId = uuid.uuid4().__str__()
             commitframe.commitMessage = commitmsg
             commitframe.commitUTCdatetime = committime
-            commitframe.FrameName = Rev + str(revnum + 1)
-            newrevfn = Rev + str(revnum + 1) + ".yaml"
+            commitframe.FrameName = newRev
+            newrevfn = newRev + ".yaml"
             newframefullpath = os.path.join(self.appdatadir, CONTAINERFOLDER, sectionid, curcont.containerId, branch, newrevfn)
 
         except Exception as e:
