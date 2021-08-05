@@ -11,6 +11,8 @@ import re
 from SagaDB.UserModel import User
 from SagaAPI.SagaAPI_Util import authcheck
 from flask import current_app
+from SagaCore.SagaUtil import getFramebyRevnum
+
 
 CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
 FILEFOLDER = current_app.config['FILEFOLDER']
@@ -91,22 +93,40 @@ class ContainerView(Resource):
             resp = make_response()
             resp.data=json.dumps(os.listdir(filepath))
             return resp
+        elif command=='newestframeofcontainer':
+            ## Provides latest Rev number
+            maincontainerid = request.form['containerID']
+            sectionid = request.form['sectionid']
+            branch = 'Main'#request.form['branch']
+            # glob.glob result = send_from_directory(safe_join(self.appdatadir, CONTAINERFOLDER, containerID, branch), 'Rev1.yaml')
+            # containeridlist = glob.glob(os.path.join(self.appdatadir, 'Container', sectionid))
+            newestframedict= {'framedict':'Container not found',
+                                          'newestrevnum':'Container not found'}
+            if not os.path.exists(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, maincontainerid, 'containerstate.yaml')):
+                resp.data = json.dumps(newestframedict)
+                return resp
+            # framefullpath, latestrevnum = getFramebyRevnum(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, maincontainerid, 'Main'),0)
+            filepath = safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, maincontainerid, 'containerstate.yaml')
+            cont = Container.LoadContainerFromYaml(filepath)
+            newestframedict= {'framedict':cont.workingFrame.dictify(),
+                                  'newestrevnum':cont.revnum
+            }
+            resp.data=json.dumps(newestframedict)
+            return resp
         elif command=='newestrevnum':
             ## Provides latest Rev number
-            containerID = request.form['containerID']
+            sectionid = request.form['sectionid']
             branch = 'Main'#request.form['branch']
-            # result = send_from_directory(safe_join(self.appdatadir, CONTAINERFOLDER, containerID, branch), 'Rev1.yaml')
-            for section in user.sections:
-                filepath = safe_join(self.appdatadir, CONTAINERFOLDER, section.sectionid, containerID, 'containerstate.yaml')
-                if os.path.exists(filepath):
-                    cont = Container.LoadContainerFromYaml(filepath)
-                    print(cont.revnum)
-                    resp.data=json.dumps({'framedict':cont.workingFrame.dictify(),
-                                          'newestrevnum':cont.revnum})
-                    return resp
-
-            resp.data=json.dumps({'framedict':'Container not found',
-                                          'newestrevnum':'Container not found'})
+            # glob.glob result = send_from_directory(safe_join(self.appdatadir, CONTAINERFOLDER, containerID, branch), 'Rev1.yaml')
+            containeridlistpath = glob(os.path.join(self.appdatadir, 'Container', sectionid, '*'))
+            latestrevdict= {}
+            for containeridpath in containeridlistpath:
+                containerid = os.path.basename(containeridpath)
+                if not os.path.exists(os.path.join(containeridpath, 'containerstate.yaml')):
+                    continue
+                framefullpath, latestrevnum = getFramebyRevnum(safe_join(containeridpath, 'Main'),0)
+                latestrevdict[containerid] = {'newestrevnum':latestrevnum}
+            resp.data=json.dumps(latestrevdict)
             return resp
         else:
             resp = make_response()
