@@ -67,7 +67,7 @@ class Container:
                            allowedUser=containerdict['allowedUser'],
                            currentbranch=currentbranch, revnum=revnum,
                            refframefilepath=refframefilepath, workingFrame=workingFrame, description=containerdict['description'])
-        # container.FixConnections()
+        container.FixConnections()
         return container
 
     @classmethod
@@ -112,7 +112,7 @@ class Container:
                            currentbranch=currentbranch, revnum=revnum,
                            refframefilepath=refframefilepath, workingFrame=workingFrame,
                         description=containeryaml['description'])
-        # container.FixConnections()
+        container.FixConnections()
         return container
 
     def CommitNewContainer(self, commitmessage,authtoken,BASE, client=None):
@@ -325,6 +325,8 @@ class Container:
                     else:
                         filemd5[fileheader] = {'latestrev': REVSTR, 'md5': filetrack.md5}
                         filetrack.lastupdated = REVSTR
+                pastframe.writeoutFrameYaml(yamlfn=yamlfn)
+            revnum += 1
                     # if filetrack.connection.connectionType.name==typeOutput:
                     #         print(self.containerId + ' ID with name ' + self.containerName + ' and ' + revnum + ' has ' + fileheader +' has broken Input rev ')
 
@@ -358,8 +360,7 @@ class Container:
                     #         print(self.containerId + ' ID with name ' + self.containerName + ' and ' + str(
                     #             revnum) + ' has ' + fileheader + ' has broken Input and cannot match to upstream md5')
 
-                    pastframe.writeoutFrameYaml(yamlfn = yamlfn)
-            revnum+=1
+
 
 
 

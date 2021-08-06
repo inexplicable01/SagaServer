@@ -9,6 +9,7 @@ from SagaCore.Section import Section
 from flask import current_app
 import os
 from Config import appdatadir,worldmapid,version_num
+import json
 
 auth_blueprint = Blueprint('auth', __name__)
 CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
@@ -126,6 +127,7 @@ class LoginAPI(MethodView):
     """
     def post(self):
         # get the post data
+        resp = make_response()
         post_data = request.get_json()
         if post_data:
             email = post_data.get('email')
@@ -146,7 +148,7 @@ class LoginAPI(MethodView):
                     # for section in user.sections:
                     #     sectionids.append(section.sectionid)
                     #     sectionnames.append(section.sectionname)
-                    responseObject = {
+                    signinresp = {
                         'status': 'success',
                         'message': 'Successfully logged in.',
                         'auth_token': auth_token.decode(),
@@ -161,7 +163,8 @@ class LoginAPI(MethodView):
                         'version_num': version_num
                     }
                     # print('exp' + exptimestamp)
-                    return make_response(jsonify(responseObject)), 200
+                    resp.data=json.dumps(signinresp)
+                    return resp
             else:
                 responseObject = {
                     'status': 'fail',
