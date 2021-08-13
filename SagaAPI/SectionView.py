@@ -29,7 +29,7 @@ class SectionView(Resource):
                     sectionyaml = yaml.load(yml, Loader=yaml.FullLoader)
                 # print(sectionyaml)
                 sectioninfo[section] = sectionyaml
-            resp.data = json.dumps(sectioninfo)
+            resp.data = json.dumps({'sectioninfo':sectioninfo})
             return resp
         else:
             authcheckresult = self.authcheck()

@@ -4,6 +4,7 @@ from flask_restful import Api
 import os
 from SagaCore.SagaUtil import DatabaseSagaYaml
 
+
 from Config import ConfigClass, appdatadir, webserverdir , dbinitializeryamlfile
 
 db = SQLAlchemy()
@@ -34,6 +35,7 @@ def createSagaApp(test_config=None):
         from SagaAPI.MaintenanceView import MaintenanceView
         from SagaAPI.PermissionView import PermissionsView
         from SagaAPI.GeneralView import GeneralView
+        from SagaAPI.PingView import PingView
 
         # from SagaAPI.FileView import FileView
         db.create_all()
@@ -46,7 +48,6 @@ def createSagaApp(test_config=None):
         # app.add_url_rule('/',endpoint=)
         api = Api(app)
         # appdatadir = basedir
-
         api.add_resource(MailTestView, "/MAILTEST/", methods=['GET', 'POST'],resource_class_kwargs={'appdatadir': appdatadir})
         api.add_resource(ContainerView, "/CONTAINERS/<command>", methods=['GET', 'POST', 'DELETE'],
                          resource_class_kwargs={'appdatadir': appdatadir})
@@ -61,5 +62,8 @@ def createSagaApp(test_config=None):
                          resource_class_kwargs={'appdatadir': appdatadir})
         api.add_resource(GeneralView, "/GENERAL/<command>", methods=['GET', 'POST'],
                          resource_class_kwargs={'appdatadir': appdatadir, 'webserverdir':webserverdir, 'sagauserdb':sagauserdb})
+        api.add_resource(PingView, "/PING/<command>", methods=['POST'],
+                         resource_class_kwargs={'appdatadir': appdatadir, 'webserverdir':webserverdir, 'sagauserdb':sagauserdb})
+
 
         return app

@@ -238,6 +238,17 @@ class SagaOp():
         else:
             return False, 'Could not find container' + containerId, []
 
+    def PingDownstreamContainerToUpdateInputs(self, fileheader, downstreamcont:Container,curcont:Container,user:User, filetrack, commitmsg, committime):
+        self.mailsender.prepareMailDownstream(recipemail=downstreamcont.allowedUser,
+                                              fileheader=fileheader,
+                                              filetrack=filetrack, user=user, upcont=curcont,
+                                              commitmsg=commitmsg,
+                                              committime=committime,
+                                              newrevnum=downstreamcont.revnum)
+        self.mailsender.sendMail()
+
+
+
     def AdjustRelatedContainers(self, diff,curcont, newcont, sectionid):
         savenewcont = False
         for fileheader in diff['FileHeaders'].keys():

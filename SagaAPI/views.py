@@ -15,6 +15,23 @@ auth_blueprint = Blueprint('auth', __name__)
 CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
 
 
+def buildreturndata(user:User, sectionnames, sectionids, version_num):
+    return {'user_id': user.id,
+                        'email': user.email,
+                        'admin': user.admin,
+                        'registered_on': user.registered_on.timestamp(),
+                        'first_name': user.first_name,
+                        'current_sectionname': user.currentsection.sectionname,
+                        'current_sectionid': user.currentsection.sectionid,
+                        'sectionname_list':sectionnames,
+                        'sectionid_list': sectionids,
+                        'last_name': user.last_name,
+                        'version_num': version_num
+                    }
+
+
+
+
 class RegisterAPI(MethodView):
     """
     User Registration Resource
@@ -30,6 +47,7 @@ class RegisterAPI(MethodView):
     def post(self):
         # get the post data
         # post_data = request.get_json()
+        resp = make_response()
         try:
             email = request.form['email']
             password = request.form['password']
@@ -40,7 +58,8 @@ class RegisterAPI(MethodView):
                 'status': 'fail',
                 'message': 'missing either email, password, first_name, last_name ' + str(e)
             }
-            return make_response(jsonify(responseObject)), 401
+            resp.data = json.dumps(responseObject)
+            return resp, 401
         try:
             sectionid = request.form['sectionid']
         except Exception as e:
@@ -96,30 +115,25 @@ class RegisterAPI(MethodView):
                     'status': 'success',
                     'message': 'Successfully registered.',
                     'auth_token': auth_token.decode(),
-                    'useremail': user.email,
-                    'first_name': user.first_name,
-                    'current_sectionname': user.currentsection.sectionname,
-                    'current_sectionid': user.currentsection.sectionid,
-                    'sectionname_list': sectionnames,
-                    'sectionid_list': sectionids,
-                    'last_name': user.last_name,
-                    'exptimestamp':exptimestamp,
-                    'version_num': version_num
                 }
+
                 # print('exp' + exptimestamp)
-                return make_response(jsonify(responseObject)), 201
+                resp.data = json.dumps(responseObject)
+                return resp, 201
             except Exception as e:
                 responseObject = {
                     'status': 'fail',
                     'message': str(e) + '.  User Registration Failed'
                 }
-                return make_response(jsonify(responseObject)), 401
+                resp.data = json.dumps(responseObject)
+                return resp, 401
         else:
             responseObject = {
                 'status': 'fail',
                 'message': 'User already exists. Please Log in.',
             }
-            return make_response(jsonify(responseObject)), 202
+            resp.data = json.dumps(responseObject)
+            return resp, 202
 
 class LoginAPI(MethodView):
     """
@@ -152,32 +166,34 @@ class LoginAPI(MethodView):
                         'status': 'success',
                         'message': 'Successfully logged in.',
                         'auth_token': auth_token.decode(),
-                        'useremail': user.email,
-                        'first_name': user.first_name,
-                        'current_sectionname': user.currentsection.sectionname,
-                        'current_sectionid': user.currentsection.sectionid,
-                        'sectionname_list':sectionnames,
-                        'sectionid_list': sectionids,
-                        'last_name': user.last_name,
-                        'exptimestamp':exptimestamp,
-                        'version_num': version_num
+                        # 'useremail': user.email,
+                        # 'first_name': user.first_name,
+                        # 'current_sectionname': user.currentsection.sectionname,
+                        # 'current_sectionid': user.currentsection.sectionid,
+                        # 'sectionname_list':sectionnames,
+                        # 'sectionid_list': sectionids,
+                        # 'last_name': user.last_name,
+                        # 'exptimestamp':exptimestamp,
+                        # 'version_num': version_num
                     }
                     # print('exp' + exptimestamp)
                     resp.data=json.dumps(signinresp)
-                    return resp
+                    return resp , 200
             else:
                 responseObject = {
                     'status': 'fail',
                     'message': 'User does not exist.'
                 }
-                return make_response(jsonify(responseObject)), 404
+                resp.data = json.dumps(responseObject)
+                return resp , 404
         except Exception as e:
             print(e)
             responseObject = {
                 'status': 'fail',
-                'message': 'Try again'
+                'message': 'Unable to Login user. Error likely with database.'
             }
-            return make_response(jsonify(responseObject)), 500
+            resp.data = json.dumps(responseObject)
+            return resp, 500
 
 class UserAPI(MethodView):
     """
@@ -185,6 +201,7 @@ class UserAPI(MethodView):
     """
     def get(self):
         # get the auth token
+        resp = make_response()
         auth_header = request.headers.get('Authorization')
         if auth_header:
             try:
@@ -194,13 +211,14 @@ class UserAPI(MethodView):
                     'status': 'fail',
                     'message': 'Bearer token malformed.'
                 }
-                return make_response(jsonify(responseObject)), 401
+                resp.data = json.dumps(responseObject)
+                return resp, 401
         else:
             auth_token = ''
         if auth_token:
-            resp = User.decode_auth_token(auth_token)
-            if not isinstance(resp, str):
-                user = User.query.filter_by(id=resp).first()
+            userid = User.decode_auth_token(auth_token)
+            if not isinstance(userid, str):
+                user = User.query.filter_by(id=userid).first()
                 sectionids = []
                 sectionnames = []
                 for section in user.sections:
@@ -208,42 +226,35 @@ class UserAPI(MethodView):
                     sectionnames.append(section.sectionname)
                 responseObject = {
                     'status': 'success',
-                    'data': {
-                        'user_id': user.id,
-                        'email': user.email,
-                        'admin': user.admin,
-                        'registered_on': user.registered_on,
-                        'first_name': user.first_name,
-                        'current_sectionname': user.currentsection.sectionname,
-                        'current_sectionid': user.currentsection.sectionid,
-                        'sectionname_list':sectionnames,
-                        'sectionid_list': sectionids,
-                        'last_name': user.last_name,
-                        'version_num': version_num
-                    }
+                    'data': buildreturndata(user, sectionnames, sectionids, version_num),
+
                 }
-                return make_response(jsonify(responseObject)), 200
+                resp.data = json.dumps(responseObject)
+                return resp, 200
             responseObject = {
                 'status': 'fail',
-                'message': resp
+                'message': 'id not str'
             }
-            return make_response(jsonify(responseObject)), 401
+            resp.data = json.dumps(responseObject)
+            return resp, 401
         else:
             responseObject = {
                 'status': 'fail',
                 'message': 'Provide a valid auth token.'
             }
-            return make_response(jsonify(responseObject)), 401
+            resp.data = json.dumps(responseObject)
+            return resp, 401
 
     def post(self):
+        resp = make_response()
         auth_header = request.headers.get('Authorization')
         post_data = request.get_json()
-        # if 'email' in post_data.keys():
-        #     email = post_data.get('email')
-        #     password = post_data.get('password')
-        # else:
-        #     email = request.form['email']
-        #     password = request.form['password']
+        if 'email' in post_data.keys():
+            email = post_data.get('email')
+            password = post_data.get('password')
+        else:
+            email = request.form['email']
+            password = request.form['password']
         if auth_header:
             try:
                 auth_token = auth_header.split(" ")[1]
@@ -256,9 +267,9 @@ class UserAPI(MethodView):
         else:
             auth_token = ''
         if auth_token:
-            resp = User.decode_auth_token(auth_token)
-            if not isinstance(resp, str):
-                user = User.query.filter_by(id=resp).first()
+            userid = User.decode_auth_token(auth_token)
+            if not isinstance(userid, str):
+                user = User.query.filter_by(id=userid).first()
                 nonupdatedpro={}
                 if post_data['updates']:
                     for key, value in post_data['updates'].items():
@@ -268,7 +279,7 @@ class UserAPI(MethodView):
                             nonupdatedpro[key] = value
                     # print(user)
                 db.session.commit()
-                user = User.query.filter_by(id=resp).first()
+                user = User.query.filter_by(id=userid).first()
                 sectionids = []
                 sectionnames = []
                 for section in user.sections:
@@ -276,33 +287,24 @@ class UserAPI(MethodView):
                     sectionnames.append(section.sectionname)
                 responseObject = {
                     'status': 'Update success',
-                    'data': {
-                        'user_id': user.id,
-                        'email': user.email,
-                        'admin': user.admin,
-                        'registered_on': user.registered_on,
-                        'first_name': user.first_name,
-                        'current_sectionname': user.currentsection.sectionname,
-                        'current_sectionid': user.currentsection.sectionid,
-                        'sectionname_list':sectionnames,
-                        'sectionid_list': sectionids,
-                        'last_name': user.last_name,
-                        'version_num': version_num
-                    },
+                    'data': buildreturndata(user, sectionnames, sectionids),
                     'nonupdatedproperty': nonupdatedpro
                 }
-                return make_response(jsonify(responseObject)), 200
+                resp.data = json.dumps(responseObject)
+                return resp, 200
             responseObject = {
                 'status': 'fail',
                 'message': resp
             }
-            return make_response(jsonify(responseObject)), 401
+            resp.data = json.dumps(responseObject)
+            return resp, 401
         else:
             responseObject = {
                 'status': 'fail',
                 'message': 'Provide a valid auth token.'
             }
-            return make_response(jsonify(responseObject)), 401
+            resp.data = json.dumps(responseObject)
+            return resp, 500
 
 class LogoutAPI(MethodView):
     """
@@ -310,14 +312,15 @@ class LogoutAPI(MethodView):
     """
     def post(self):
         # get auth token
+        resp = make_response()
         auth_header = request.headers.get('Authorization')
         if auth_header:
             auth_token = auth_header.split(" ")[1]
         else:
             auth_token = ''
         if auth_token:
-            resp = User.decode_auth_token(auth_token)
-            if not isinstance(resp, str):
+            userid = User.decode_auth_token(auth_token)
+            if not isinstance(userid, str):
                 # mark the token as blacklisted
                 blacklist_token = BlacklistToken(token=auth_token)
                 try:
@@ -328,25 +331,29 @@ class LogoutAPI(MethodView):
                         'status': 'success',
                         'message': 'Successfully logged out.'
                     }
-                    return make_response(jsonify(responseObject)), 200
+                    resp.data = json.dumps(responseObject)
+                    return resp, 200
                 except Exception as e:
                     responseObject = {
                         'status': 'fail',
                         'message': e
                     }
-                    return make_response(jsonify(responseObject)), 200
+                    resp.data = json.dumps(responseObject)
+                    return resp, 404
             else:
                 responseObject = {
                     'status': 'fail',
                     'message': resp
                 }
-                return make_response(jsonify(responseObject)), 401
+                resp.data = json.dumps(responseObject)
+                return resp, 500
         else:
             responseObject = {
                 'status': 'fail',
                 'message': 'Provide a valid auth token.'
             }
-            return make_response(jsonify(responseObject)), 403
+            resp.data = json.dumps(responseObject)
+            return resp, 403
 
 
 

@@ -34,6 +34,10 @@ class Container:
         # self.filestomonitor =filestomonitor
         self.revnum =revnum
         self.refframefilepath =refframefilepath
+        try: ### ATTENTION
+            self.refframe = Frame.loadFramefromYaml(refframefilepath, self.containerworkingfolder)
+        except:
+            self.refframe = None
         self.workingFrame= workingFrame
         self.description = description
 
@@ -359,10 +363,6 @@ class Container:
                     #     if not found:
                     #         print(self.containerId + ' ID with name ' + self.containerName + ' and ' + str(
                     #             revnum) + ' has ' + fileheader + ' has broken Input and cannot match to upstream md5')
-
-
-
-
 
 
 def recursivecompare(dict1, dict2):
