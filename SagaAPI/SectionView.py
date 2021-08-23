@@ -90,12 +90,20 @@ class SectionView(Resource):
                 user.currentsection = section
                 user.sections.append(section)
                 db.session.commit()
-                resp.data = json.dumps(newsection)
-                resp.headers['status'] = 'New Section ' + section_name+ ' Created with ' + newsectionid
+                newdictionresp = {
+                    'status':'New Section ' + section_name+ ' Created with ' + newsectionid,
+                    'newsectionsuccess':True,
+                    'newsection':newsection
+                }
+                resp.data = json.dumps(newdictionresp)
                 return resp
             except Exception as e:
-                resp.headers['status'] = 'New Section commit Failed'
-                resp.headers['exception'] = e.__str__()
+                newdictionresp = {
+                    'status': e.__str__(),
+                    'newsectionsuccess': False,
+                    'newsection': {}
+                }
+                resp.data = json.dumps(newdictionresp)
                 return resp
 
 

@@ -39,7 +39,7 @@ class PingView(Resource):
         if command=='PingContainerToUpdateInputs':
             fileheader = request.form['fileheader']
             upstreamcontid = request.form['downstreamcontainerid']
-            downstreamid =    request.form['upstreamcontainerid']
+            downstreamid = request.form['upstreamcontainerid']
             upstreamcont = Container.LoadContainerFromYaml(
                 safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, upstreamcontid, 'containerstate.yaml'))
             downstreamcont = Container.LoadContainerFromYaml(
