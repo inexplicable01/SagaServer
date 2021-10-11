@@ -64,28 +64,7 @@ class RegisterAPI(MethodView):
             sectionid = request.form['sectionid']
         except Exception as e:
             sectionid = worldmapid
-            # return make_response(jsonify(responseObject)), 401
-        # if 'sectionname' in request.form.keys():
-        #     ## User wants to make a new section
-        #     section_name = request.form['sectionname']
-        #     description = request.form['sectiondescription']
-        #     newsection = Section.CreateNewSection(section_name, description=description)
-        #     sectionid = newsection.sectionid
-        #     section_name = newsection.sectionname
-        #
-        # elif 'sectionid' in request.form.keys():
-        #     sectionid = request.form['sectionid']
-        #     sectionyaml = os.path.join(basedir, CONTAINERFOLDER, sectionid, 'sectionstate.yaml')
-        #     cursection = Section.LoadSectionyaml(sectionyaml)
-        #     section_name = cursection.sectionname
-        # else:
-        #     responseObject = {
-        #         'status': 'fail',
-        #         'message': 'Section definitions were not done well '
-        #     }
-        #     return make_response(jsonify(responseObject)), 401
-        ## this is not consistent with the website registration, additional work is needed for better seperation of concern
-        # sectionid = worldmapid
+
         sectionyaml = os.path.join(appdatadir, CONTAINERFOLDER, sectionid, 'sectionstate.yaml')
         cursection = Section.LoadSectionyaml(sectionyaml)
         section_name = cursection.sectionname
@@ -173,7 +152,7 @@ class LoginAPI(MethodView):
                         # 'sectionname_list':sectionnames,
                         # 'sectionid_list': sectionids,
                         # 'last_name': user.last_name,
-                        # 'exptimestamp':exptimestamp,
+                        'exptimestamp':exptimestamp,
                         # 'version_num': version_num
                     }
                     # print('exp' + exptimestamp)
