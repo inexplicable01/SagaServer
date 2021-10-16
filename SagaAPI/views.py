@@ -94,6 +94,7 @@ class RegisterAPI(MethodView):
                     'status': 'success',
                     'message': 'Successfully registered.',
                     'auth_token': auth_token.decode(),
+                    'exptimestamp': exptimestamp,
                 }
 
                 # print('exp' + exptimestamp)
@@ -206,7 +207,6 @@ class UserAPI(MethodView):
                 responseObject = {
                     'status': 'success',
                     'data': buildreturndata(user, sectionnames, sectionids, version_num),
-
                 }
                 resp.data = json.dumps(responseObject)
                 return resp, 200

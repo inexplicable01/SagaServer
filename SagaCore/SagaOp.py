@@ -70,6 +70,9 @@ class SagaOp():
                     else:
                         upstreamCont.FileHeaders[fileheader]['Container'] = [
                             upstreamCont.FileHeaders[fileheader]['Container'], newcont.containerId]
+
+                    newcont.workingFrame.filestrack[fileheader].lastupdated = 'Rev1'
+
                     upstreamCont.save(environ='Server',
                                       outyamlfn=os.path.join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid,
                                                              'containerstate.yaml'))
@@ -83,6 +86,7 @@ class SagaOp():
                 newcont.workingFrame.filestrack[fileheader].committedby = user.email
                 newcont.workingFrame.filestrack[fileheader].style = 'Required'
                 newcont.workingFrame.filestrack[fileheader].commitUTCdatetime = committime
+                newcont.workingFrame.filestrack[fileheader].lastupdated = 'Rev1'
                 with open(os.path.join(self.appdatadir, FILEFOLDER,md5),'wb') as file:
                     file.write(content)
 
@@ -93,6 +97,8 @@ class SagaOp():
                                              'containerstate.yaml'))
             newcont.workingFrame.commitUTCdatetime = committime
             newcont.workingFrame.FrameInstanceId = uuid.uuid4().__str__()
+            newcont.workingFrame.parentcontainerid = newcont.containerId
+            newcont.workingFrame.parentcontainername = newcont.containerName
             newcont.workingFrame.writeoutFrameYaml( \
                 safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, newcont.containerId, 'Main', 'Rev1.yaml'))
 

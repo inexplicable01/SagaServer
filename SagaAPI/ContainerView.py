@@ -56,6 +56,7 @@ class ContainerView(Resource):
                 resp.headers['branch'] = branch
                 resp.headers['revnum'] = str(revnum)
                 resp.data = json.dumps({
+                    "response":'Container Retrieved',
                     'containerdict':  cont.dictify(),
                     'fullframelist':cont.fullFrameHistory(),
                 })
