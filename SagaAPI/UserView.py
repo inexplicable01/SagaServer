@@ -38,7 +38,7 @@ class UserView(Resource):
             for containerid in os.listdir(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid)):
                 containerfn = safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml')
                 if os.path.exists(containerfn):
-                    curcont = Container.LoadContainerFromYaml(containerfn)
+                    curcont = Container.LoadContainerFromYaml(containerfn, sectionid)
                     usercontainerinfo['usercontainers'][containerid] = curcont.containerName
             # resp.data = json.dumps(usercontainerinfo)
             return make_response(jsonify(usercontainerinfo))

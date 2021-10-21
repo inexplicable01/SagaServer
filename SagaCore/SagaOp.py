@@ -64,7 +64,7 @@ class SagaOp():
                 if filecon['type'] == typeInput:
                     containerid = filecon['Container']
                     upstreamCont = Container.LoadContainerFromYaml(
-                        os.path.join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml'))
+                        os.path.join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml'), sectionid)
                     if type(upstreamCont.FileHeaders[fileheader]['Container']) is list:
                         upstreamCont.FileHeaders[fileheader]['Container'].append(newcont.containerId)
                     else:
@@ -153,7 +153,7 @@ class SagaOp():
                             for downcontainerid in newcont.FileHeaders[fileheader]['Container']:
                                 downstreamcont = Container.LoadContainerFromYaml(
                                     safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, downcontainerid,
-                                              'containerstate.yaml'))
+                                              'containerstate.yaml'), sectionid)
                                 self.mailsender.prepareMailDownstream(recipemail=downstreamcont.allowedUser,
                                                        fileheader=fileheader,
                                                        filetrack=filetrack, user=user, upcont=curcont,
@@ -212,10 +212,9 @@ class SagaOp():
 
     ##Expected to return result, ServerMessage, allowedUser
     def AddUserToContainer(self,user, containerId, new_email, sectionid):
-        contpath = os.path.join(
-            os.path.join(self.appdatadir, CONTAINERFOLDER, sectionid, containerId, 'containerstate.yaml'))
+        contpath = os.path.join(self.appdatadir, CONTAINERFOLDER, sectionid, containerId, 'containerstate.yaml')
         if os.path.exists(contpath):
-            cont = Container.LoadContainerFromYaml(contpath)
+            cont = Container.LoadContainerFromYaml(contpath, sectionid)
             if user.email in cont.allowedUser:
                 addeduser = User.query.filter(User.email == new_email).first() ## Does User Exist?
                 cursection = Section.query.filter(Section.sectionid == sectionid).first()
@@ -264,7 +263,7 @@ class SagaOp():
                     print('Added new Input.  containerID needs an output update.  An Output update means add cont')
                     upstreamcontainerid = newcont.FileHeaders[fileheader]['Container']
                     upstreamcont = Container.LoadContainerFromYaml(
-                        safe_join(self.appdatadir, CONTAINERFOLDER,sectionid, upstreamcontainerid, 'containerstate.yaml'))
+                        safe_join(self.appdatadir, CONTAINERFOLDER,sectionid, upstreamcontainerid, 'containerstate.yaml'), sectionid)
                     upstreamcont.FileHeaders[fileheader]['Container'].append(curcont.containerId)
                     upstreamcont.save('Server', safe_join(self.appdatadir, CONTAINERFOLDER,sectionid, upstreamcontainerid, 'containerstate.yaml'))
                 elif newcont.FileHeaders[fileheader]['type'] == typeRequired:
@@ -279,7 +278,7 @@ class SagaOp():
                     print('Removed in  Input.  upstreamcontainerid needs an output update.  An Output update means remove cont')
                     upstreamcontainerid = curcont.FileHeaders[fileheader]['Container']
                     upstreamcont = Container.LoadContainerFromYaml(
-                        safe_join(self.appdatadir, CONTAINERFOLDER, sectionid,upstreamcontainerid, 'containerstate.yaml'))
+                        safe_join(self.appdatadir, CONTAINERFOLDER, sectionid,upstreamcontainerid, 'containerstate.yaml'), sectionid)
                     if curcont.containerId in upstreamcont.FileHeaders[fileheader]['Container']:
                         upstreamcont.FileHeaders[fileheader]['Container'].remove(curcont.containerId)
                     upstreamcont.save('Server', safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, upstreamcontainerid, 'containerstate.yaml'))
@@ -293,7 +292,7 @@ class SagaOp():
                     downcontstr=''
                     for downcontainerid in downcontaineridlist:# check if downstreamcontainer already has
                         downstreamcont = Container.LoadContainerFromYaml(
-                            safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, downcontainerid, 'containerstate.yaml'))
+                            safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, downcontainerid, 'containerstate.yaml'), sectionid)
                         if fileheader in downstreamcont.FileHeaders.keys():
                             fileheaderremovedready = False
                             downcontstr=downcontstr+downstreamcont.containerName+' '

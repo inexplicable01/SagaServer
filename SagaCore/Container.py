@@ -23,7 +23,7 @@ blankcontainer = {'containerName':"" ,'containerId':"",'FileHeaders': {} ,'allow
 
 class Container:
     def __init__(self, containerworkingfolder,containerName,containerId,
-                 FileHeaders,allowedUser,currentbranch,revnum,refframefilepath,description,
+                 FileHeaders,allowedUser,currentbranch,revnum,refframefilepath,description,parentid,
                  workingFrame: Frame):
         self.containerworkingfolder = containerworkingfolder
         self.containerName = containerName
@@ -40,9 +40,10 @@ class Container:
             self.refframe = None
         self.workingFrame= workingFrame
         self.description = description
+        self.parentid=parentid
 
     @classmethod
-    def LoadContainerFromDict(cls, containerdict, currentbranch='Main',revnum='', environ='FrontEnd', sectionid=''):
+    def LoadContainerFromDict(cls, containerdict, sectionid, currentbranch='Main',revnum='', environ='FrontEnd'):
         # containeryaml = containerdict
 
         if environ=='FrontEnd':
@@ -64,32 +65,36 @@ class Container:
                                                parentcontainername=containerdict['containerName'])
         if 'description' not in containerdict.keys():
             containerdict['description'] = 'Need Description'
+        if 'parentid' not in containerdict.keys():
+            containerdict['parentid'] = sectionid
         container = cls(containerworkingfolder=containerworkingfolder,
                            containerName=containerdict['containerName'],
                            containerId=containerdict['containerId'],
                            FileHeaders=FileHeaders,
                            allowedUser=containerdict['allowedUser'],
+                            parentid=containerdict['parentid'],
                            currentbranch=currentbranch, revnum=revnum,
                            refframefilepath=refframefilepath, workingFrame=workingFrame, description=containerdict['description'])
         container.FixConnections()
         return container
 
-    @classmethod
-    def InitiateContainer(cls, containerName, localdir):
-        containerid = uuid.uuid4().__str__()
-        newcontainer = cls(containerworkingfolder=localdir,
-                           containerName=containerName,
-                           containerId=containerid,
-                           FileHeaders={},
-                           allowedUser=[],
-                           currentbranch="Main",revnum='1',
-                           refframefilepath='dont have one yet',
-                           workingFrame = Frame.InitiateFrame(parentcontainerid=containerid, parentcontainername=containerName, localdir=localdir),
-                           description='')
-        return newcontainer
+    # @classmethod
+    # def InitiateContainer(cls, containerName, localdir):
+    #     containerid = uuid.uuid4().__str__()
+    #     newcontainer = cls(containerworkingfolder=localdir,
+    #                        containerName=containerName,
+    #                        containerId=containerid,
+    #                        FileHeaders={},
+    #                        allowedUser=[],
+    #                        currentbranch="Main",revnum='1',
+    #                        refframefilepath='dont have one yet',
+    #                        workingFrame = Frame.InitiateFrame(parentcontainerid=containerid, parentcontainername=containerName, localdir=localdir),
+    #                        description='')
+    #     return newcontainer
 
     @classmethod
-    def LoadContainerFromYaml(cls, containerfn, currentbranch='Main',revnum=''):
+    def LoadContainerFromYaml(cls, containerfn,sectionid,  currentbranch='Main',revnum='', ):
+        needtosave=False
         containerworkingfolder = os.path.dirname(containerfn)
         with open(containerfn) as file:
             containeryaml = yaml.load(file, Loader=yaml.FullLoader)
@@ -108,15 +113,21 @@ class Container:
             workingFrame = Frame.InitiateFrame()
         if 'description' not in containeryaml.keys():
             containeryaml['description'] = 'Need Description'
+        if 'parentid' not in containeryaml.keys():
+            containeryaml['parentid'] = sectionid
+            needtosave=True
         container = cls(containerworkingfolder=containerworkingfolder,
                            containerName=containeryaml['containerName'],
                            containerId=containeryaml['containerId'],
                            FileHeaders=FileHeaders,
                            allowedUser=containeryaml['allowedUser'],
+                            parentid=containeryaml['parentid'],
                            currentbranch=currentbranch, revnum=revnum,
                            refframefilepath=refframefilepath, workingFrame=workingFrame,
                         description=containeryaml['description'])
-        container.FixConnections()
+        if needtosave:
+            container.save()
+        # container.FixConnections()
         return container
 
     def CommitNewContainer(self, commitmessage,authtoken,BASE, client=None):
@@ -276,7 +287,7 @@ class Container:
 
     def dictify(self):
         dictout = {}
-        keytosave = ['containerName', 'containerId', 'FileHeaders', 'allowedUser', 'description']
+        keytosave = ['containerName', 'containerId', 'FileHeaders', 'allowedUser', 'description', 'parentid']
         for key, value in vars(self).items():
             if key in keytosave:
                 dictout[key] = value

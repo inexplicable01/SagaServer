@@ -75,13 +75,14 @@ def syncFromServer(authtoken):
                             fn = os.path.join(os.path.join(appdatadir,'Files',filetrack.md5))
                             if response.headers['status'] == 'Success':
                                 open(fn, 'wb').write(response.content)
+                                os.utime(fn, (filetrack.lastEdited, filetrack.lastEdited))
                             else:
                                 # open(fn, 'w').write('Terrible quick bug fix')
                                 # There should be a like a nuclear warning here is this imples something went wrong with the server and the frame bookkeeping system
                                 # This might be okay meanwhile as this is okay to break during dev but not during production.
                                 # print('could not find file ' + filetrack.md5 + ' on server')
                                 warnings.warn('cannot find file ' + filetrack.file_name + ' with ' + filetrack.md5)
-                            os.utime(fn, (filetrack.lastEdited, filetrack.lastEdited))
+
 
 
 

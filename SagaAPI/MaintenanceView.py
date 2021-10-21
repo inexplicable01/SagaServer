@@ -34,7 +34,7 @@ class MaintenanceView(Resource):
                 for containerid in os.listdir(join(self.appdatadir, CONTAINERFOLDER,sectionid)):
                     yamlfn = join(self.appdatadir, CONTAINERFOLDER,sectionid, containerid, 'containerstate.yaml')
                     if os.path.exists(yamlfn):
-                        cont = Container.LoadContainerFromYaml(yamlfn)
+                        cont = Container.LoadContainerFromYaml(yamlfn, sectionid)
                         print(cont.containerId)
                         yamllist = glob.glob(join(self.appdatadir, CONTAINERFOLDER,sectionid, containerid,'Main', 'Rev*.yaml'))
                         for yamlframefn in yamllist:
@@ -80,13 +80,12 @@ class MaintenanceView(Resource):
                 sectfn = join(self.appdatadir, CONTAINERFOLDER, sectionid, 'sectionstate.yaml')
                 if os.path.exists(sectfn):
                     sect = Section.LoadSectionyaml(sectfn)
-
                     dictinfo[sectionid] = {'sectiondict':sect.dictify(), 'sectioncondtiondict': {}}
 
                     for containerid in os.listdir(join(self.appdatadir, CONTAINERFOLDER, sectionid)):
                         yamlfn = join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml')
                         if os.path.exists(yamlfn):
-                            cont = Container.LoadContainerFromYaml(yamlfn)
+                            cont = Container.LoadContainerFromYaml(yamlfn, sectionid)
                             dictinfo[sectionid]['sectioncondtiondict'][containerid] = {
                                 'contdict':cont.dictify(),
                             'framelist':{}
@@ -113,6 +112,17 @@ class MaintenanceView(Resource):
             resp.headers["response"] = "FullSectionList"
             resp.data = json.dumps(dictinfo)
             return resp
+        elif command=='updateallcontainers':
+            for sectionid in os.listdir(join(self.appdatadir, CONTAINERFOLDER)):
+                sectfn = join(self.appdatadir, CONTAINERFOLDER, sectionid, 'sectionstate.yaml')
+                if os.path.exists(sectfn):
+                    sect = Section.LoadSectionyaml(sectfn)
+                    for containerid in os.listdir(join(self.appdatadir, CONTAINERFOLDER, sectionid)):
+                        yamlfn = join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml')
+                        if os.path.exists(yamlfn):
+                            cont = Container.LoadContainerFromYaml(yamlfn, sectionid)
+
+
 
 
 
@@ -160,7 +170,7 @@ class MaintenanceView(Resource):
                         localcont = Container.LoadContainerFromDict(containerdict['contdict'], environ='Server',
                                                                sectionid=sectionid)
                         if os.path.exists(join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid,'containerstate.yaml')):
-                            servercont = Container.LoadContainerFromYaml(join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid,'containerstate.yaml'))
+                            servercont = Container.LoadContainerFromYaml(join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid,'containerstate.yaml'), sectionid)
                         else:
                             try:
                                 os.mkdir(join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid))

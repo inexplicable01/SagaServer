@@ -28,7 +28,7 @@ def details():
         for containerid in os.listdir(safe_join(appdatadir, CONTAINERFOLDER, sectionid)):
             containerfn = safe_join(appdatadir, CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml')
             if os.path.exists(containerfn):
-                curcont = Container.LoadContainerFromYaml(containerfn)
+                curcont = Container.LoadContainerFromYaml(containerfn, sectionid)
                 containerinfolist[containerid] = {'ContainerDescription': curcont.containerName,
                                                   'branches': []}
                 for branch in os.listdir(safe_join(appdatadir, CONTAINERFOLDER, sectionid, containerid)):

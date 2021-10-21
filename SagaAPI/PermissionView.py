@@ -40,7 +40,7 @@ class PermissionsView(Resource):
             for user in sectionUser:
                 userlist.append(user.printinfo())
             if os.path.exists(contpath):
-                cont=Container.LoadContainerFromYaml(contpath)
+                cont=Container.LoadContainerFromYaml(contpath, sectionid)
                 resp.data = json.dumps({'allowedUser':cont.allowedUser, 'sectionUser':userlist})
             else:
                 resp.data = json.dumps({'allowedUser': [],

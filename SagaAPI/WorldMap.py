@@ -11,7 +11,7 @@ def checkworldmapconnections():
         print('============================================')
         print('Checking ' + containerid)
         print('============================================')
-        curcont = Container.LoadContainerFromYaml(os.path.join(appdatadir, 'Container', containerid, 'containerstate.yaml'))
+        curcont = Container.LoadContainerFromYaml(os.path.join(appdatadir, 'Container', containerid, 'containerstate.yaml'), sectionid)
         for fileheader, value in curcont.FileHeaders.items():
             print(fileheader)
             if value['type']==typeInput:

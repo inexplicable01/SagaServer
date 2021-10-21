@@ -49,7 +49,8 @@ class SagaOperationsView(Resource):
                 branch = request.form['branch']
                 updateinfo = json.loads(request.form['updateinfo'])
                 commitmsg = request.form['commitmsg']
-                curcont = Container.LoadContainerFromYaml(safe_join(self.appdatadir, CONTAINERFOLDER,  sectionid, containerID, 'containerstate.yaml'))
+                curcont = Container.LoadContainerFromYaml(
+                    safe_join(self.appdatadir, CONTAINERFOLDER,  sectionid, containerID, 'containerstate.yaml'), sectionid)
                 # containerdict = json.loads(request.form['containerdictjson'])
                 # newcont = Container.LoadContainerFromDict(containerdict)
                 if user.email not in curcont.allowedUser:

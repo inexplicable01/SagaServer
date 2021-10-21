@@ -51,7 +51,7 @@ class ContainerView(Resource):
             if os.path.exists(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid, containerID)):
                 latestrevfn, revnum = self.latestRev(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid, containerID, branch))
                 # result = send_from_directory(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid, containerID), 'containerstate.yaml' )
-                cont = Container.LoadContainerFromYaml(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid, containerID, 'containerstate.yaml'))
+                cont = Container.LoadContainerFromYaml(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid, containerID, 'containerstate.yaml'), sectionid)
                 resp.headers['file_name'] = 'containerstate.yaml'
                 resp.headers['branch'] = branch
                 resp.headers['revnum'] = str(revnum)
@@ -70,7 +70,7 @@ class ContainerView(Resource):
             for containerid in os.listdir(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid)):
                 if not os.path.exists(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid,containerid,'containerstate.yaml')):
                     continue
-                curcont = Container.LoadContainerFromYaml(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid,containerid,'containerstate.yaml'))
+                curcont = Container.LoadContainerFromYaml(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid,containerid,'containerstate.yaml'), sectionid)
                 containerinfolist[containerid] = {'ContainerDescription': curcont.containerName,
                                          'branches':[],
                                                   'containerdict':curcont.dictify()}
@@ -108,7 +108,7 @@ class ContainerView(Resource):
                 return resp
             # framefullpath, latestrevnum = getFramebyRevnum(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, maincontainerid, 'Main'),0)
             filepath = safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, maincontainerid, 'containerstate.yaml')
-            cont = Container.LoadContainerFromYaml(filepath)
+            cont = Container.LoadContainerFromYaml(filepath, sectionid)
             newestframedict= {'framedict':cont.workingFrame.dictify(),
                                   'newestrevnum':cont.revnum
             }

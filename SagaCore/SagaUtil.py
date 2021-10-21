@@ -58,7 +58,7 @@ class DatabaseSagaYaml():
             self.users = dbdict['users']
             self.sectionids = dbdict['sectionids']
         except Exception as e:
-            warnings.warn('unable to load dbyaml file')
+            warnings.warn('unable to load dbyaml file' + e.__str__())
 
         # for ind,sectionid in enumerate(basesectionids):
         #     self.sectionids[sectionid] = basesectiondescrip[ind]

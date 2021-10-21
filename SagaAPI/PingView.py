@@ -41,9 +41,9 @@ class PingView(Resource):
             upstreamcontid = request.form['downstreamcontainerid']
             downstreamid = request.form['upstreamcontainerid']
             upstreamcont = Container.LoadContainerFromYaml(
-                safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, upstreamcontid, 'containerstate.yaml'))
+                safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, upstreamcontid, 'containerstate.yaml'), sectionid)
             downstreamcont = Container.LoadContainerFromYaml(
-                safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, downstreamid, 'containerstate.yaml'))
+                safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, downstreamid, 'containerstate.yaml'), sectionid)
             self.sagaop.PingDownstreamContainerToUpdateInputs( fileheader=fileheader,
                                                                 downstreamcont=downstreamcont ,
                                                                curcont=upstreamcont, user=user, filetrack=upstreamcont.refframe.filestrack[fileheader],
