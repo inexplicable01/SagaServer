@@ -1,6 +1,6 @@
 
 from SagaAPI import db
-from Config import ConfigClass, SECTIONNAMEHOLDER, SECTIONDIDHOLDER
+from Config import ConfigClass
 from flask_sqlalchemy import SQLAlchemy
 import jwt
 import datetime
@@ -36,12 +36,12 @@ class User(db.Model,UserMixin):
     # section_name = db.Column(db.String(100, collation='NOCASE'), nullable=False, server_default='')
     # currentsectionid = db.Column(db.String(100))
 
-    currentsection_id = db.Column(db.Integer, db.ForeignKey('sections.id', ondelete='CASCADE'))
-    currentsection = db.relationship("Section", foreign_keys=[currentsection_id])
+    currentsection_id = db.Column(db.Integer, db.ForeignKey('sectiondbs.id', ondelete='CASCADE'))
+    currentsection = db.relationship("SectionDB", foreign_keys=[currentsection_id])
 
     # Define the relationship to Role via UserRoles
     roles = db.relationship('Role', secondary='user_roles')
-    sections = db.relationship('Section', secondary='user_sections')
+    sections = db.relationship('SectionDB', secondary='user_sections')
 
     def __init__(self, email, password, sectionids=[worldmapid], first_name='default',
                  last_name='Lee',admin=False,roles=['Agent'], currentsection_id=worldmapid):
@@ -60,11 +60,11 @@ class User(db.Model,UserMixin):
             else:
                 warnings.warn('There is a role name that is not consistent between list and user')
 
-        curentsect = Section.query.filter(Section.sectionid == currentsection_id).first()
+        curentsect = SectionDB.query.filter(SectionDB.sectionid == currentsection_id).first()
         self.currentsection = curentsect
 
         for ind, sectionid in enumerate(sectionids):
-            sect = Section.query.filter(Section.sectionid == sectionid).first()
+            sect = SectionDB.query.filter(SectionDB.sectionid == sectionid).first()
             if sect:
                 self.sections.append(sect)
                 # self.currentsectionid=usersection.sectionid
@@ -112,18 +112,23 @@ class User(db.Model,UserMixin):
             return 'Invalid token. Please log in again.'
 
     def switchToSection(self, sectionid):
-        usersection = Section.query.filter(Section.sectionid == sectionid).first()
-        if usersection:
-            for section in self.sections:
-                if sectionid == section.sectionid:
-                    self.currentsection = usersection
-                    return {'status': 'User Current Section successfully changed'}
-            return {'status': sectionid + ' not a part of the users allowed sections. Request Ignored.'}
+        section = SectionDB.query.filter(SectionDB.sectionid == sectionid).first()
+        if section is None:
+            return False, 'Sectionid ' + sectionid + ' does not exist. Request Ignored.'
+
+        us = UserSections.query.filter(SectionDB.sectionid == sectionid, User.id==self.id).first()
+        if us:
+            self.currentsection = section
+            return True, 'User Current Section successfully changed'
         else:
-            return {'status':'Sectionid '+ sectionid + ' does not exist. Request Ignored.'}
+            return True, sectionid + ' not a part of the users allowed sections. Request Ignored.'
+
+
+
+
 
     def isInSection(self, sectionid):
-        usersection = Section.query.filter(Section.sectionid == sectionid).first()
+        usersection = SectionDB.query.filter(SectionDB.sectionid == sectionid).first()
         for section in self.sections:
             if sectionid == section.sectionid:
                 return True
@@ -148,10 +153,10 @@ class UserSections(db.Model):
     __tablename__ = 'user_sections'
     user_sectionid = db.Column(db.Integer(), primary_key=True)
     user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'))
-    section_id = db.Column(db.Integer(), db.ForeignKey('sections.id', ondelete='CASCADE'))
+    section_id = db.Column(db.Integer(), db.ForeignKey('sectiondbs.id', ondelete='CASCADE'))
 
-class Section(db.Model):
-    __tablename__ = 'sections'
+class SectionDB(db.Model):
+    __tablename__ = 'sectiondbs'
     id = db.Column(db.Integer(), primary_key=True)
     # children = db.relationship("User")
     users = db.relationship("User")

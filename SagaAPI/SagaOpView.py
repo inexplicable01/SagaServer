@@ -5,13 +5,14 @@ from SagaCore.Container import Container
 from SagaDB.UserModel import User
 from flask import current_app
 import json
-from Config import typeInput, typeOutput, typeRequired
+from SagaCore import roleInput, roleOutput, roleRequired
 from SagaAPI.SagaAPI_Util import authcheck
-from SagaCore.Frame import Frame
+# from SagaCore.Frame import Frame
 import shutil
 from datetime import datetime
 import traceback
-from SagaCore.SagaOp import SagaOp
+
+# from SagaServerOperations.SagaServerContainerOperations import ContainerServerSave
 
 Rev='Rev'
 CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
@@ -19,9 +20,9 @@ FILEFOLDER = current_app.config['FILEFOLDER']
 
 class SagaOperationsView(Resource):
 
-    def __init__(self, appdatadir):
+    def __init__(self, appdatadir, sagacontroller):
         self.appdatadir = appdatadir
-        self.sagaop = SagaOp(appdatadir)
+        self.sagacontroller = sagacontroller
 
     def post(self, command=None):
         authcheckresult = authcheck(request.headers.get('Authorization'))
@@ -37,56 +38,60 @@ class SagaOperationsView(Resource):
             if command == "newContainer":
                 containerdict = json.loads(request.form['containerdictjson'])
                 framedict = json.loads(request.form['framedictjson'])
-                result = self.sagaop.newContainer(containerdict,framedict,sectionid,request.files,user)
-
-                resp.headers["response"] = result["message"]
-                if result["data"]:
-                    resp.data = result["data"]
+                updateinfo = json.loads(request.form['updateinfo'])
+                message, containerdict, framedict = self.sagacontroller.newContainerToModel(containerdict,framedict,sectionid,request.files,user,updateinfo)
+                resp.data = json.dumps({
+                        'success':True,
+                        'message':message,
+                        'failmessage':'',
+                        'e':None,
+                        'containerdictjson':containerdict,
+                        'framedictjson':framedict,
+                    })
                 return resp
 
             elif command == "commit":
-                containerID = request.form.get('containerID')
+                containerid = request.form.get('containerID')
                 branch = request.form['branch']
                 updateinfo = json.loads(request.form['updateinfo'])
                 commitmsg = request.form['commitmsg']
-                curcont = Container.LoadContainerFromYaml(
-                    safe_join(self.appdatadir, CONTAINERFOLDER,  sectionid, containerID, 'containerstate.yaml'), sectionid)
-                # containerdict = json.loads(request.form['containerdictjson'])
-                # newcont = Container.LoadContainerFromDict(containerdict)
-                if user.email not in curcont.allowedUser:
-                    responseObject = {
-                            'status': 'fail',
-                            'message': 'User  is not allowed to commit to this Container'
-                        }
-                    return make_response(jsonify(responseObject)), 401
                 containerdict= json.loads(request.form['containerdictjson'])
-                newcont = Container.LoadContainerFromDict(containerdict=containerdict, environ='Server', sectionid=sectionid)
                 framedict = json.loads(request.form['framedictjson'])
-                commitframe = Frame.LoadFrameFromDict(framedict)
-                # mailsender = MailSender()
-                commitreport = self.sagaop.commit(curcont,newcont, user , sectionid, commitframe, commitmsg, updateinfo, request.files)
 
-                if commitreport['commitsuccess']:
-                    commitresponse = send_from_directory(
-                        safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, curcont.containerId, branch),
-                        commitreport['newrevfn'])
-                    commitresponse.headers['file_name'] = commitreport['newrevfn']
-                    commitresponse.headers['branch'] = 'Main'
-                    commitresponse.headers['commitsuccess'] = commitreport['commitsuccess']
-                    return commitresponse
+                success, commitreport = self.sagacontroller.commitNextFrameToModel(containerid,framedict,containerdict, user , sectionid, commitmsg, updateinfo, request.files)
+
+                if success:
+                    # commitresponse = send_from_directory(
+                    #     safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid, branch),
+                    #     commitreport['newrevfn'])
+                    resp.data = json.dumps({
+                        'success':success,
+                        'yamlframefn': commitreport['newrevfn'],
+                        'framecontent': commitreport['framecontent'],
+                        'message':'', 'failmessage':'', 'e':None
+                    })
+                    return resp
                 else:
-                    responseObject = {
-                        'status': 'fail',
-                        'message': 'Commit Failed'
-                    }
-                    return make_response(jsonify(responseObject))
+                    resp.data = json.dumps({
+                        'success':False,
+                        'yamlframefn': commitreport['newrevfn'],
+                        'framecontent': commitreport['framecontent'],
+                        'message': '', 'failmessage': '', 'e': None
+                    })
+                    return resp, 401
 
+            elif command == "makechildcontainer":
+                parentcontainerid = request.form.get('parentcontainerid')
+                childcontaineritemrole = request.form.get('childcontaineritemrole')
+                childcontainername = request.form.get('childcontainername')
+                childcontainerdescription= request.form.get('childcontainerdescription')
 
+                self.sagacontroller.createChildContainer(sectionid,parentcontainerid,
+                                                 childcontaineritemrole, childcontainername,
+                                                 childcontainerdescription)
             elif command == "deleteContainer":
                     containerId = request.form['containerId']
-                    delCont = Container.LoadContainerFromYaml(
-                        os.path.join(self.appdatadir, CONTAINERFOLDER, sectionid, containerId, 'containerstate.yaml'))
-
+                    delCont = self.sagacontroller.provideContainer(sectionid,containerId)
                     if user.email not in delCont.allowedUser:
                         responseObject = {
                             'status': 'fail',
@@ -96,20 +101,16 @@ class SagaOperationsView(Resource):
 
                     if os.path.exists(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid,containerId)):
                         for fileheader, filecon in delCont.FileHeaders.items():
-                            if filecon['type'] == typeOutput:
+                            if filecon['type'] == roleOutput:
                                 for containerid in filecon['Container']:
-                                    downstreamCont = Container.LoadContainerFromYaml(
-                                        os.path.join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid,
-                                                     'containerstate.yaml'))
+                                    downstreamCont = self.sagacontroller.provideContainer(sectionid,containerid)
                                     downstreamCont.FileHeaders.pop(fileheader, None)
                                     downstreamCont.save(environ='Server',
                                                         outyamlfn=os.path.join(self.appdatadir, CONTAINERFOLDER, sectionid,
                                                                                containerid, 'containerstate.yaml'))
-                            elif filecon['type'] == typeInput:
+                            elif filecon['type'] == roleInput:
                                 containerid = filecon['Container']
-                                upstreamcont = Container.LoadContainerFromYaml(
-                                    os.path.join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid,
-                                                 'containerstate.yaml'))
+                                upstreamcont = self.sagacontroller.provideContainer(sectionid,containerid)
                                 if delCont.containerId in upstreamcont.FileHeaders[fileheader]['Container']:
                                     upstreamcont.FileHeaders[fileheader]['Container'].remove(delCont.containerId)
 
@@ -133,10 +134,10 @@ class SagaOperationsView(Resource):
                 errorfile.write(datetime.utcnow().isoformat() + 'Tracebacj' + traceback.format_exc() + '\n')
                 errorfile.write('\n')
             responseObject = {
-                'status': 'fail',
+                'success': 'fail',
                 'message': str(e),
-                'ErrorType':str(e),
-                'traceback': traceback.format_exc()
+                'traceback': traceback.format_exc(),
+                'failmessage':'Failed!', 'e':e
             }
 
             return make_response(jsonify(responseObject))

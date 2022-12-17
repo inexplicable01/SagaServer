@@ -1,4 +1,4 @@
-from SagaDB.UserModel import User, Role, Section
+from SagaDB.UserModel import User, Role, SectionDB
 from SagaDB.FileRecordModel import FileRecord
 
 worldmapid = 'fc925b23-30b8-4d77-9310-289b85ef8eb0'
@@ -37,8 +37,8 @@ CADDemoname,ManufacturingDemoname,MovieDemoname,ArchitectDemoname,AccountingDemo
 
 def InitBase(db, sagauserdb):
     for sectionnum, sectiondetails in sagauserdb.sectionids.items():
-        if not Section.query.filter(Section.sectionid == sectiondetails['sectionid']).first():
-            section = Section(
+        if not SectionDB.query.filter(SectionDB.sectionid == sectiondetails['sectionid']).first():
+            section = SectionDB(
                 sectionid=sectiondetails['sectionid'],
                 sectionname=sectiondetails['sectionname'],
             )

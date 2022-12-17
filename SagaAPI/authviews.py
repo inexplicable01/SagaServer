@@ -6,6 +6,7 @@ from SagaAPI import db
 from SagaDB.UserModel import User,BlacklistToken, UserSections
 
 from SagaCore.Section import Section
+from SagaCore.UserSessionUtils import UserSession
 from flask import current_app
 import os
 from Config import appdatadir,worldmapid,version_num
@@ -15,19 +16,19 @@ auth_blueprint = Blueprint('auth', __name__)
 CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
 
 
-def buildreturndata(user:User, sectionnames, sectionids, version_num):
-    return {'user_id': user.id,
-                        'email': user.email,
-                        'admin': user.admin,
-                        'registered_on': user.registered_on.timestamp(),
-                        'first_name': user.first_name,
-                        'current_sectionname': user.currentsection.sectionname,
-                        'current_sectionid': user.currentsection.sectionid,
-                        'sectionname_list':sectionnames,
-                        'sectionid_list': sectionids,
-                        'last_name': user.last_name,
-                        'version_num': version_num
-                    }
+# def buildreturndata(user:User, sectionnames, sectionids, version_num):
+#     return {'user_id': user.id,
+#                         'email': user.email,
+#                         'admin': user.admin,
+#                         'registered_on': user.registered_on.timestamp(),
+#                         'first_name': user.first_name,
+#                         'current_sectionname': user.currentsection.sectionname,
+#                         'current_sectionid': user.currentsection.sectionid,
+#                         'sectionname_list':sectionnames,
+#                         'sectionid_list': sectionids,
+#                         'last_name': user.last_name,
+#                         'version_num': version_num
+#                     }
 
 
 
@@ -91,10 +92,12 @@ class RegisterAPI(MethodView):
                     sectionids.append(section.sectionid)
                     sectionnames.append(section.sectionname)
                 responseObject = {
-                    'status': 'success',
+                    'success': True,
                     'message': 'Successfully registered.',
                     'auth_token': auth_token.decode(),
                     'exptimestamp': exptimestamp,
+                    'failmessage': '',
+                    'e': None,
                 }
 
                 # print('exp' + exptimestamp)
@@ -102,15 +105,19 @@ class RegisterAPI(MethodView):
                 return resp, 201
             except Exception as e:
                 responseObject = {
-                    'status': 'fail',
+                    'success':False,
+                    'failmessage':'',
+                    'e':None,
+                    'auth_token':None,
+                    'exptimestamp':None,
                     'message': str(e) + '.  User Registration Failed'
                 }
                 resp.data = json.dumps(responseObject)
                 return resp, 401
         else:
             responseObject = {
-                'status': 'fail',
-                'message': 'User already exists. Please Log in.',
+                'success':False, 'message':'User already exists. Please Log in.', 'failmessage':'', 'e':None,
+                                 'auth_token':None, 'exptimestamp':None,
             }
             resp.data = json.dumps(responseObject)
             return resp, 202
@@ -134,44 +141,45 @@ class LoginAPI(MethodView):
             user = User.query.filter_by(
                 email=email
             ).first()
-            if user and user.password==password:
+            if not user:
+                resp.data = json.dumps({
+                    'success': False,
+                    'message': 'User does not exist.',
+                    'failmessage':'',
+                    'e':None,'auth_token':None,'exptimestamp':None
+                })
+                return resp, 401
+            elif not user.password==password:
+                resp.data = json.dumps({
+                    'success': False,
+                    'message': 'Wrong Password',
+                    'failmessage': 'Wrong Password',
+                    'e': None, 'auth_token': None, 'exptimestamp': None
+                })
+                return resp, 401
+            else:  # Getting here is equal to (user and user.password==password):
                 auth_token, exptimestamp = user.encode_auth_token(user.id)
                 if auth_token:
-                    sectionids =[]
-                    sectionnames=[]
-                    # for section in user.sections:
-                    #     sectionids.append(section.sectionid)
-                    #     sectionnames.append(section.sectionname)
+
                     signinresp = {
-                        'status': 'success',
+                        'success': True,
                         'message': 'Successfully logged in.',
-                        'auth_token': auth_token.decode(),
-                        # 'useremail': user.email,
-                        # 'first_name': user.first_name,
-                        # 'current_sectionname': user.currentsection.sectionname,
-                        # 'current_sectionid': user.currentsection.sectionid,
-                        # 'sectionname_list':sectionnames,
-                        # 'sectionid_list': sectionids,
-                        # 'last_name': user.last_name,
-                        'exptimestamp':exptimestamp,
-                        # 'version_num': version_num
+                        'failmessage': '',
+                        'e': None,
+                        'auth_token': auth_token.decode(),'exptimestamp':exptimestamp,
                     }
                     # print('exp' + exptimestamp)
                     resp.data=json.dumps(signinresp)
                     return resp , 200
-            else:
-                responseObject = {
-                    'status': 'fail',
-                    'message': 'User does not exist.'
-                }
-                resp.data = json.dumps(responseObject)
-                return resp , 404
+
         except Exception as e:
             print(e)
             responseObject = {
-                'status': 'fail',
-                'message': 'Unable to Login user. Error likely with database.'
-            }
+                'success': False,
+                'message': 'Unable to Login user. Error likely with database.',
+                    'failmessage': '',
+                    'e': e, 'auth_token': None, 'exptimestamp': None
+                }
             resp.data = json.dumps(responseObject)
             return resp, 500
 
@@ -187,11 +195,12 @@ class UserAPI(MethodView):
             try:
                 auth_token = auth_header.split(" ")[1]
             except IndexError:
-                responseObject = {
-                    'status': 'fail',
-                    'message': 'Bearer token malformed.'
-                }
-                resp.data = json.dumps(responseObject)
+                resp.data = json.dumps({
+                    'success': False,
+                     'message':'Bearer token malformed.',
+                    'failmessage':'','e':None,
+                    'usersessiondict': None,
+                })
                 return resp, 401
         else:
             auth_token = ''
@@ -204,24 +213,29 @@ class UserAPI(MethodView):
                 for section in user.sections:
                     sectionids.append(section.sectionid)
                     sectionnames.append(section.sectionname)
-                responseObject = {
-                    'status': 'success',
-                    'data': buildreturndata(user, sectionnames, sectionids, version_num),
-                }
-                resp.data = json.dumps(responseObject)
+
+                ## There is probably a opportunity to catch errors here. When building sessions, build in contingencies
+                usersess = UserSession.builduserSession(user, sectionnames, sectionids, version_num)
+                resp.data = json.dumps({
+                    'success': True,
+                     'message':'Successfully retrieved user data and session',
+                    'failmessage':'','e':None,
+                    'usersessiondict': usersess.dictify(),
+                })
                 return resp, 200
-            responseObject = {
-                'status': 'fail',
-                'message': 'id not str'
-            }
-            resp.data = json.dumps(responseObject)
+            resp.data = json.dumps({
+                    'success': False,
+                     'message':'id not str',
+                    'failmessage':'','e':None,
+                    'usersessiondict': None}
+                )
             return resp, 401
         else:
-            responseObject = {
-                'status': 'fail',
-                'message': 'Provide a valid auth token.'
-            }
-            resp.data = json.dumps(responseObject)
+            resp.data = json.dumps({
+                    'success': False,
+                     'message':'Provide a valid auth token.',
+                    'failmessage':'','e':None,
+                    'usersessiondict': None})
             return resp, 401
 
     def post(self):

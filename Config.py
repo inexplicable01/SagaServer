@@ -6,8 +6,7 @@ BASE = "http://fatpanda1985.pythonanywhere.com/"
 
 version_num = 0.1
 
-# http://fatpanda1985.pythonanywhere.com/static/executable/Saga.exe
-# https://www.sagaversioncontrol.com/
+
 
 adminlogin = {'first_name':'Default',
                    'last_name':'Lee',
@@ -23,24 +22,32 @@ waichak = {'first_name':'Waichak',
 
 
 import os
+import sys
+from enum import Enum,auto
+
+
 
 # postgres_local_base = 'postgresql://postgres:@localhost/'
 database_name = 'flask_jwt_auth'
 
 ServerOrFront = 'Server'
 
-typeInput='Input'
-typeOutput='Output'
-typeRequired='Required'
 
-changenewfile = 'New File Header Added'
-changemd5 = 'MD5 Changed'
-changedate = 'Date Change Only'
-changeremoved = 'File Header Removed'
 
-SECTIONNAMEHOLDER = 'SECTIONNAMEHOLDER'
-SECTIONDIDHOLDER = 'SECTIONDIDHOLDER'
-NEEDSDOCTOR = 'NEEDSDOCTOR'
+
+# typeReference='Reference'
+# typeCommitSpecific='CommitSpecific'
+# typeContainer='Container'
+# roleUnversioned=ContainerItemRole.Unversioned.name
+# sagaworkingfiles=[CONTAINERFN,TEMPCONTAINERFN,NEWCONTAINERFN,'Main']
+# changenewfile = 'New File Header Added'
+# changemd5 = 'MD5 Changed'
+# changedate = 'Date Change Only'
+# changeremoved = 'File Header Removed'
+#
+# SECTIONNAMEHOLDER = 'SECTIONNAMEHOLDER'
+# SECTIONDIDHOLDER = 'SECTIONDIDHOLDER'
+# NEEDSDOCTOR = 'NEEDSDOCTOR'
 
 worldmapid = 'fc925b23-30b8-4d77-9310-289b85ef8eb0'
 
@@ -58,6 +65,7 @@ if 'APPFolder' in localconfig.keys():
         appdatadir = localconfig['APPFolder']
 else:
     appdatadir = os.path.abspath(os.path.dirname(__file__))
+
 
 if 'webserverdir' in localconfig.keys():
     if localconfig['webserverdir']=='here':
@@ -118,7 +126,7 @@ class ConfigClass(object):
     MAIL_USE_TLS = True
     MAIL_USE_SSL = False
     MAIL_USERNAME = 'sagaworkflow@gmail.com'
-    MAIL_PASSWORD = 'stfujimmy'
+    MAIL_PASSWORD = 'HeavenPericing01!'
     MAIL_DEBUG= True
     MAIL_DEFAULT_SENDER = 'sagaworkflow@gmail.com'
 

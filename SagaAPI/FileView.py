@@ -11,15 +11,16 @@ FILEFOLDER = current_app.config['FILEFOLDER']
 
 class FileView(Resource):
 
-    def __init__(self, appdatadir):
+    def __init__(self, appdatadir, sagacontroller):
         self.appdatadir = appdatadir
+        self.sagacontroller = sagacontroller
 
     def get(self):
         md5 = request.form['md5']
-        file_name=request.form['file_name']
+        file_name=request.form['filename']
         if os.path.exists(safe_join(self.appdatadir,FILEFOLDER,md5)):
             result = send_from_directory(safe_join(self.appdatadir,FILEFOLDER),md5)
-            result.headers['file_name'] = file_name
+            result.headers['filename'] = file_name
             result.headers['status'] = 'Success'
             return result
         else:

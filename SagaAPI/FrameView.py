@@ -24,8 +24,9 @@ class FrameView(Resource):
     # Being able to do this is a core ability of SAGA.
     # So it should be managed with related containers and frames in mind, which is why its managed somewhere else
     # However there are occasions where you need individual frame resourses which is provided here.
-    def __init__(self, appdatadir):
+    def __init__(self, appdatadir, sagacontroller):
         self.appdatadir = appdatadir
+        self.sagacontroller = sagacontroller
 
     def latestRev(self, path):
         revnum = 0;

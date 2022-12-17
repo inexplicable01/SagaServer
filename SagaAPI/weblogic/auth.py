@@ -35,18 +35,19 @@ def register():
             last_name = request.form['last_name']
             sectionid = request.form['sectionid']
 
-            error = None
+            complications = None
             if not email:
-                error = 'Username is required.'
+                complications = 'Username is required.'
             elif not password:
-                error = 'Password is required.'
+                complications = 'Password is required.'
             elif User.query.filter_by(email=email).first() is not None:
-                error = 'email {} is already registered.'.format(email)
+                complications = 'email {} is already registered.'.format(email)
 
             if "NewSection"==sectionid:
                 section_name = request.form['sectionname']
                 description = request.form['sectiondescription']
-                newsection = Section.CreateNewSection(section_name, description= description)
+                newsection = Section.CreateNewSection(section_name=section_name, description= description,
+                                                      appdatadir=appdatadir, useremail = email)
                 sectionid = newsection.sectionid
                 section_name = newsection.sectionname
             else:
@@ -54,7 +55,7 @@ def register():
                 cursection = Section.LoadSectionyaml(sectionyaml)
                 section_name =cursection.sectionname
 
-            if error is None:
+            if complications is None:
                 user = User(
                     email=email,
                     password=password,
@@ -66,7 +67,7 @@ def register():
                 db.session.add(user)
                 db.session.commit()
                 return redirect(url_for('auth_web.login'))
-            flash(error)
+            flash(complications)
         except Exception as e:
             with open('registerError.txt', 'a+') as errorfile:
                 # errorfile.write(datetime.utcnow().isoformat() + ': Container: ' + request.form.get('containerID') +'\n')

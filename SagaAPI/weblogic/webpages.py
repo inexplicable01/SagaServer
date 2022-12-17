@@ -1,8 +1,5 @@
-from flask import Blueprint, current_app, g, render_template, safe_join
-import os
-from Config import appdatadir
-from glob import glob
-from SagaCore.Container import Container
+from flask import Blueprint, current_app, g, render_template
+from SagaServerOperations.SagaController import SagaController
 # from SagaApp.db import get_db
 # from SagaApp.ContainerView import ContainerView
 
@@ -25,18 +22,7 @@ def details():
     containerinfolist = {}
     if g.user is not None:
         sectionid = g.user.currentsectionid
-        for containerid in os.listdir(safe_join(appdatadir, CONTAINERFOLDER, sectionid)):
-            containerfn = safe_join(appdatadir, CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml')
-            if os.path.exists(containerfn):
-                curcont = Container.LoadContainerFromYaml(containerfn, sectionid)
-                containerinfolist[containerid] = {'ContainerDescription': curcont.containerName,
-                                                  'branches': []}
-                for branch in os.listdir(safe_join(appdatadir, CONTAINERFOLDER, sectionid, containerid)):
-                    if os.path.isdir(safe_join(appdatadir, CONTAINERFOLDER, sectionid, containerid, branch)):
-                        containerinfolist[containerid]['branches'].append({'name': branch,
-                                                                           'revcount': len(glob(
-                                                                               safe_join(appdatadir, CONTAINERFOLDER, sectionid,
-                                                                                         containerid, branch, '*')))})
+        containerinfolist = SagaController.getContainersBySectionid(sectionid)
 
     return render_template('details.html', containerinfolist=containerinfolist.keys())
 

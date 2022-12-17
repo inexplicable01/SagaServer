@@ -15,8 +15,9 @@ FILEFOLDER = current_app.config['FILEFOLDER']
 
 class UserView(Resource):
 
-    def __init__(self, appdatadir):
+    def __init__(self, appdatadir, sagacontroller):
         self.appdatadir = appdatadir
+        self.sagacontroller = sagacontroller
 
     def get(self, command=None):
         authcheckresult = authcheck(request.headers.get('Authorization'))
@@ -38,7 +39,7 @@ class UserView(Resource):
             for containerid in os.listdir(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid)):
                 containerfn = safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml')
                 if os.path.exists(containerfn):
-                    curcont = Container.LoadContainerFromYaml(containerfn, sectionid)
+                    curcont = self.sagacontroller.provideContainer(sectionid,containerid)
                     usercontainerinfo['usercontainers'][containerid] = curcont.containerName
             # resp.data = json.dumps(usercontainerinfo)
             return make_response(jsonify(usercontainerinfo))
@@ -46,12 +47,16 @@ class UserView(Resource):
             sectioninfo={}
             for section in user.sections:
                 sectionyamlfn = os.path.join(appdatadir, 'Container', section.sectionid, 'sectionstate.yaml')
+                if not os.path.exists(sectionyamlfn):
+                    continue  ## ATTENTION Require bug fix.
                 with open(sectionyamlfn, 'r') as yml:
                     sectionyaml = yaml.load(yml, Loader=yaml.FullLoader)
-                # print(sectionyaml)
                 sectioninfo[section.sectionid] = sectionyaml
-            returndict = {'sectioninfo':sectioninfo, 'currentsection':user.currentsection.sectionname}
-            return make_response(jsonify(returndict))
+            resp.data=json.dumps({'success':True, 'message':'', 'failmessage':'', 'e':None,
+                'sectioninfo':sectioninfo, 'currentsection':user.currentsection.sectionname
+            })
+            return resp
+
         elif "checkcontainerpermissions" == command:
             containerid = request.form['containerid']
             # check if containerID exists in user's currention section
@@ -59,21 +64,41 @@ class UserView(Resource):
                 # search if this container exists in any of the other sections
                 for section in user.sections:
                     if os.path.exists(safe_join(self.appdatadir, CONTAINERFOLDER, section.sectionid, containerid)):
-                        resp.headers[
-                            'message'] = "User currently in section " + user.currentsection.sectionname + \
+
+                        resp.data = json.dumps({'success':True,
+                            'message': "User currently in section " + user.currentsection.sectionname + \
                                         ". User section need to switch to " + section.sectionname + \
-                                         " for container " + containerid
-                        resp.data = json.dumps(
-                            {'sectionid': section.sectionid, 'containerid': containerid, 'goswitch': True})
+                                         " for container " + containerid,
+                                                'sectionid': section.sectionid,
+                                                'containerid': containerid,
+                                                'failmessage': '', 'e': None,
+                                                'goswitch': True})
                         return resp
-                resp.headers['message'] =  "Container ID " + containerid + "does not exist in any section that the user is allowed to access"
-                resp.data = json.dumps({'sectionid':None, 'containerid':containerid, 'goswitch':False})
+
+                resp.data = json.dumps({'success':True,
+                    'message':"Container ID " +
+                                                  containerid +
+                                                  "does not exist in any section "
+                                                  "that the user is allowed to access",
+                    'sectionid':None,
+                                        'failmessage':'', 'e':None,
+                                        'containerid':containerid,
+                                        'goswitch':False})
+                # it is a success either way because the answer is given.  Should give fails is there is error.
+                # Success is probably not an universal variable and front end should just do error check instead.
+                # Success should only be returned when there is a special condition that fail like some sort of application.
+                # Success should only exist between the front end API layer and the application layer.
+
                 return resp
 
             else:
                 # With the containerid supplied, the user current section is supplied, no switching needed
-                resp.data = json.dumps({'sectionid':user.currentsection.sectionid , 'containerid':containerid, 'goswitch':False})
-                resp.headers['message'] = "User section currently in " + user.currentsection.sectionid  + " and  it containers " + containerid
+                resp.data = json.dumps(
+                    {'sectionid':user.currentsection.sectionid ,
+                     'containerid':containerid,
+                     'goswitch':False,'failmessage':'', 'e':None,'success':True,
+                     'message': "User section currently in " + user.currentsection.sectionid  + " and  it containers " + containerid})
+
                 return resp
 
     def post(self, command=None):
@@ -90,16 +115,17 @@ class UserView(Resource):
 
             newsectionid = request.form['newsectionid']
             # print(newsectionid)
-            report = user.switchToSection(newsectionid)##ATTENTION Wrote hack code to add
+            success, message = user.switchToSection(newsectionid)##ATTENTION Wrote hack code to add
             # user to section even if they didn't have it
             db.session.commit()
             user = User.query.filter(User.id == user.id).first()# Is this really necessary?
-            resp.data=json.dumps({'report':report,'usersection':user.currentsection.sectionname})
-            resp.headers["status"] = "Switch Success"
+            resp.data=json.dumps({'success':success,
+                                  'message':message,
+                                  'failmessage':'',
+                                  'e':None,
+                                  'sectionname':user.currentsection.sectionname})
             return resp
-        #
-        # elif "addusertosection"==command:
-        #     report = user.addToSection(newsectionid)
+
 
 
 

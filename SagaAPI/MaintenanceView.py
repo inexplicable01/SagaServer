@@ -4,12 +4,14 @@ from flask import Flask,flash, request, redirect, url_for,send_from_directory , 
 from flask_restful import Api, Resource
 import zipfile
 import shutil
-from SagaCore.Container import Container, recursivecompare
+from SagaCore.Container import Container
+from SagaCore.SagaUtil import *
 from SagaCore.Section import Section
 from SagaCore.Frame import Frame
 from SagaAPI import db
 from SagaDB.UserModel import User, Role
 from SagaDB.FileRecordModel import FileRecord
+from SagaServerOperations.SagaServerContainerOperations import *
 from flask import current_app
 import re
 import glob
@@ -23,8 +25,9 @@ FILEFOLDER = current_app.config['FILEFOLDER']
 
 class MaintenanceView(Resource):
 
-    def __init__(self, appdatadir):
+    def __init__(self, appdatadir, sagacontroller):
         self.appdatadir = appdatadir
+        self.sagacontroller = sagacontroller
 
     def get(self, command=None):
 
@@ -34,11 +37,11 @@ class MaintenanceView(Resource):
                 for containerid in os.listdir(join(self.appdatadir, CONTAINERFOLDER,sectionid)):
                     yamlfn = join(self.appdatadir, CONTAINERFOLDER,sectionid, containerid, 'containerstate.yaml')
                     if os.path.exists(yamlfn):
-                        cont = Container.LoadContainerFromYaml(yamlfn, sectionid)
+                        cont = self.sagacontroller.provideContainer(sectionid,containerid)
                         print(cont.containerId)
                         yamllist = glob.glob(join(self.appdatadir, CONTAINERFOLDER,sectionid, containerid,'Main', 'Rev*.yaml'))
                         for yamlframefn in yamllist:
-                            pastframe = Frame.loadFramefromYaml(yamlframefn, None)
+                            pastframe = Frame.loadRefFramefromYaml(yamlframefn, join(self.appdatadir, CONTAINERFOLDER,sectionid, containerid))
                             revnum = re.findall('Rev(\d+).yaml', os.path.basename(yamlframefn))
                             revnum = int(revnum[0])
                             for fileheader, filetrack in pastframe.filestrack.items():
@@ -85,7 +88,7 @@ class MaintenanceView(Resource):
                     for containerid in os.listdir(join(self.appdatadir, CONTAINERFOLDER, sectionid)):
                         yamlfn = join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml')
                         if os.path.exists(yamlfn):
-                            cont = Container.LoadContainerFromYaml(yamlfn, sectionid)
+                            cont = self.sagacontroller.provideContainer(sectionid, containerid)
                             dictinfo[sectionid]['sectioncondtiondict'][containerid] = {
                                 'contdict':cont.dictify(),
                             'framelist':{}
@@ -94,7 +97,7 @@ class MaintenanceView(Resource):
                             yamllist = glob.glob(
                                 join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid, 'Main', 'Rev*.yaml'))
                             for yamlframefn in yamllist:
-                                pastframe = Frame.loadFramefromYaml(yamlframefn, None)
+                                pastframe = Frame.loadRefFramefromYaml(yamlframefn,  join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid))
                                 revnum = re.findall('Rev(\d+).yaml', os.path.basename(yamlframefn))
                                 revnum = int(revnum[0])
                                 dictinfo[sectionid]['sectioncondtiondict'][containerid]['framelist'][revnum] = pastframe.dictify()
@@ -120,7 +123,7 @@ class MaintenanceView(Resource):
                     for containerid in os.listdir(join(self.appdatadir, CONTAINERFOLDER, sectionid)):
                         yamlfn = join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml')
                         if os.path.exists(yamlfn):
-                            cont = Container.LoadContainerFromYaml(yamlfn, sectionid)
+                            cont = self.sagacontroller.provideContainer(sectionid, containerid)
 
 
 
@@ -170,7 +173,7 @@ class MaintenanceView(Resource):
                         localcont = Container.LoadContainerFromDict(containerdict['contdict'], environ='Server',
                                                                sectionid=sectionid)
                         if os.path.exists(join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid,'containerstate.yaml')):
-                            servercont = Container.LoadContainerFromYaml(join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid,'containerstate.yaml'), sectionid)
+                            servercont = self.sagacontroller.provideContainer(sectionid, containerid)
                         else:
                             try:
                                 os.mkdir(join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid))
@@ -181,7 +184,6 @@ class MaintenanceView(Resource):
                         identical, diff = recursivecompare(servercont.dictify(), containerdict['contdict'])
                         if not identical:
                             comparesummary[containerid] = diff
-                        # cont.save(environ='Server')
                         print(sectionid, sectioninfo['sectiondict']['sectionname'], containerid)
                         print(containerdict['contdict'])
                         # os.mkdir(join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid, 'Main'))
@@ -191,9 +193,8 @@ class MaintenanceView(Resource):
                             framefn =join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid, 'Main',
                                                                                'Rev' + str(revnum) + '.yaml')
                             if os.path.exists(framefn):
-                                serverframe=Frame.loadFramefromYaml(framefn)
+                                serverframe=self.sagacontroller.provideFrame(sectionid, containerid, 'Rev' + str(revnum) + '.yaml')
                             else:
-                                # os.mkdir(join(self.appdatadir, CONTAINERFOLDER, sectionid, containerid))
                                 localframe.writeoutFrameYaml(framefn)
                             identical, diff = recursivecompare(serverframe.dictify(), framdict)
                             if not identical:

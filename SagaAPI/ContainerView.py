@@ -11,8 +11,8 @@ import re
 from SagaDB.UserModel import User
 from SagaAPI.SagaAPI_Util import authcheck
 from flask import current_app
-from SagaCore.SagaUtil import getFramebyRevnum
-
+from SagaCore.SagaUtil import getFramePathbyRevnum
+from SagaServerOperations.SagaServerContainerOperations import fullFrameHistory
 
 CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
 FILEFOLDER = current_app.config['FILEFOLDER']
@@ -29,8 +29,9 @@ class ContainerView(Resource):
                 latestrev = fn
         return latestrev, revnum
 
-    def __init__(self, appdatadir):
+    def __init__(self, appdatadir, sagacontroller):
         self.appdatadir = appdatadir
+        self.sagacontroller=sagacontroller
 
     def get(self, command=None):
         authcheckresult = authcheck(request.headers.get('Authorization'))
@@ -51,14 +52,16 @@ class ContainerView(Resource):
             if os.path.exists(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid, containerID)):
                 latestrevfn, revnum = self.latestRev(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid, containerID, branch))
                 # result = send_from_directory(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid, containerID), 'containerstate.yaml' )
-                cont = Container.LoadContainerFromYaml(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid, containerID, 'containerstate.yaml'), sectionid)
+                cont = self.sagacontroller.provideContainer(sectionid, containerID)
+
                 resp.headers['file_name'] = 'containerstate.yaml'
                 resp.headers['branch'] = branch
                 resp.headers['revnum'] = str(revnum)
                 resp.data = json.dumps({
-                    "response":'Container Retrieved',
+                    'success':True,  'failmessage':'', 'e':None,
+                    "message":'Container Retrieved',
                     'containerdict':  cont.dictify(),
-                    'fullframelist':cont.fullFrameHistory(),
+                    'fullframelist': fullFrameHistory(cont), 'revnum':revnum
                 })
                 return resp
             else:
@@ -66,21 +69,9 @@ class ContainerView(Resource):
                 sect = Section.LoadSectionyaml(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, 'sectionstate.yaml'))
                 return {"response": "Invalid Container ID" , "searchedSection":sect.dictify()}
         elif command=="List":
-            containerinfolist = {}
-            for containerid in os.listdir(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid)):
-                if not os.path.exists(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid,containerid,'containerstate.yaml')):
-                    continue
-                curcont = Container.LoadContainerFromYaml(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid,containerid,'containerstate.yaml'), sectionid)
-                containerinfolist[containerid] = {'ContainerDescription': curcont.containerName,
-                                         'branches':[],
-                                                  'containerdict':curcont.dictify()}
-                for branch in os.listdir(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid,containerid)):
-                    if os.path.isdir(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid,containerid,branch)):
-                        containerinfolist[containerid]['branches'].append({'name': branch,
-                                                                    'revcount':len(glob(safe_join(self.appdatadir, CONTAINERFOLDER,sectionid,containerid,branch,'*')))})
-
-            resp.headers["response"] = "returnlist"
-            resp.data = json.dumps(containerinfolist)
+            containerinfolist = self.sagacontroller.getContainersBySectionid(sectionid)
+            resp.data = json.dumps({'success':True, 'message':"returnlist", 'failmessage':'',
+                                    'e':None,'containerinfodict':containerinfolist})
             return resp
 
         elif command=="tester":
@@ -106,9 +97,8 @@ class ContainerView(Resource):
             if not os.path.exists(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, maincontainerid, 'containerstate.yaml')):
                 resp.data = json.dumps(newestframedict)
                 return resp
-            # framefullpath, latestrevnum = getFramebyRevnum(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, maincontainerid, 'Main'),0)
-            filepath = safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, maincontainerid, 'containerstate.yaml')
-            cont = Container.LoadContainerFromYaml(filepath, sectionid)
+
+            cont = self.sagacontroller.provideContainer(sectionid,maincontainerid)
             newestframedict= {'framedict':cont.workingFrame.dictify(),
                                   'newestrevnum':cont.revnum
             }
@@ -125,9 +115,11 @@ class ContainerView(Resource):
                 containerid = os.path.basename(containeridpath)
                 if not os.path.exists(os.path.join(containeridpath, 'containerstate.yaml')):
                     continue
-                framefullpath, latestrevnum = getFramebyRevnum(safe_join(containeridpath, 'Main'),0)
+                framefullpath, latestrevnum = getFramePathbyRevnum(safe_join(containeridpath, 'Main'),0)
                 latestrevdict[containerid] = {'newestrevnum':latestrevnum}
-            resp.data=json.dumps(latestrevdict)
+            resp.data=json.dumps({'success':True, 'message':'', 'failmessage':'', 'e':None,
+                'latestrevdict':latestrevdict,
+            })
             return resp
         else:
             resp = make_response()

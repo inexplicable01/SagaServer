@@ -5,13 +5,13 @@ from SagaCore.Container import Container
 from SagaDB.UserModel import User
 from flask import current_app
 import json
-from Config import typeInput, typeOutput, typeRequired
+# from Config import roleInput, roleOutput, roleRequired
 from SagaAPI.SagaAPI_Util import authcheck
 from SagaCore.Frame import Frame
 import shutil
 from datetime import datetime
 import traceback
-from SagaCore.SagaOp import SagaOp
+
 
 Rev='Rev'
 CONTAINERFOLDER = current_app.config['CONTAINERFOLDER']
@@ -19,11 +19,11 @@ FILEFOLDER = current_app.config['FILEFOLDER']
 
 class PingView(Resource):
 
-    def __init__(self, appdatadir, webserverdir,sagauserdb):
+    def __init__(self, appdatadir, webserverdir,sagauserdb, sagacontroller):
         self.appdatadir = appdatadir
         self.webserverdir=webserverdir
         self.sagauserdb= sagauserdb
-        self.sagaop = SagaOp(appdatadir)
+        self.sagacontroller = sagacontroller
 
     def post(self, command=None):
 
@@ -40,11 +40,9 @@ class PingView(Resource):
             fileheader = request.form['fileheader']
             upstreamcontid = request.form['downstreamcontainerid']
             downstreamid = request.form['upstreamcontainerid']
-            upstreamcont = Container.LoadContainerFromYaml(
-                safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, upstreamcontid, 'containerstate.yaml'), sectionid)
-            downstreamcont = Container.LoadContainerFromYaml(
-                safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, downstreamid, 'containerstate.yaml'), sectionid)
-            self.sagaop.PingDownstreamContainerToUpdateInputs( fileheader=fileheader,
+            upstreamcont = self.sagacontroller.provideContainer(sectionid,upstreamcontid)
+            downstreamcont = self.sagacontroller.provideContainer(sectionid,downstreamid)
+            self.sagacontroller.PingDownstreamContainerToUpdateInputs( fileheader=fileheader,
                                                                 downstreamcont=downstreamcont ,
                                                                curcont=upstreamcont, user=user, filetrack=upstreamcont.refframe.filestrack[fileheader],
                                                                commitmsg=upstreamcont.refframe.commitMessage,

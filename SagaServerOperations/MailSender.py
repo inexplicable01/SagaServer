@@ -2,7 +2,8 @@
 from flask_mail import Message,Mail
 from flask import current_app
 from SagaCore.Container import Container
-from SagaCore.FileObjects import FileTrack
+from SagaCore.Section import Section
+from SagaCore.Track import FileTrack
 from datetime import datetime
 from SagaDB.UserModel import User
 
@@ -59,6 +60,19 @@ class MailSender():
         # msg.html = "<b>emailcontent</b>"
         self.mail.send(msg)
 
+    def sectionAddNonSagaUser(self,email, sect:Section, inviteruser:User):
+        title = "Notice: You have been invited to a Project in Saga , " + sect.sectionname
+        msg = Message(title,
+                      recipients=[email])
+        emailcontent = title + '\n'
+        emailcontent = emailcontent + 'You have been invited to a Saga project ' + sect.sectionname + '\n'
+
+        emailcontent = emailcontent + 'User ' + inviteruser.first_name + ' ' + inviteruser.last_name + ' added you \n'
+
+        msg.body = emailcontent
+        # msg.html = "<b>emailcontent</b>"
+        self.mail.send(msg)
+
     def containerAddNonSagaUser(self,email, cont:Container, sourceuser: User, timestamp):
         title = "Notice:  You have been added contributor to the Container " + cont.containerName
         msg = Message(title,
@@ -82,7 +96,10 @@ class MailSender():
             emailcontent = emailcontent + 'Committed By ' + content['committedby'] + ' on ' + content['committime'] + '\n'
             emailcontent = emailcontent + ' The Commit Message : ' + content['commitmessage'] +  '\n'
             for fileheader, filetrack in content['updatedfiles'].items():
-                emailcontent = emailcontent + ' Filehandle  ' + fileheader + ' : ' + filetrack.file_name + ' is updated \n'
+                if type(filetrack)==FileTrack:
+                    emailcontent = emailcontent + ' Filehandle  ' + fileheader + ' : ' + filetrack.filename + ' is updated \n'
+                else:
+                    emailcontent = emailcontent + ' Filehandle  ' + fileheader + ' : ' + filetrack.folderpath + ' is updated \n'
 
 
             msg.body = emailcontent
@@ -95,7 +112,10 @@ class MailSender():
             emailcontent = emailcontent + 'Committed By ' + content['committedby'] + ' on ' + content['committime'] + '\n'
             emailcontent = emailcontent + ' The Commit Message : ' + content['commitmessage'] +  '\n'
             for fileheader, filetrack in content['updatedfiles'].items():
-                emailcontent = emailcontent + ' Filehandle  ' + fileheader + ' : ' + filetrack.file_name + ' is updated \n'
+                if type(filetrack)==FileTrack:
+                    emailcontent = emailcontent + ' File  ' + fileheader + ' : ' + filetrack.entity + ' is updated \n'
+                else:
+                    emailcontent = emailcontent + ' Folder  ' + fileheader + ' : ' + filetrack.entity + ' is updated \n'
 
             msg.body = emailcontent
             # msg.html = "<b>emailcontent</b>"

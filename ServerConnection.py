@@ -1,5 +1,5 @@
 import requests
-from Config import BASE, adminlogin,waichak
+from Config import BASE, waichak
 import re
 import glob
 import json
@@ -10,8 +10,11 @@ import warnings
 from SagaCore.Container import Container
 from SagaCore.Section import Section
 from SagaCore.Frame import Frame
+from SagaServerOperations.SagaController import SagaController
+
 from os.path import join
 from Config import appdatadir
+# from SagaServerOperations.SagaServerContainerOperations import ContainerServerSave
 PYTHONANYWHERE = "http://fatpanda1985.pythonanywhere.com/"
 # PYTHONANYWHERE = BASE
 data = {"email": waichak['email'],
@@ -100,7 +103,7 @@ def pushToServer(authtoken):
             for containerid in os.listdir(os.path.join(appdatadir,CONTAINERFOLDER, sectionid)):
                 yamlfn = os.path.join(appdatadir,CONTAINERFOLDER, sectionid, containerid, 'containerstate.yaml')
                 if os.path.exists(yamlfn):
-                    cont = Container.LoadContainerFromYaml(yamlfn)
+                    cont = SagaController.provideContainer(sectionid, containerid)
                     dictinfo[sectionid]['sectioncondtiondict'][containerid] = {
                         'contdict': cont.dictify(),
                         'framelist': {}
@@ -108,7 +111,7 @@ def pushToServer(authtoken):
                     yamllist = glob.glob(
                         os.path.join(appdatadir,CONTAINERFOLDER, sectionid, containerid, 'Main', 'Rev*.yaml'))
                     for yamlframefn in yamllist:
-                        pastframe = Frame.loadFramefromYaml(yamlframefn, None)
+                        pastframe = Frame.loadRefFramefromYaml(yamlframefn, os.path.join(appdatadir,CONTAINERFOLDER, sectionid, containerid))
                         revnum = re.findall('Rev(\d+).yaml', os.path.basename(yamlframefn))
                         revnum = int(revnum[0])
                         dictinfo[sectionid]['sectioncondtiondict'][containerid]['framelist'][

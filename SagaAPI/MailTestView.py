@@ -7,9 +7,10 @@ from flask import current_app
 class MailTestView(Resource):
 
 
-    def __init__(self, appdatadir):
+    def __init__(self, appdatadir, sagacontroller):
         self.appdatadir = appdatadir
         self.mail = Mail(current_app)
+        self.sagacontroller = sagacontroller
 
     def get(self):
 

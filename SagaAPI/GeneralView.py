@@ -3,7 +3,7 @@ import io
 from flask import Flask,flash, request,g, jsonify, url_for,send_from_directory , send_file, make_response, safe_join
 from flask_restful import Api, Resource
 from flask import current_app
-from SagaDB.UserModel import User, Role, UserRoles, UserSections, Section
+from SagaDB.UserModel import User, Role, UserRoles, UserSections, SectionDB
 import json
 
 from SagaAPI.SagaAPI_Util import authcheck
@@ -11,10 +11,14 @@ FILEFOLDER = current_app.config['FILEFOLDER']
 
 class GeneralView(Resource):
     # General / UpdatedInstallation
-    def __init__(self, appdatadir, webserverdir,sagauserdb):
+    def __init__(self, appdatadir, webserverdir,sagauserdb, sagacontroller):
         self.appdatadir = appdatadir
         self.webserverdir=webserverdir
         self.sagauserdb= sagauserdb
+        self.sagacontroller = sagacontroller
+
+
+
 
     def get(self, command=None):
         authcheckresult = authcheck(request.headers.get('Authorization'))
@@ -43,7 +47,7 @@ class GeneralView(Resource):
             # self.sagauserdb.updatefromdb(User=User, Role=Role, UserRoles=UserRoles, UserSections=UserSections, Section=Section)
             if writeNewYaml=='True':
                 self.sagauserdb.updatefromdb(User=User, Role=Role, UserRoles=UserRoles, UserSections=UserSections,
-                                             Section=Section)
+                                             SectionDB=SectionDB)
                 self.sagauserdb.writeoutyamlfile()
             resp.data = json.dumps(self.sagauserdb.dictify())
             return resp
