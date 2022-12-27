@@ -80,7 +80,7 @@ class SagaServerModel():
         except Exception as e:
             if os.path.exists(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, curcont.containerId, 'containerstate.yaml')):
                 os.remove(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, curcont.containerId, 'containerstate.yaml'))
-            return False,{'message': 'Error occured while saving new Frames Yaml.   Commit is canceled, and all operations are reversed.',
+            return False,None,None,None,None,None,{'message': 'Error occured while saving new Frames Yaml.   Commit is canceled, and all operations are reversed.',
                     'error': e
             }
 

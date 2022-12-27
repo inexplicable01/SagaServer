@@ -59,7 +59,7 @@ class SagaController():
         #                                           containeryamlfn=CONTAINERFN,
         #                                                        sectionid=sectionid)
         newcont = Container.LoadVirtualContainer(framedict, containerdict)
-        # newcont.workingFrame = Frame.LoadFrameFromDict(framedict)
+        # newcont.workingframe = Frame.LoadFrameFromDict(framedict)
         newcont.revnum = 1
         committime = datetime.timestamp(datetime.utcnow())
         if os.path.exists(safe_join(self.appdatadir, CONTAINERFOLDER, sectionid, newcont.containerId)):
@@ -131,7 +131,7 @@ class SagaController():
                            refframe=Frame.InitiateFrame(parentcontainerid=childcontainerid, parentcontainername=childcontainername,
                                        containerworkingfolder=containerworkingfolder),        ####ATTENTION YIKES.  This Frame initation sucks.....the childcontainerid is the frame's parentcontainer so its all over the place in terms of naming.
 
-                           workingFrame = None,
+                           workingframe = None,
                            yamlfn = CONTAINERFN,
                            parentid = parentcontainerid,
                            description=childcontainerdescription,
@@ -221,12 +221,19 @@ class SagaController():
                 'newrevfn':newrevfn,
                 'updatedfiles': updatedfiles,
                 'newcont': newcont,
+                'newframedict':newcont.refframe.dictify(),
                 'committime': committime,
                 'framecontent': newrevtxt,
-                'usernotificationsuccess':usernotificationsuccess
+                'usernotificationsuccess':usernotificationsuccess,
             }
         else:
-            return False, {}
+            return False, {                'newrevfn':None,
+                'updatedfiles': None,
+                'newcont': None,
+                'newframedict':None,
+                'committime': None,
+                'framecontent': None,
+                'usernotificationsuccess':None,}
 
     def hackassSectionuserfix(self,sect, sectiondb):
         ## Assumes sectiondb is not none

@@ -99,7 +99,7 @@ class ContainerView(Resource):
                 return resp
 
             cont = self.sagacontroller.provideContainer(sectionid,maincontainerid)
-            newestframedict= {'framedict':cont.workingFrame.dictify(),
+            newestframedict= {'framedict':cont.workingframe.dictify(),
                                   'newestrevnum':cont.revnum
             }
             resp.data=json.dumps(newestframedict)

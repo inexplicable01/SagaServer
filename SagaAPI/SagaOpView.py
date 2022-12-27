@@ -66,16 +66,18 @@ class SagaOperationsView(Resource):
                     #     commitreport['newrevfn'])
                     resp.data = json.dumps({
                         'success':success,
-                        'yamlframefn': commitreport['newrevfn'],
+                        'newrevfn': commitreport['newrevfn'],
                         'framecontent': commitreport['framecontent'],
+                        'newframedict': commitreport['newframedict'],
                         'message':'', 'failmessage':'', 'e':None
                     })
                     return resp
                 else:
                     resp.data = json.dumps({
                         'success':False,
-                        'yamlframefn': commitreport['newrevfn'],
+                        'newrevfn': commitreport['newrevfn'],
                         'framecontent': commitreport['framecontent'],
+                        'newframedict': commitreport['newframedict'],
                         'message': '', 'failmessage': '', 'e': None
                     })
                     return resp, 401
